@@ -1,0 +1,9 @@
+version: 1
+
+metadata:
+  id: memox-state-management
+  name: MemoX State Management Rules
+  description: Project-specific state management rules for MemoX.
+  owner: code-verification-guard
+
+rules: []

@@ -1,0 +1,53 @@
+version: 1
+
+metadata:
+  id: java-rules
+  name: Java Rules
+  description: Rules for Java source code.
+  owner: code-verification-guard
+
+rules:
+  - id: java.no_system_out_println
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not use System.out.println in Java production code. Use a logger.
+    scopes:
+      - java_source
+    patterns:
+      - "\\bSystem\\.out\\.println\\s*\\("
+    tags:
+      - java
+      - logging
+    fix:
+      hint: Use a project logger instead of System.out.println.
+
+  - id: java.no_empty_catch
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not leave empty catch blocks.
+    scopes:
+      - java_source
+    patterns:
+      - "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
+    tags:
+      - java
+      - error-handling
+    fix:
+      hint: Handle the exception or document why it is intentionally ignored.
+
+  - id: java.no_field_injection
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid field injection. Prefer constructor injection.
+    scopes:
+      - java_source
+    patterns:
+      - "@Autowired\\s*(\\r?\\n\\s*)?(private|protected|public)?\\s+"
+    tags:
+      - java
+      - dependency-injection
+    fix:
+      hint: Move dependencies to constructor parameters.

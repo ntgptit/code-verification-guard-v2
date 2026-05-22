@@ -1,0 +1,46 @@
+version: 1
+
+metadata:
+  id: memox-ui
+  name: MemoX UI Rules
+  description: Project-specific UI rules for MemoX.
+  owner: code-verification-guard
+
+rules:
+  - id: memox.no_raw_card
+    type: regex
+    severity: error
+    enabled: true
+    message: MemoX must not use Card directly. Use AppCard.
+    scopes:
+      - flutter_source
+    exclude:
+      - "lib/core/widgets/**"
+      - "lib/shared/widgets/**"
+    patterns:
+      - "\\bCard\\s*\\("
+    tags:
+      - memox
+      - ui
+      - design-system
+    fix:
+      hint: Replace raw Card usage with AppCard.
+
+  - id: memox.no_async_value_when
+    type: regex
+    severity: error
+    enabled: true
+    message: MemoX must not use AsyncValue.when directly. Use AppAsyncBuilder.
+    scopes:
+      - flutter_source
+    exclude:
+      - "lib/core/widgets/**"
+      - "lib/shared/widgets/**"
+    patterns:
+      - "\\.when\\s*\\("
+    tags:
+      - memox
+      - ui
+      - state
+    fix:
+      hint: Wrap AsyncValue rendering with AppAsyncBuilder.

@@ -1,0 +1,42 @@
+version: 1
+
+metadata:
+  id: python-scopes
+  name: Python Scopes
+
+scopes:
+  python_source:
+    include:
+      - "**/*.py"
+    exclude:
+      - "**/.venv/**"
+      - "**/__pycache__/**"
+      - "**/build/**"
+      - "**/dist/**"
+      - "**/*.egg-info/**"
+
+  python_production_source:
+    include:
+      - "code_verification_guard/**/*.py"
+      - "src/**/*.py"
+      - "guard/**/*.py"
+    exclude:
+      - "**/tests/**"
+      - "**/.venv/**"
+      - "**/__pycache__/**"
+      - "**/build/**"
+      - "**/dist/**"
+      - "**/*.egg-info/**"
+      - "**/reporters/**"
+
+  python_guard_source:
+    include:
+      - "code_verification_guard/**/*.py"
+      - "guard/**/*.py"
+    exclude:
+      - "**/tests/**"
+      - "**/.venv/**"
+      - "**/__pycache__/**"
+      - "**/build/**"
+      - "**/dist/**"
+      - "**/*.egg-info/**"

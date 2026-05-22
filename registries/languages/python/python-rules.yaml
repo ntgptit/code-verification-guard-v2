@@ -1,0 +1,118 @@
+version: 1
+
+metadata:
+  id: python-rules
+  name: Python Rules
+  description: Rules for Python source code.
+  owner: code-verification-guard
+
+rules:
+  - id: python.no_bare_except
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not use bare except. Catch specific exceptions.
+    scopes:
+      - python_source
+    patterns:
+      - "^\\s*except\\s*:\\s*$"
+    tags:
+      - python
+      - error-handling
+    fix:
+      hint: Catch a concrete exception type.
+
+  - id: python.no_print_in_src
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid print statements in source code. Use a logger.
+    scopes:
+      - python_production_source
+    patterns:
+      - "(?<![\\w.])print\\s*\\("
+    tags:
+      - python
+      - logging
+    fix:
+      hint: Use the project logger for runtime output.
+
+  - id: python.no_magic_number
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid magic numbers. Extract them to constants if they have business meaning.
+    scopes:
+      - python_guard_source
+    exclude:
+      - "**/constants/**"
+    patterns:
+      - "(?<![\\w.])\\d{2,}(?![\\w.])"
+    tags:
+      - python
+      - maintainability
+    fix:
+      hint: Move meaningful numeric literals to named constants.
+
+  - id: python.no_repeated_config_key_string
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw config key strings. Use ConfigKeys instead.
+    scopes:
+      - python_guard_source
+    exclude:
+      - "**/constants/**"
+    patterns:
+      - "['\"](project|rule_sets|registries|rules|type|severity|message|include|exclude|patterns|failure|fail_on|warning_as_error)['\"]"
+    tags:
+      - python
+      - configuration
+    fix:
+      hint: Replace raw config key strings with ConfigKeys constants.
+
+  - id: python.missing_function_docstring
+    type: python_docstring
+    severity: error
+    enabled: true
+    message: Missing function or method docstring.
+    scopes:
+      - python_guard_source
+    node_types:
+      - function
+      - async_function
+    tags:
+      - python
+      - documentation
+    fix:
+      hint: Add a concise docstring to the function or method.
+
+  - id: python.missing_class_docstring
+    type: python_docstring
+    severity: error
+    enabled: true
+    message: Missing class docstring.
+    scopes:
+      - python_guard_source
+    node_types:
+      - class
+    tags:
+      - python
+      - documentation
+    fix:
+      hint: Add a concise docstring to the class.
+
+  - id: python.missing_module_docstring
+    type: python_docstring
+    severity: error
+    enabled: true
+    message: Missing module docstring.
+    scopes:
+      - python_guard_source
+    node_types:
+      - module
+    tags:
+      - python
+      - documentation
+    fix:
+      hint: Add a module docstring at the top of the file.

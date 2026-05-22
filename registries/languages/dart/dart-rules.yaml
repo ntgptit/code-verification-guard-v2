@@ -1,0 +1,37 @@
+version: 1
+
+metadata:
+  id: dart-rules
+  name: Dart Rules
+  description: Rules for Dart source code.
+  owner: code-verification-guard
+
+rules:
+  - id: dart.file_snake_case
+    type: file_name
+    severity: error
+    enabled: true
+    message: Dart file names must use snake_case.
+    scopes:
+      - dart_source
+    pattern: "^[a-z0-9_]+\\.dart$"
+    tags:
+      - dart
+      - naming
+    fix:
+      hint: Rename Dart files to snake_case.
+
+  - id: dart.no_dynamic_usage
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid using dynamic. Use a specific type when possible.
+    scopes:
+      - dart_lib
+    patterns:
+      - "\\bdynamic\\b"
+    tags:
+      - dart
+      - typing
+    fix:
+      hint: Replace dynamic with a concrete type or generic parameter.

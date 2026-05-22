@@ -1,0 +1,17 @@
+version: 1
+
+profile:
+  name: ci
+
+failure:
+  fail_on:
+    - error
+  warning_as_error: true
+
+overrides:
+  disabled_rules: []
+
+  severity:
+    python.no_print_in_src: error
+
+  rule_options: {}

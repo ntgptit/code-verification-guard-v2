@@ -1,0 +1,68 @@
+version: 1
+
+metadata:
+  id: memox-architecture
+  name: MemoX Architecture Rules
+  description: Project-specific architecture rules for MemoX.
+  owner: code-verification-guard
+
+rules:
+  - id: memox.domain_no_flutter_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The domain layer must not import Flutter packages.
+    include:
+      - "lib/features/**/domain/**/*.dart"
+    patterns:
+      - "package:flutter/"
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Keep domain code framework-independent.
+
+  - id: memox.domain_no_data_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The domain layer must not import the data layer.
+    include:
+      - "lib/features/**/domain/**/*.dart"
+    patterns:
+      - "/data/"
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Depend on domain abstractions instead of data implementations.
+
+  - id: memox.domain_no_presentation_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The domain layer must not import the presentation layer.
+    include:
+      - "lib/features/**/domain/**/*.dart"
+    patterns:
+      - "/presentation/"
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Move shared contracts into the domain layer.
+
+  - id: memox.presentation_no_data_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The presentation layer must not import the data layer directly.
+    include:
+      - "lib/features/**/presentation/**/*.dart"
+    patterns:
+      - "/data/"
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Access data through application services or use cases.

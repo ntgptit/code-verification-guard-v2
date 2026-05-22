@@ -1,0 +1,42 @@
+version: 1
+
+metadata:
+  id: react-rules
+  name: React Rules
+  description: Rules for React components.
+  owner: code-verification-guard
+
+rules:
+  - id: react.no_inline_style
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid inline styles in React. Use design tokens or className.
+    scopes:
+      - react_source
+    patterns:
+      - "style=\\{\\{"
+    tags:
+      - react
+      - ui
+      - design-system
+    fix:
+      hint: Move styles to design tokens, CSS modules, or className utilities.
+
+  - id: react.no_hardcoded_color
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not hardcode colors in React components.
+    scopes:
+      - react_source
+    patterns:
+      - "#[0-9A-Fa-f]{6}"
+      - "rgb\\("
+      - "rgba\\("
+    tags:
+      - react
+      - ui
+      - design-system
+    fix:
+      hint: Use theme tokens instead of raw color literals.

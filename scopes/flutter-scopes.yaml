@@ -1,0 +1,35 @@
+version: 1
+
+metadata:
+  id: flutter-scopes
+  name: Flutter Scopes
+
+scopes:
+  flutter_source:
+    include:
+      - "lib/**/*.dart"
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/.dart_tool/**"
+      - "**/build/**"
+
+  flutter_app_source:
+    include:
+      - "lib/**/*.dart"
+    exclude:
+      - "lib/core/theme/**"
+      - "lib/core/tokens/**"
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/.dart_tool/**"
+      - "**/build/**"
+
+  dart_lib:
+    include:
+      - "lib/**/*.dart"
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/.dart_tool/**"
+      - "**/build/**"

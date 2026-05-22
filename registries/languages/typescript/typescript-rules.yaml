@@ -1,0 +1,39 @@
+version: 1
+
+metadata:
+  id: typescript-rules
+  name: TypeScript Rules
+  description: Rules for TypeScript source code.
+  owner: code-verification-guard
+
+rules:
+  - id: typescript.no_any
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid using any. Use a specific type.
+    scopes:
+      - typescript_source
+    patterns:
+      - ":\\s*any\\b"
+      - "<any>"
+    tags:
+      - typescript
+      - typing
+    fix:
+      hint: Replace any with a concrete type, generic, or unknown with narrowing.
+
+  - id: typescript.no_console_log
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not leave console.log calls in production code.
+    scopes:
+      - typescript_source
+    patterns:
+      - "\\bconsole\\.log\\s*\\("
+    tags:
+      - typescript
+      - logging
+    fix:
+      hint: Use the project logger or remove the debug statement.

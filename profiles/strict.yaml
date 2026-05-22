@@ -1,0 +1,17 @@
+version: 1
+
+profile:
+  name: strict
+
+failure:
+  fail_on:
+    - error
+    - warning
+  warning_as_error: true
+
+overrides:
+  disabled_rules: []
+
+  severity: {}
+
+  rule_options: {}

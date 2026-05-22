@@ -1,0 +1,32 @@
+version: 1
+
+project:
+  name: any-project
+  root: .
+  source_roots:
+    - src
+
+profile: local
+
+rule_sets:
+  common: true
+  languages: []
+  projects: []
+
+scopes: []
+registries: []
+
+overrides:
+  disabled_rules: []
+  severity: {}
+  rule_options: {}
+
+failure:
+  fail_on:
+    - error
+  warning_as_error: false
+
+report:
+  format: console
+  show_code_line: true
+  show_fix_hint: true

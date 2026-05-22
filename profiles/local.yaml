@@ -1,0 +1,16 @@
+version: 1
+
+profile:
+  name: local
+
+failure:
+  fail_on:
+    - error
+  warning_as_error: false
+
+overrides:
+  disabled_rules: []
+
+  severity: {}
+
+  rule_options: {}

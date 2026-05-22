@@ -1,0 +1,24 @@
+version: 1
+
+metadata:
+  id: dart-scopes
+  name: Dart Scopes
+
+scopes:
+  dart_source:
+    include:
+      - "**/*.dart"
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/.dart_tool/**"
+      - "**/build/**"
+
+  dart_lib:
+    include:
+      - "lib/**/*.dart"
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/.dart_tool/**"
+      - "**/build/**"

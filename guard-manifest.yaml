@@ -1,0 +1,62 @@
+version: 1
+
+rule_sets:
+  common:
+    scopes:
+      - scopes/common-scopes.yaml
+    registries:
+      - registries/common/common-code-rules.yaml
+      - registries/common/common-security-rules.yaml
+      - registries/common/common-naming-rules.yaml
+      - registries/common/common-convention-rules.yaml
+      - registries/common/common-file-rules.yaml
+
+  python:
+    scopes:
+      - scopes/python-scopes.yaml
+    registries:
+      - registries/languages/python/python-rules.yaml
+
+  dart:
+    scopes:
+      - scopes/dart-scopes.yaml
+    registries:
+      - registries/languages/dart/dart-rules.yaml
+
+  flutter:
+    scopes:
+      - scopes/flutter-scopes.yaml
+    registries:
+      - registries/languages/dart/flutter-rules.yaml
+
+  java:
+    scopes:
+      - scopes/java-scopes.yaml
+    registries:
+      - registries/languages/java/java-rules.yaml
+
+  spring_boot:
+    scopes:
+      - scopes/java-scopes.yaml
+    registries:
+      - registries/languages/java/spring-boot-rules.yaml
+
+  typescript:
+    scopes:
+      - scopes/typescript-scopes.yaml
+    registries:
+      - registries/languages/typescript/typescript-rules.yaml
+
+  react:
+    scopes:
+      - scopes/typescript-scopes.yaml
+    registries:
+      - registries/languages/typescript/react-rules.yaml
+
+  memox:
+    scopes:
+      - scopes/flutter-scopes.yaml
+    registries:
+      - registries/projects/memox/memox-architecture-rules.yaml
+      - registries/projects/memox/memox-ui-rules.yaml
+      - registries/projects/memox/memox-state-management-rules.yaml

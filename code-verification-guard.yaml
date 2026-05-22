@@ -1,0 +1,41 @@
+version: 1
+
+project:
+  name: code-verification-guard
+  root: .
+  source_roots:
+    - code_verification_guard
+    - tests
+
+profile: local
+
+rule_sets:
+  common: true
+  languages:
+    - python
+  projects: []
+
+scopes: []
+
+registries: []
+
+overrides:
+  disabled_rules: []
+
+  severity: {}
+
+  rule_options:
+    common.max_file_lines:
+      max_lines: 500
+    common.no_large_source_file:
+      max_lines: 500
+
+failure:
+  fail_on:
+    - error
+  warning_as_error: false
+
+report:
+  format: console
+  show_code_line: true
+  show_fix_hint: true

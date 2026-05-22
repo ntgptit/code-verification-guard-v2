@@ -1,0 +1,38 @@
+version: 1
+
+metadata:
+  id: spring-boot-rules
+  name: Spring Boot Rules
+  description: Rules for Spring Boot applications.
+  owner: code-verification-guard
+
+rules:
+  - id: spring.no_controller_business_logic_hint
+    type: regex
+    severity: warning
+    enabled: true
+    message: Controllers should not contain complex business logic. Move it to a service or use case.
+    scopes:
+      - java_main
+    patterns:
+      - "@RestController"
+    tags:
+      - spring
+      - architecture
+    fix:
+      hint: Keep controllers thin and delegate business logic to services or use cases.
+
+  - id: spring.no_repository_in_controller
+    type: regex
+    severity: error
+    enabled: true
+    message: Controllers must not inject repositories directly. Use a Service or UseCase layer.
+    scopes:
+      - java_controller
+    patterns:
+      - "Repository\\b"
+    tags:
+      - spring
+      - architecture
+    fix:
+      hint: Inject a service or use case instead of a repository.

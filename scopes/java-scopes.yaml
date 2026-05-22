@@ -1,0 +1,30 @@
+version: 1
+
+metadata:
+  id: java-scopes
+  name: Java Scopes
+
+scopes:
+  java_source:
+    include:
+      - "src/**/*.java"
+    exclude:
+      - "src/test/**"
+      - "**/build/**"
+      - "**/target/**"
+
+  java_main:
+    include:
+      - "src/main/java/**/*.java"
+    exclude:
+      - "src/test/**"
+      - "**/build/**"
+      - "**/target/**"
+
+  java_controller:
+    include:
+      - "src/main/java/**/*Controller.java"
+    exclude:
+      - "src/test/**"
+      - "**/build/**"
+      - "**/target/**"
