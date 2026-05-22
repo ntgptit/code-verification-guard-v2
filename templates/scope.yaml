@@ -1,0 +1,21 @@
+version: 1
+
+metadata:
+  id: sample-scopes
+  name: Sample Scopes
+  description: Reusable scopes for sample rules.
+
+scopes:
+  sample_source:
+    include:
+      - "lib/**/*.dart"
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "**/*.config.dart"
+      - "**/gen/**"
+
+  sample_tests:
+    include:
+      - "test/**/*_test.dart"
+    exclude: []

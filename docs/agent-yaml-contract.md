@@ -20,6 +20,34 @@ Do not put inline rules inside `code-verification-guard.yaml`.
 
 Rules must be defined only in registry files. Scopes must be defined only in scope files. Profiles must only override behavior and must not define new rules.
 
+## Templates
+
+YAML templates are stored under `templates/`. Use them as the source format
+when adding new YAML files:
+
+- `templates/code-verification-guard.yaml` for project config.
+- `templates/registry.yaml` for `registries/**/*.yaml`.
+- `templates/scope.yaml` for `scopes/*.yaml`.
+- `templates/profile.yaml` for `profiles/*.yaml`.
+- `templates/guard-manifest-rule-set.yaml` for adding a manifest rule set.
+
+Keep the template style: list items must be indented under their key, for
+example:
+
+```yaml
+scopes:
+  - sample_source
+patterns:
+  - "\\bsample\\b"
+```
+
+Do not use indentless lists such as:
+
+```yaml
+scopes:
+- sample_source
+```
+
 ## Manifest Rules
 
 Do not hardcode registry paths in Python core.

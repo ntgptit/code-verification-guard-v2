@@ -21,3 +21,7 @@ resources are loaded only from the source tree:
 - `profiles/`
 - `scopes/`
 - `registries/`
+
+YAML templates are available in `templates/`. Use them when adding new project
+configs, profiles, scopes, registries, or manifest rule-set entries so new
+rules keep the repository's expected YAML format.

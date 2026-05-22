@@ -1,0 +1,14 @@
+version: 1
+
+profile:
+  name: sample
+
+failure:
+  fail_on:
+    - error
+  warning_as_error: false
+
+overrides:
+  disabled_rules: []
+  severity: {}
+  rule_options: {}

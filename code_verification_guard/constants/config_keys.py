@@ -40,6 +40,7 @@ class ConfigKeys:
     COMMENT_PREFIXES = "comment_prefixes"
     NODE_TYPES = "node_types"
     MAX_LINES = "max_lines"
+    COUNT_MODE = "count_mode"
 
     OVERRIDES = "overrides"
     DISABLED_RULES = "disabled_rules"

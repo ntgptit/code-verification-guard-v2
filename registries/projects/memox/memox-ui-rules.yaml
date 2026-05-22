@@ -17,6 +17,7 @@ rules:
     exclude:
       - "lib/core/widgets/**"
       - "lib/shared/widgets/**"
+      - "lib/presentation/shared/widgets/**"
     patterns:
       - "\\bCard\\s*\\("
     tags:
@@ -44,3 +45,23 @@ rules:
       - state
     fix:
       hint: Wrap AsyncValue rendering with AppAsyncBuilder.
+
+  - id: memox.shared_widget_build_lines
+    type: max_build_lines
+    severity: warning
+    enabled: true
+    message: Shared widget build() is too long. Split visual states into private helpers while preserving the public shared widget API.
+    include:
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+    max_lines: 140
+    count_mode: logical
+    tags:
+      - memox
+      - ui
+      - maintainability
+      - shared-widget
+    fix:
+      hint: Extract private build helpers or smaller internal widgets without widening the shared widget public API.

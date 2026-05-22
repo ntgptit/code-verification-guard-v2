@@ -19,3 +19,11 @@ Architecture ownership:
 - `registries/**/*.yaml` defines concrete rules.
 - `code-verification-guard.yaml` selects rule sets and project-specific
   overrides for the checked project.
+
+Templates:
+
+- YAML templates live in `templates/`.
+- Copy the closest template before adding a new config, profile, scope,
+  registry, or manifest rule-set entry.
+- Keep list items indented under their parent key; this is the repository's
+  required style even when YAML parsers would accept shorter forms.

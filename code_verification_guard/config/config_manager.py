@@ -101,6 +101,8 @@ class ConfigManager:
         if not self.resource_locator.exists(path):
             raise FileNotFoundError(f"YAML file not found: {path}")
 
+        self._validate_yaml_source_format(path)
+
         with path.open("r", encoding="utf-8") as file:
             document = yaml.safe_load(file) or {}
 
@@ -109,6 +111,16 @@ class ConfigManager:
             raise ValueError(f"YAML document must be a mapping: {path}")
 
         return document
+
+    def _validate_yaml_source_format(self, path: Any) -> None:
+        """Validate repository YAML source style before parsing."""
+        with path.open("r", encoding="utf-8") as file:
+            for line_number, line in enumerate(file, start=1):
+                if re.match(r"^-\s+", line):
+                    raise ValueError(
+                        "YAML list items must be indented under their parent key "
+                        f"in {path}:{line_number}"
+                    )
 
     def _apply_overrides(self, rule_configs: list[dict], overrides: dict) -> list[dict]:
         """Apply merged rule overrides."""

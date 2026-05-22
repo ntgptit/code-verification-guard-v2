@@ -1,0 +1,38 @@
+version: 1
+
+metadata:
+  id: sample-rules
+  name: Sample Rules
+  description: Sample registry description.
+  owner: code-verification-guard
+
+rules:
+  - id: sample.no_bad_pattern
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid the bad pattern.
+    scopes:
+      - sample_source
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+    patterns:
+      - "\\bbadPattern\\s*\\("
+    tags:
+      - sample
+      - correctness
+    fix:
+      hint: Replace the bad pattern with the approved abstraction.
+
+  - id: sample.file_snake_case
+    type: file_name
+    severity: warning
+    enabled: true
+    message: Source file names should use snake_case.
+    scopes:
+      - sample_source
+    pattern: "^[a-z0-9_]+\\.dart$"
+    tags:
+      - sample
+      - naming

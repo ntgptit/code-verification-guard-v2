@@ -174,6 +174,51 @@ def test_custom_scopes_and_registries_are_loaded(tmp_path: Path):
     assert rules[0][ConfigKeys.EXCLUDE] == ["src/generated/**"]
 
 
+def test_dt1_load_yaml_style_rejects_indentless_lists(tmp_path: Path):
+    config_path = tmp_path / "bad.yaml"
+    write_yaml(
+        config_path,
+        """
+        version: 1
+        project:
+          name: sample
+          root: .
+          source_roots:
+        - src
+        rule_sets:
+          common: false
+          languages: []
+          projects: []
+        """,
+    )
+
+    with pytest.raises(ValueError, match="YAML list items must be indented"):
+        ConfigManager().load_project_config(config_path)
+
+
+def test_dt2_load_yaml_style_allows_template_list_indentation(tmp_path: Path):
+    config_path = tmp_path / "good.yaml"
+    write_yaml(
+        config_path,
+        """
+        version: 1
+        project:
+          name: sample
+          root: .
+          source_roots:
+            - src
+        rule_sets:
+          common: false
+          languages: []
+          projects: []
+        """,
+    )
+
+    project = ConfigManager().load_project_config(config_path)
+
+    assert project[ConfigKeys.PROJECT][ConfigKeys.SOURCE_ROOTS] == ["src"]
+
+
 def test_profile_overrides_apply_before_project_overrides(tmp_path: Path):
     write_yaml(tmp_path / "registries" / "rules.yaml", registry_yaml("sample.override"))
     config = project_config(registries=["registries/rules.yaml"])
@@ -245,3 +290,22 @@ def test_env_file_rule_targets_nested_environment_files():
     assert "**/.env" in env_rule[ConfigKeys.INCLUDE]
     assert "**/.env.*" in env_rule[ConfigKeys.INCLUDE]
     assert "**/.env.example" in env_rule[ConfigKeys.EXCLUDE]
+
+
+def test_memox_rule_set_loads_ported_project_rules():
+    config = project_config()
+    config[ConfigKeys.RULE_SETS][ConfigKeys.LANGUAGES] = ["flutter"]
+    config[ConfigKeys.RULE_SETS][ConfigKeys.PROJECTS] = ["memox"]
+
+    rules = ConfigManager().load_rule_definitions(Path(".").resolve(), config, profile_config())
+    rules_by_id = {
+        rule[ConfigKeys.ID]: rule
+        for rule in rules
+    }
+
+    assert "memox.no_else" in rules_by_id
+    assert "memox.provider_file_naming" in rules_by_id
+    assert "memox.legacy_state_notifier" in rules_by_id
+    assert "memox.domain_no_flutter_import" in rules_by_id
+    assert "memox.presentation_no_dart_io_imports" in rules_by_id
+    assert "lib/**/*.dart" in rules_by_id["memox.no_else"][ConfigKeys.INCLUDE]

@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
+from code_verification_guard.constants.defaults import Defaults
 from code_verification_guard.constants.severity import Severity
 from code_verification_guard.models.violation import Violation
 
@@ -18,6 +19,17 @@ class ConsoleReporter:
         """Create a console reporter."""
         self.console = Console()
         self.show_fix_hint = show_fix_hint
+
+    def progress(self, completed_rules: int, total_rules: int, rule_id: str) -> None:
+        """Print rule execution progress."""
+        if total_rules <= 0:
+            return
+
+        percent = int((completed_rules / total_rules) * Defaults.PERCENT_COMPLETE)
+        self.console.print(
+            f"[dim]Running rules: {percent:3d}% "
+            f"({completed_rules}/{total_rules}) {rule_id}[/dim]"
+        )
 
     def print(self, violations: list[Violation]) -> None:
         """Print a human-readable violation report."""

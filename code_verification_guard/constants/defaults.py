@@ -50,3 +50,4 @@ class Defaults:
 
     MAX_BUILD_LINES = 80
     MAX_FILE_LINES = 400
+    PERCENT_COMPLETE = 100

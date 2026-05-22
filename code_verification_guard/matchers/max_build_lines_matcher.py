@@ -11,6 +11,8 @@ from code_verification_guard.models.scan_context import ScanContext
 from code_verification_guard.models.violation import Violation
 from code_verification_guard.rules.base_rule import BaseRule
 
+COUNT_MODE_LOGICAL = "logical"
+
 
 class MaxBuildLinesMatcher(BaseMatcher):
     """Checks Flutter build method length."""
@@ -18,6 +20,7 @@ class MaxBuildLinesMatcher(BaseMatcher):
         """Return long build method violations."""
         violations: list[Violation] = []
         max_lines = int(rule.rule_config[ConfigKeys.MAX_LINES])
+        count_mode = rule.rule_config.get(ConfigKeys.COUNT_MODE)
 
         files = rule.target_rule_files(
             context.project_root,
@@ -26,7 +29,7 @@ class MaxBuildLinesMatcher(BaseMatcher):
 
         for rule_file in files:
             violations.extend(
-                self._check_file(rule, rule_file.path, rule_file.lines, max_lines)
+                self._check_file(rule, rule_file.path, rule_file.lines, max_lines, count_mode)
             )
 
         return violations
@@ -37,6 +40,7 @@ class MaxBuildLinesMatcher(BaseMatcher):
         file_path: Path,
         lines: list[str],
         max_lines: int,
+        count_mode: str | None,
     ) -> list[Violation]:
         """Check one file for long build methods."""
         violations: list[Violation] = []
@@ -53,7 +57,8 @@ class MaxBuildLinesMatcher(BaseMatcher):
             if end_line is None:
                 continue
 
-            length = end_line - start_line + 1
+            method_lines = lines[index:end_line]
+            length = self._count_lines(method_lines, count_mode)
 
             # Build methods under the configured limit are compliant.
             if length <= max_lines:
@@ -69,6 +74,29 @@ class MaxBuildLinesMatcher(BaseMatcher):
             )
 
         return violations
+
+    def _count_lines(self, lines: list[str], count_mode: str | None) -> int:
+        """Count either raw method lines or logical source lines."""
+        if count_mode != COUNT_MODE_LOGICAL:
+            return len(lines)
+
+        return sum(
+            1
+            for line in lines
+            if self._is_logical_source_line(line)
+        )
+
+    def _is_logical_source_line(self, line: str) -> bool:
+        """Return whether a build line contributes to source logic size."""
+        stripped = line.strip()
+
+        if not stripped:
+            return False
+
+        if stripped.startswith("//"):
+            return False
+
+        return not stripped.startswith(("/*", "*", "*/"))
 
     def _find_method_end(self, lines: list[str], start_index: int) -> int | None:
         """Find the ending line for a brace-delimited method."""

@@ -1,0 +1,8 @@
+version: 1
+
+rule_sets:
+  sample_project:
+    scopes:
+      - scopes/sample-scopes.yaml
+    registries:
+      - registries/projects/sample/sample-rules.yaml

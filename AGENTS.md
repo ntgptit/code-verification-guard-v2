@@ -8,6 +8,14 @@ Its purpose is to check a project's code and block or report patterns that the p
 
 Keep the Python engine generic. Concrete rules belong in YAML unless a new generic matcher, reporter, resource loader, CLI command, or validation capability is needed.
 
+## Repository Boundary
+
+- This directory is its own Git repository even when vendored inside `D:\workspace_STS_5\memox`.
+- Commit and push guard changes from this directory, not from the parent MemoX repository.
+- Expected remote: `https://github.com/ntgptit/code-verification-guard-v2.git`.
+- The parent MemoX repository should only commit project-level guard config such as `code-verification-guard.yaml` and `code-verification-guard-scopes.yaml`.
+- Do not ask the parent MemoX repository to stage or commit files under `code-verification-guard/**` unless the user explicitly requests submodule work.
+
 ## References
 
 Read only when the task touches that area:

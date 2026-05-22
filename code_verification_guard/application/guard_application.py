@@ -43,9 +43,6 @@ class GuardApplication:
             profile_config,
             project_config,
         )
-        self.rule_registry.clear()
-        self.rule_registry.register_all(rule_configs)
-        violations = self.rule_runner.run(project_root)
         report_config = runtime_config.get(ConfigKeys.REPORT, {})
         reporter = self.reporter_factory.create(
             report_config.get(
@@ -53,6 +50,12 @@ class GuardApplication:
                 Defaults.DEFAULT_REPORT_FORMAT,
             ),
             report_config.get(ConfigKeys.SHOW_FIX_HINT, False),
+        )
+        self.rule_registry.clear()
+        self.rule_registry.register_all(rule_configs)
+        violations = self.rule_runner.run(
+            project_root,
+            progress_callback=getattr(reporter, "progress", None),
         )
         reporter.print(violations)
         return self._should_fail(runtime_config, violations)

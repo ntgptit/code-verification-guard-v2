@@ -56,7 +56,11 @@ rule_sets:
   memox:
     scopes:
       - scopes/flutter-scopes.yaml
+      - scopes/memox-scopes.yaml
     registries:
+      - registries/projects/memox/memox-global-rules.yaml
+      - registries/projects/memox/memox-coding-rules.yaml
+      - registries/projects/memox/memox-normalized-rules.yaml
       - registries/projects/memox/memox-architecture-rules.yaml
       - registries/projects/memox/memox-ui-rules.yaml
       - registries/projects/memox/memox-state-management-rules.yaml
