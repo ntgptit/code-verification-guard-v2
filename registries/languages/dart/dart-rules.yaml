@@ -23,11 +23,15 @@ rules:
 
   - id: dart.no_dynamic_usage
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: Avoid using dynamic. Use a specific type when possible.
     scopes:
       - dart_lib
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - "lib/l10n/generated/**"
     patterns:
       - "\\bdynamic\\b"
     tags:
