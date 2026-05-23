@@ -10,6 +10,8 @@ from code_verification_guard.constants.defaults import Defaults
 from code_verification_guard.factory.rule_factory import RuleFactory
 from code_verification_guard.models.violation import Violation
 from code_verification_guard.registry.rule_registry import RuleRegistry
+from code_verification_guard.scanner.file_scanner import FileScanner
+from code_verification_guard.scanner.rule_file_reader import RuleFileReader
 
 ProgressCallback = Callable[[int, int, str], None]
 
@@ -20,10 +22,12 @@ class RuleRunner:
         self,
         rule_factory: RuleFactory | None = None,
         rule_registry: RuleRegistry | None = None,
+        file_reader: RuleFileReader | None = None,
     ):
         """Create a rule runner."""
         self.rule_factory = rule_factory or RuleFactory()
         self.rule_registry = rule_registry or RuleRegistry()
+        self.file_reader = file_reader
 
     def run(
         self,
@@ -38,9 +42,11 @@ class RuleRunner:
             if rule_config.get(ConfigKeys.ENABLED, Defaults.DEFAULT_RULE_ENABLED)
         ]
         total_rules = len(enabled_rule_configs)
+        shared_file_reader = self.file_reader or RuleFileReader(scanner=FileScanner())
 
         for index, rule_config in enumerate(enabled_rule_configs, start=1):
             rule = self.rule_factory.create(rule_config)
+            rule.file_reader = shared_file_reader
             violations.extend(rule.check(project_root))
 
             if progress_callback:

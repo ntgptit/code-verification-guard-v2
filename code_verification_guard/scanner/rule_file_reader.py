@@ -21,6 +21,7 @@ class RuleFileReader:
     def __init__(self, scanner: FileScanner | None = None):
         """Create a reader backed by a file scanner."""
         self.scanner = scanner or FileScanner()
+        self._rule_file_cache: dict[Path, RuleFile] = {}
 
     def collect_files(
         self,
@@ -53,8 +54,15 @@ class RuleFileReader:
 
     def read_rule_file(self, file_path: Path) -> RuleFile:
         """Read a text file as a rule target."""
+        resolved_path = file_path.resolve()
+
+        if resolved_path in self._rule_file_cache:
+            return self._rule_file_cache[resolved_path]
+
         content = self.read_text(file_path)
-        return RuleFile(path=file_path, lines=content.splitlines(), content=content)
+        rule_file = RuleFile(path=file_path, lines=content.splitlines(), content=content)
+        self._rule_file_cache[resolved_path] = rule_file
+        return rule_file
 
     def read_text(self, file_path: Path) -> str:
         """Read a text file as UTF-8 text."""
