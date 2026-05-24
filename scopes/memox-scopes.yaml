@@ -328,3 +328,19 @@ scopes:
       - '**/*.freezed.dart'
       - '**/*.config.dart'
       - '**/gen/**'
+  widget_ui_async_surfaces:
+    include:
+      - lib/main.dart
+      - lib/presentation/features/**/screens/*.dart
+      - lib/presentation/features/**/screens/**/*.dart
+      - lib/presentation/features/**/widgets/*.dart
+      - lib/presentation/features/**/widgets/**/*.dart
+      - lib/presentation/shared/**/*.dart
+      - lib/app/app.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/presentation/features/**/providers/**
+      - lib/presentation/features/**/viewmodels/**
