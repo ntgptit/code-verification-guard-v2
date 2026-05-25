@@ -20,6 +20,64 @@ rules:
       - memox
       - coding
       - style
+  - id: memox.crud_screen_class_naming
+    type: regex
+    severity: error
+    enabled: true
+    message: CRUD/entity screen classes must name the entity, surface, and `Screen` suffix explicitly, for example `DeckImportScreen`,
+      `FlashcardEditorScreen`, `FlashcardListScreen`, or `FolderDetailScreen`.
+    include:
+      - lib/presentation/features/*/screens/*_screen.dart
+      - lib/presentation/features/**/screens/**/*_screen.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - '(?m)^\s*class\s+(?!(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Screen\b)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\w*(?:View|Page|Screen|Details)\b'
+    tags:
+      - memox
+      - coding
+      - architecture
+      - naming
+      - crud
+  - id: memox.crud_viewmodel_controller_naming
+    type: regex
+    severity: error
+    enabled: true
+    message: CRUD/entity controller classes must use `{Entity}{Surface}Controller` or `{Entity}ActionController` so the owning
+      object and workflow are obvious from the class name.
+    include:
+      - lib/presentation/features/**/viewmodels/*_viewmodel.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - '(?m)^\s*class\s+(?!(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Controller\b)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\w*Controller\b'
+    tags:
+      - memox
+      - coding
+      - architecture
+      - naming
+      - crud
+  - id: memox.crud_command_method_names_include_entity
+    type: regex
+    severity: error
+    enabled: true
+    message: CRUD command methods in presentation viewmodels must include the affected object in the method name, for example
+      `createDeck`, `updateFolder`, `deleteFlashcards`, `moveDeck`, or `reorderSubfolders`.
+    include:
+      - lib/presentation/features/**/viewmodels/*_viewmodel.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - '(?m)^\s*(?:Future<[^>]+>|Future<void>|void)\s+(?!(?:create|update|delete|move|duplicate|reorder|save)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\b)(?:create|update|delete|move|duplicate|reorder|save)\w*\s*\('
+    tags:
+      - memox
+      - coding
+      - architecture
+      - naming
+      - crud
   - id: memox.guard_centralized_constants
     type: regex
     severity: error
