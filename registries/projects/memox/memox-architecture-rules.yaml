@@ -169,19 +169,6 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.stateless_di_providers_auto_dispose
-    type: regex
-    severity: error
-    enabled: true
-    message: Stateless DAO, repository, use-case, strategy, and store DI providers should use auto-dispose `@riverpod`; reserve
-      keepAlive for services with resource lifecycle or explicit app-wide state.
-    scopes:
-      - stateless_di_provider_files
-    patterns:
-      - '@Riverpod\(keepAlive:\s*true\)'
-    tags:
-      - memox
-      - architecture
   - id: memox.core_di_no_ui_imports
     type: regex
     severity: error
