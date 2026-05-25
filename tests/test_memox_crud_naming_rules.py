@@ -9,11 +9,13 @@ import yaml
 
 from code_verification_guard.factory.rule_factory import RuleFactory
 
-REGISTRY_DIR = Path(__file__).parents[1] / "registries" / "projects" / "memox"
+REGISTRY_DIR = (
+    Path(__file__).parents[1] / "registries" / "projects" / "memox" / "rules"
+)
 
 
 def _rule_config(rule_id: str) -> dict:
-    for registry_path in REGISTRY_DIR.glob("*.yaml"):
+    for registry_path in REGISTRY_DIR.glob("*-rules.yaml"):
         registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
         for rule_config in registry.get("rules", []):
             if rule_config["id"] == rule_id:

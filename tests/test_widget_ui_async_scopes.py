@@ -13,9 +13,14 @@ from code_verification_guard.scanner.file_scanner import FileScanner
 
 @pytest.fixture
 def widget_ui_scope_patterns(tmp_path: Path) -> tuple[list[str], list[str]]:
-    """Load widget_ui_async_surfaces include/exclude from memox-scopes.yaml."""
+    """Load widget_ui_async_surfaces include/exclude from MemoX ruleset scopes."""
     scopes_path = (
-        Path(__file__).resolve().parents[1] / "scopes" / "memox-scopes.yaml"
+        Path(__file__).resolve().parents[1]
+        / "registries"
+        / "projects"
+        / "memox"
+        / "config"
+        / "scopes.yaml"
     )
     document = yaml.safe_load(scopes_path.read_text(encoding="utf-8"))
     scope = document["scopes"]["widget_ui_async_surfaces"]
@@ -72,5 +77,4 @@ def test_widget_ui_scope_excludes_providers_and_viewmodels(
         "lib/presentation/features/decks/viewmodels/deck_action_viewmodel.dart"
         not in matched
     )
-
 

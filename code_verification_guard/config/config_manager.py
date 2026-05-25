@@ -50,10 +50,26 @@ class ConfigManager:
         )
         ruleset_config = self._load_ruleset_config(ruleset_root, manifest)
         runtime_config = self.merge_runtime_config(profile_config, ruleset_config)
+        shared_paths = self._ruleset_shared_paths(project_root, manifest)
         scope_paths = self._ruleset_scope_paths(ruleset_root, manifest)
         rule_paths = self._ruleset_rule_paths(ruleset_root, manifest)
-        scope_registry = self._load_scope_registry(scope_paths)
-        rule_configs = self._load_registries(rule_paths)
+        runtime_config["_load_info"] = self._ruleset_load_info(
+            ruleset_name,
+            ruleset_root,
+            manifest,
+            shared_paths,
+            scope_paths,
+            rule_paths,
+            profile_override,
+        )
+        scope_registry = self._load_scope_registry([
+            *shared_paths[ConfigKeys.SCOPES],
+            *scope_paths,
+        ])
+        rule_configs = self._load_registries([
+            *shared_paths[ConfigKeys.REGISTRIES],
+            *rule_paths,
+        ])
         merged_overrides = self._merge_rule_overrides(
             profile_config.get(ConfigKeys.OVERRIDES, {}),
             ruleset_config.get(ConfigKeys.OVERRIDES, {}),
@@ -80,6 +96,7 @@ class ConfigManager:
         tool_root = self.resource_locator.builtin_root()
         ruleset_root = self.resource_locator.join(
             tool_root,
+            Defaults.REGISTRIES_DIRECTORY,
             Defaults.PROJECTS_DIRECTORY,
             ruleset_name,
         )
@@ -162,6 +179,94 @@ class ConfigManager:
             self._resolve_ruleset_path(ruleset_root, path_text)
             for path_text in self._as_string_list(manifest.get(ConfigKeys.RULES, []))
         ]
+
+    def _ruleset_shared_paths(self, project_root: Path, manifest: dict) -> dict:
+        """Resolve shared rule set paths selected by a ruleset manifest."""
+        if ConfigKeys.RULE_SETS not in manifest:
+            return {
+                ConfigKeys.SCOPES: [],
+                ConfigKeys.REGISTRIES: [],
+            }
+
+        resolver = RuleSetResolver(
+            self.resource_locator.builtin_root(),
+            resource_locator=self.resource_locator,
+        )
+        return resolver.resolve(
+            project_root,
+            {
+                ConfigKeys.RULE_SETS: manifest.get(ConfigKeys.RULE_SETS, {}),
+                ConfigKeys.SCOPES: [],
+                ConfigKeys.REGISTRIES: [],
+            },
+        )
+
+    def _ruleset_load_info(
+        self,
+        ruleset_name: str,
+        ruleset_root: Path,
+        manifest: dict,
+        shared_paths: dict,
+        scope_paths: list[Path],
+        rule_paths: list[Path],
+        profile_override: str | None,
+    ) -> dict:
+        """Build user-facing load metadata for console diagnostics."""
+        profile_name = (
+            profile_override
+            or manifest.get(ConfigKeys.PROFILE)
+            or Defaults.DEFAULT_PROFILE
+        )
+        return {
+            "ruleset": ruleset_name,
+            "profile": profile_name,
+            "ruleset_root": str(ruleset_root),
+            "manifest": str(
+                self.resource_locator.join(
+                    ruleset_root,
+                    Defaults.MANIFEST_FILE_NAME,
+                )
+            ),
+            "config": {
+                ConfigKeys.PROFILES: str(
+                    self._ruleset_config_path(
+                        ruleset_root,
+                        manifest,
+                        ConfigKeys.PROFILES,
+                    )
+                ),
+                ConfigKeys.SCOPES: str(
+                    self._ruleset_config_path(
+                        ruleset_root,
+                        manifest,
+                        ConfigKeys.SCOPES,
+                    )
+                ),
+                ConfigKeys.OVERRIDES: str(
+                    self._ruleset_config_path(
+                        ruleset_root,
+                        manifest,
+                        ConfigKeys.OVERRIDES,
+                    )
+                ),
+            },
+            "shared_scopes": [
+                str(path)
+                for path in shared_paths.get(ConfigKeys.SCOPES, [])
+            ],
+            "shared_registries": [
+                str(path)
+                for path in shared_paths.get(ConfigKeys.REGISTRIES, [])
+            ],
+            "ruleset_scopes": [
+                str(path)
+                for path in scope_paths
+            ],
+            "ruleset_registries": [
+                str(path)
+                for path in rule_paths
+            ],
+        }
 
     def _resolve_ruleset_path(self, ruleset_root: Path, path_text: str) -> Path:
         """Resolve a ruleset-local resource path."""
@@ -388,6 +493,12 @@ class ConfigManager:
 
         if not isinstance(document.get(ConfigKeys.CONFIG), dict):
             raise ValueError(f"Ruleset manifest must define config paths: {path}")
+
+        if ConfigKeys.RULE_SETS in document and not isinstance(
+            document.get(ConfigKeys.RULE_SETS),
+            dict,
+        ):
+            raise ValueError(f"Ruleset manifest rule_sets must be a mapping: {path}")
 
         if not isinstance(document.get(ConfigKeys.RULES), list):
             raise ValueError(f"Ruleset manifest rules must be a list: {path}")

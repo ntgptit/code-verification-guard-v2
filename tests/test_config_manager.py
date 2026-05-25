@@ -319,7 +319,7 @@ def write_ruleset_fixture(tool_root: Path, ruleset_name: str = "memox") -> None:
         rule_sets: {}
         """,
     )
-    ruleset_root = tool_root / "projects" / ruleset_name
+    ruleset_root = tool_root / "registries" / "projects" / ruleset_name
     write_yaml(
         ruleset_root / "guard-manifest.yaml",
         f"""
@@ -332,7 +332,7 @@ def write_ruleset_fixture(tool_root: Path, ruleset_name: str = "memox") -> None:
           scopes: config/scopes.yaml
           overrides: config/overrides.yaml
         rules:
-          - rules/sample.yaml
+          - rules/sample-rules.yaml
         """,
     )
     write_yaml(
@@ -396,7 +396,7 @@ def write_ruleset_fixture(tool_root: Path, ruleset_name: str = "memox") -> None:
         """,
     )
     write_yaml(
-        ruleset_root / "rules" / "sample.yaml",
+        ruleset_root / "rules" / "sample-rules.yaml",
         """
         version: 1
         metadata:
@@ -430,6 +430,36 @@ def test_ruleset_runtime_loads_manifest_relative_config_and_rules(tmp_path: Path
     assert rules[0][ConfigKeys.INCLUDE] == ["src/**/*.py"]
     assert rules[0][ConfigKeys.EXCLUDE] == ["src/generated/**"]
     assert rules[0][ConfigKeys.TAGS] == ["from-ruleset"]
+
+
+def test_ruleset_runtime_exposes_load_info(tmp_path: Path):
+    tool_root = tmp_path / "tool"
+    project_root = tmp_path / "project"
+    write_ruleset_fixture(tool_root)
+    manager = ConfigManager(resource_locator=ResourceLocator(source_root=tool_root))
+
+    runtime_config, _ = manager.load_ruleset_runtime(project_root, "memox")
+    load_info = runtime_config["_load_info"]
+
+    assert load_info["ruleset"] == "memox"
+    assert load_info["profile"] == "local"
+    assert load_info["ruleset_root"] == str(
+        tool_root / "registries" / "projects" / "memox"
+    )
+    assert load_info["manifest"].endswith("registries\\projects\\memox\\guard-manifest.yaml")
+    assert load_info["config"][ConfigKeys.SCOPES].endswith(
+        "registries\\projects\\memox\\config\\scopes.yaml"
+    )
+    assert load_info["ruleset_registries"] == [
+        str(
+            tool_root
+            / "registries"
+            / "projects"
+            / "memox"
+            / "rules"
+            / "sample-rules.yaml"
+        )
+    ]
 
 
 def test_ruleset_profile_override_selects_named_profile(tmp_path: Path):
@@ -467,7 +497,7 @@ def test_missing_ruleset_manifest_reports_manifest_path(tmp_path: Path):
         rule_sets: {}
         """,
     )
-    (tmp_path / "projects" / "memox").mkdir(parents=True)
+    (tmp_path / "registries" / "projects" / "memox").mkdir(parents=True)
     manager = ConfigManager(resource_locator=ResourceLocator(source_root=tmp_path))
 
     with pytest.raises(FileNotFoundError, match="guard-manifest.yaml not found"):

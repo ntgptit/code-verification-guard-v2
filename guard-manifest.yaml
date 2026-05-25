@@ -58,10 +58,10 @@ rule_sets:
       - scopes/flutter-scopes.yaml
       - scopes/memox-scopes.yaml
     registries:
-      - registries/projects/memox/memox-global-rules.yaml
-      - registries/projects/memox/memox-coding-rules.yaml
-      - registries/projects/memox/memox-normalized-rules.yaml
-      - registries/projects/memox/memox-architecture-rules.yaml
-      - registries/projects/memox/memox-ui-rules.yaml
-      - registries/projects/memox/memox-state-management-rules.yaml
-      - registries/projects/memox/memox-ui-async-guard-rules.yaml
+      - registries/projects/memox/rules/memox-global-rules.yaml
+      - registries/projects/memox/rules/memox-coding-rules.yaml
+      - registries/projects/memox/rules/memox-normalized-rules.yaml
+      - registries/projects/memox/rules/memox-architecture-rules.yaml
+      - registries/projects/memox/rules/memox-ui-rules.yaml
+      - registries/projects/memox/rules/memox-state-management-rules.yaml
+      - registries/projects/memox/rules/memox-ui-async-guard-rules.yaml

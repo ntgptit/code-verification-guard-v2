@@ -34,6 +34,7 @@ class GuardApplication:
         config: str,
         ruleset: str | None = None,
         profile: str | None = None,
+        debug: bool = False,
     ) -> bool:
         """Run the guard and return whether it should fail."""
         project_root = Path(project).resolve()
@@ -44,6 +45,8 @@ class GuardApplication:
                 ruleset,
                 profile,
             )
+            if debug:
+                self._print_load_info(project_root, runtime_config)
             return self._run_with_config(project_root, runtime_config, rule_configs)
 
         if profile:
@@ -91,6 +94,40 @@ class GuardApplication:
         )
         reporter.print(violations)
         return self._should_fail(runtime_config, violations)
+
+    def _print_load_info(self, project_root: Path, runtime_config: dict) -> None:
+        """Print resolved ruleset inputs before rule execution."""
+        load_info = runtime_config.get("_load_info")
+
+        if not load_info:
+            return
+
+        print("Code Verification Guard load info:")
+        print(f"  project: {project_root}")
+        print(f"  ruleset: {load_info.get('ruleset')}")
+        print(f"  profile: {load_info.get('profile')}")
+        print(f"  ruleset root: {load_info.get('ruleset_root')}")
+        print(f"  manifest: {load_info.get('manifest')}")
+        self._print_path_group("config", load_info.get("config", {}))
+        self._print_path_group("shared scopes", load_info.get("shared_scopes", []))
+        self._print_path_group("shared registries", load_info.get("shared_registries", []))
+        self._print_path_group("ruleset scopes", load_info.get("ruleset_scopes", []))
+        self._print_path_group(
+            "ruleset registries",
+            load_info.get("ruleset_registries", []),
+        )
+
+    def _print_path_group(self, label: str, paths: dict | list) -> None:
+        """Print one diagnostic path group."""
+        print(f"  {label}:")
+
+        if isinstance(paths, dict):
+            for name, path in paths.items():
+                print(f"    - {name}: {path}")
+            return
+
+        for path in paths:
+            print(f"    - {path}")
 
     def _should_fail(self, project_config: dict, violations: list) -> bool:
         """Return whether violations should fail the process."""

@@ -10,15 +10,20 @@ resource mode.
 The source tree supports ruleset-local YAML sources of truth:
 
 ```text
-projects/<ruleset>/
+registries/projects/<ruleset>/
   guard-manifest.yaml
   config/
   rules/
 ```
 
 `--project` selects the scan root. `--ruleset` selects the policy bundle under
-`projects/<ruleset>`. Ruleset manifest paths resolve relative to the ruleset
-root, while file scanning always runs against the project root.
+`registries/projects/<ruleset>`. Ruleset manifest paths resolve relative to the
+ruleset root, while file scanning always runs against the project root.
+
+Ruleset manifests may select shared bundles from the root `guard-manifest.yaml`
+with `rule_sets`. Keep project-owned registry files under
+`registries/projects/<ruleset>/rules/`; do not copy common or language
+registries into that folder.
 
 ## Core Flow
 
