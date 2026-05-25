@@ -161,12 +161,14 @@ rules:
     severity: warning
     enabled: true
     message: >-
-      Feature screens should not hardcode padding, radius, or color constructors. Use `MxScaffold`, `MxContentShell`,
-      `AppLayout`, theme colors, and shared layout tokens instead.
+      Feature screens should not use raw numeric literals in `EdgeInsets`, `BorderRadius`, or `Radius` constructors.
+      Prefer `MxSpace`, `MxGap`, `AppLayout` / `LayoutContext`, or shared layout tokens. Token-only constructor calls
+      such as `EdgeInsets.symmetric(vertical: MxSpace.xs)` are allowed. Add `guard:layout-value-reviewed` only for
+      reviewed raw-number exceptions. Route colors through `ColorScheme` / theme extensions, not `Color(...)` or `Colors.*`.
     scopes:
       - screen_like_files
     patterns:
-      - '(?m)\b(?:EdgeInsets|BorderRadius|Radius)\.(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
+      - '(?m)\b(?:EdgeInsets|BorderRadius|Radius)\.(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?=[^\n;]*(?:\(\s*\d+|\b\d+(?:\.\d+)?\s*[,)]|:\s*\d+(?:\.\d+)?(?:\s*[,)]|\s*$)))'
       - '(?m)\b(?:Color\s*\(|Color\.from|Colors\.)(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
     mode: file
     tags:
@@ -179,15 +181,16 @@ rules:
     severity: warning
     enabled: true
     message: >-
-      Base screen templates should use layout/theme tokens for padding, radius, and color. Any unavoidable raw layout value
-      must include `guard:layout-value-reviewed -- reason: ...` on the same line or immediately following line.
+      Base screen templates should use layout/theme tokens for padding, radius, and color. Raw numeric literals in
+      `EdgeInsets`, `BorderRadius`, or `Radius` require `guard:layout-value-reviewed -- reason: ...` on the same line or
+      the line immediately after. Token-only constructor calls are allowed without the marker.
     include:
       - lib/presentation/shared/layouts/mx_*scaffold.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - '(?m)\b(?:EdgeInsets|BorderRadius|Radius)\.(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
+      - '(?m)\b(?:EdgeInsets|BorderRadius|Radius)\.(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?=[^\n;]*(?:\(\s*\d+|\b\d+(?:\.\d+)?\s*[,)]|:\s*\d+(?:\.\d+)?(?:\s*[,)]|\s*$)))'
       - '(?m)\b(?:Color\s*\(|Color\.from|Colors\.)(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
     mode: file
     tags:

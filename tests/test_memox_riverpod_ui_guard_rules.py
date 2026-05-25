@@ -459,6 +459,26 @@ def test_feature_screen_raw_padding_radius_color_is_flagged(tmp_path: Path) -> N
     )
 
 
+def test_feature_screen_tokenized_edge_insets_are_allowed(tmp_path: Path) -> None:
+    tokenized = """
+    class StudyResultScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: MxSpace.xs),
+          child: const SizedBox.shrink(),
+        );
+      }
+    }
+    """
+
+    assert not _violations(
+        "memox.feature_screen_no_raw_padding_radius_color",
+        tmp_path,
+        tokenized,
+    )
+
+
 def test_base_screen_raw_layout_values_require_review_marker(tmp_path: Path) -> None:
     bad = """
     class MxListScaffold extends StatelessWidget {
