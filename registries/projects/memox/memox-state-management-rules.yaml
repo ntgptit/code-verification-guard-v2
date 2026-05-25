@@ -175,3 +175,66 @@ rules:
       - memox
       - state-management
       - ui-shell
+
+  - id: memox.action_error_extraction_via_helper
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Extract `AppFailure` from action `AsyncValue<void>` via `MxActionErrors.failureOf(...)`
+      from `lib/presentation/shared/viewmodels/mx_action_errors.dart`. Do not hand-roll
+      `.whenOrNull(error: (error, _) => error is AppFailure ? error : null)`.
+    include:
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/presentation/shared/viewmodels/mx_action_errors.dart
+    patterns:
+      - error\s+is\s+AppFailure\s*\?\s*error\s*:\s*null
+    tags:
+      - memox
+      - state-management
+      - error-handling
+
+  - id: memox.action_error_message_via_helper
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Map `AppFailure` to a user-facing string via `MxActionErrors.messageOf(...)`
+      from `lib/presentation/shared/viewmodels/mx_action_errors.dart`. Do not re-implement
+      the `failure.cause case final ValidationException` ladder per feature.
+    include:
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/presentation/shared/viewmodels/mx_action_errors.dart
+    patterns:
+      - failure\.cause\s+case\s+final\s+ValidationException
+    tags:
+      - memox
+      - state-management
+      - error-handling
+
+  - id: memox.async_draft_current_value_via_helper
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Read the current draft from an `AsyncValue<T>` via the `MxAsyncDraft.currentValue`
+      extension from `lib/presentation/shared/viewmodels/mx_async_draft.dart`. Do not
+      inline the `AsyncData(:final value) => value, _ => null` switch in viewmodels.
+    include:
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/presentation/shared/viewmodels/mx_async_draft.dart
+    patterns:
+      - AsyncData\(\s*:\s*final\s+value\s*\)\s*=>\s*value\s*,\s*_\s*=>\s*null
+    tags:
+      - memox
+      - state-management
+      - form-draft
