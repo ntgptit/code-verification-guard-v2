@@ -309,3 +309,166 @@ def test_memox_rule_set_loads_ported_project_rules():
     assert "memox.domain_no_flutter_import" in rules_by_id
     assert "memox.presentation_no_dart_io_imports" in rules_by_id
     assert "lib/**/*.dart" in rules_by_id["memox.no_else"][ConfigKeys.INCLUDE]
+
+
+def write_ruleset_fixture(tool_root: Path, ruleset_name: str = "memox") -> None:
+    write_yaml(
+        tool_root / "guard-manifest.yaml",
+        """
+        version: 1
+        rule_sets: {}
+        """,
+    )
+    ruleset_root = tool_root / "projects" / ruleset_name
+    write_yaml(
+        ruleset_root / "guard-manifest.yaml",
+        f"""
+        version: 1
+        ruleset:
+          name: {ruleset_name}
+        profile: local
+        config:
+          profiles: config/profiles.yaml
+          scopes: config/scopes.yaml
+          overrides: config/overrides.yaml
+        rules:
+          - rules/sample.yaml
+        """,
+    )
+    write_yaml(
+        ruleset_root / "config" / "profiles.yaml",
+        """
+        version: 1
+        profiles:
+          local:
+            failure:
+              fail_on:
+                - error
+              warning_as_error: false
+            report:
+              format: console
+              show_fix_hint: true
+            overrides:
+              disabled_rules: []
+              severity: {}
+              rule_options: {}
+          ci:
+            failure:
+              fail_on:
+                - warning
+              warning_as_error: true
+            report:
+              format: json
+              show_fix_hint: false
+            overrides:
+              disabled_rules: []
+              severity:
+                sample.ruleset: error
+              rule_options: {}
+        """,
+    )
+    write_yaml(
+        ruleset_root / "config" / "scopes.yaml",
+        """
+        version: 1
+        metadata:
+          id: sample-scopes
+          name: Sample Scopes
+        scopes:
+          sample_source:
+            include:
+              - src/**/*.py
+            exclude:
+              - src/generated/**
+        """,
+    )
+    write_yaml(
+        ruleset_root / "config" / "overrides.yaml",
+        """
+        version: 1
+        overrides:
+          disabled_rules: []
+          severity: {}
+          rule_options:
+            sample.ruleset:
+              tags:
+                - from-ruleset
+        """,
+    )
+    write_yaml(
+        ruleset_root / "rules" / "sample.yaml",
+        """
+        version: 1
+        metadata:
+          id: sample-rules
+          name: Sample Rules
+          description: Ruleset fixture rules.
+        rules:
+          - id: sample.ruleset
+            type: regex
+            severity: warning
+            enabled: true
+            message: Sample ruleset rule.
+            scopes:
+              - sample_source
+            patterns:
+              - sample
+        """,
+    )
+
+
+def test_ruleset_runtime_loads_manifest_relative_config_and_rules(tmp_path: Path):
+    tool_root = tmp_path / "tool"
+    project_root = tmp_path / "project"
+    write_ruleset_fixture(tool_root)
+    manager = ConfigManager(resource_locator=ResourceLocator(source_root=tool_root))
+
+    runtime_config, rules = manager.load_ruleset_runtime(project_root, "memox")
+
+    assert runtime_config[ConfigKeys.REPORT][ConfigKeys.FORMAT] == "console"
+    assert rules[0][ConfigKeys.ID] == "sample.ruleset"
+    assert rules[0][ConfigKeys.INCLUDE] == ["src/**/*.py"]
+    assert rules[0][ConfigKeys.EXCLUDE] == ["src/generated/**"]
+    assert rules[0][ConfigKeys.TAGS] == ["from-ruleset"]
+
+
+def test_ruleset_profile_override_selects_named_profile(tmp_path: Path):
+    tool_root = tmp_path / "tool"
+    project_root = tmp_path / "project"
+    write_ruleset_fixture(tool_root)
+    manager = ConfigManager(resource_locator=ResourceLocator(source_root=tool_root))
+
+    runtime_config, rules = manager.load_ruleset_runtime(project_root, "memox", "ci")
+
+    assert runtime_config[ConfigKeys.REPORT][ConfigKeys.FORMAT] == "json"
+    assert runtime_config[ConfigKeys.FAILURE][ConfigKeys.WARNING_AS_ERROR] is True
+    assert rules[0][ConfigKeys.SEVERITY] == "error"
+
+
+def test_missing_ruleset_reports_ruleset_name(tmp_path: Path):
+    write_yaml(
+        tmp_path / "guard-manifest.yaml",
+        """
+        version: 1
+        rule_sets: {}
+        """,
+    )
+    manager = ConfigManager(resource_locator=ResourceLocator(source_root=tmp_path))
+
+    with pytest.raises(FileNotFoundError, match="Ruleset not found: memox"):
+        manager.load_ruleset_runtime(tmp_path / "project", "memox")
+
+
+def test_missing_ruleset_manifest_reports_manifest_path(tmp_path: Path):
+    write_yaml(
+        tmp_path / "guard-manifest.yaml",
+        """
+        version: 1
+        rule_sets: {}
+        """,
+    )
+    (tmp_path / "projects" / "memox").mkdir(parents=True)
+    manager = ConfigManager(resource_locator=ResourceLocator(source_root=tmp_path))
+
+    with pytest.raises(FileNotFoundError, match="guard-manifest.yaml not found"):
+        manager.load_ruleset_runtime(tmp_path / "project", "memox")

@@ -1,0 +1,27 @@
+version: 1
+
+ruleset:
+  name: memox
+
+profile: local
+
+config:
+  profiles: config/profiles.yaml
+  scopes: config/scopes.yaml
+  overrides: config/overrides.yaml
+
+rules:
+  - rules/common-code.yaml
+  - rules/common-security.yaml
+  - rules/common-naming.yaml
+  - rules/common-convention.yaml
+  - rules/common-file.yaml
+  - rules/dart.yaml
+  - rules/flutter.yaml
+  - rules/memox-global.yaml
+  - rules/memox-coding.yaml
+  - rules/memox-normalized.yaml
+  - rules/memox-architecture.yaml
+  - rules/memox-ui.yaml
+  - rules/memox-state-management.yaml
+  - rules/memox-ui-async-guard.yaml

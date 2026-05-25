@@ -28,8 +28,31 @@ class GuardApplication:
         self.rule_runner = rule_runner or RuleRunner()
         self.reporter_factory = reporter_factory or ReporterFactory()
 
-    def run(self, project: str, config: str) -> bool:
+    def run(
+        self,
+        project: str,
+        config: str,
+        ruleset: str | None = None,
+        profile: str | None = None,
+    ) -> bool:
         """Run the guard and return whether it should fail."""
+        project_root = Path(project).resolve()
+
+        if ruleset:
+            runtime_config, rule_configs = self.config_manager.load_ruleset_runtime(
+                project_root,
+                ruleset,
+                profile,
+            )
+            return self._run_with_config(project_root, runtime_config, rule_configs)
+
+        if profile:
+            raise ValueError("--profile requires --ruleset")
+
+        raise ValueError("--ruleset is required. Example: check --project . --ruleset memox")
+
+    def run_legacy(self, project: str, config: str) -> bool:
+        """Run the legacy project-config flow."""
         project_root = Path(project).resolve()
         config_path = project_root / config
         project_config = self.config_manager.load_project_config(config_path)
@@ -43,6 +66,15 @@ class GuardApplication:
             profile_config,
             project_config,
         )
+        return self._run_with_config(project_root, runtime_config, rule_configs)
+
+    def _run_with_config(
+        self,
+        project_root: Path,
+        runtime_config: dict,
+        rule_configs: list[dict],
+    ) -> bool:
+        """Run loaded rules against a project root."""
         report_config = runtime_config.get(ConfigKeys.REPORT, {})
         reporter = self.reporter_factory.create(
             report_config.get(

@@ -35,6 +35,37 @@ class ConfigManager:
         self._validate_project_config(project_config, config_path)
         return project_config
 
+    def load_ruleset_runtime(
+        self,
+        project_root: Path,
+        ruleset_name: str,
+        profile_override: str | None = None,
+    ) -> tuple[dict, list[dict]]:
+        """Load runtime config and rules from a named ruleset bundle."""
+        ruleset_root, manifest = self._load_ruleset_manifest(ruleset_name)
+        profile_config = self._load_ruleset_profile(
+            ruleset_root,
+            manifest,
+            profile_override,
+        )
+        ruleset_config = self._load_ruleset_config(ruleset_root, manifest)
+        runtime_config = self.merge_runtime_config(profile_config, ruleset_config)
+        scope_paths = self._ruleset_scope_paths(ruleset_root, manifest)
+        rule_paths = self._ruleset_rule_paths(ruleset_root, manifest)
+        scope_registry = self._load_scope_registry(scope_paths)
+        rule_configs = self._load_registries(rule_paths)
+        merged_overrides = self._merge_rule_overrides(
+            profile_config.get(ConfigKeys.OVERRIDES, {}),
+            ruleset_config.get(ConfigKeys.OVERRIDES, {}),
+        )
+        final_rules = self._apply_overrides(rule_configs, merged_overrides)
+        normalized_rules = [
+            self._normalize_rule(rule, scope_registry)
+            for rule in final_rules
+        ]
+        self._validate_final_rules(normalized_rules)
+        return runtime_config, normalized_rules
+
     def load_profile_config(self, project_root: Path, project_config: dict) -> dict:
         """Load the selected profile configuration."""
         profile_name = project_config.get(ConfigKeys.PROFILE) or Defaults.DEFAULT_PROFILE
@@ -43,6 +74,117 @@ class ConfigManager:
         profile_config = self._load_yaml(profile_path)
         self._validate_profile_config(profile_config, profile_path)
         return profile_config
+
+    def _load_ruleset_manifest(self, ruleset_name: str) -> tuple[Path, dict]:
+        """Load and validate a ruleset-local guard manifest."""
+        tool_root = self.resource_locator.builtin_root()
+        ruleset_root = self.resource_locator.join(
+            tool_root,
+            Defaults.PROJECTS_DIRECTORY,
+            ruleset_name,
+        )
+
+        if not self.resource_locator.exists(ruleset_root):
+            raise FileNotFoundError(f"Ruleset not found: {ruleset_name}")
+
+        manifest_path = self.resource_locator.join(
+            ruleset_root,
+            Defaults.MANIFEST_FILE_NAME,
+        )
+
+        if not self.resource_locator.exists(manifest_path):
+            raise FileNotFoundError(f"Ruleset guard-manifest.yaml not found: {manifest_path}")
+
+        manifest = self._load_yaml(manifest_path)
+        self._validate_ruleset_manifest(manifest, manifest_path, ruleset_name)
+        return ruleset_root, manifest
+
+    def _load_ruleset_profile(
+        self,
+        ruleset_root: Path,
+        manifest: dict,
+        profile_override: str | None,
+    ) -> dict:
+        """Load the selected ruleset profile config."""
+        profile_name = profile_override or manifest.get(ConfigKeys.PROFILE) or Defaults.DEFAULT_PROFILE
+        profiles_path = self._ruleset_config_path(
+            ruleset_root,
+            manifest,
+            ConfigKeys.PROFILES,
+        )
+        profiles_document = self._load_yaml(profiles_path)
+        self._validate_ruleset_profiles(profiles_document, profiles_path)
+        profiles = profiles_document.get(ConfigKeys.PROFILES, {})
+        profile_config = profiles.get(profile_name)
+
+        if profile_config is None:
+            raise ValueError(f"Ruleset profile not found: {profile_name}")
+
+        return self._normalize_ruleset_profile(profile_name, profile_config)
+
+    def _load_ruleset_config(self, ruleset_root: Path, manifest: dict) -> dict:
+        """Load ruleset overrides and manifest-level runtime config."""
+        ruleset_config = deepcopy(manifest)
+        overrides_path = self._ruleset_config_path(
+            ruleset_root,
+            manifest,
+            ConfigKeys.OVERRIDES,
+        )
+        overrides_document = self._load_yaml(overrides_path)
+        self._validate_ruleset_overrides(overrides_document, overrides_path)
+        ruleset_config[ConfigKeys.OVERRIDES] = overrides_document.get(
+            ConfigKeys.OVERRIDES,
+            {},
+        )
+        return ruleset_config
+
+    def _ruleset_config_path(self, ruleset_root: Path, manifest: dict, key: str) -> Path:
+        """Resolve one ruleset config path."""
+        config_block = manifest.get(ConfigKeys.CONFIG, {})
+        path_text = config_block.get(key)
+
+        if not path_text:
+            raise ValueError(f"Ruleset manifest config missing '{key}'")
+
+        return self._resolve_ruleset_path(ruleset_root, path_text)
+
+    def _ruleset_scope_paths(self, ruleset_root: Path, manifest: dict) -> list[Path]:
+        """Resolve ruleset scope document paths."""
+        config_block = manifest.get(ConfigKeys.CONFIG, {})
+        return [
+            self._resolve_ruleset_path(ruleset_root, path_text)
+            for path_text in self._as_string_list(config_block.get(ConfigKeys.SCOPES, []))
+        ]
+
+    def _ruleset_rule_paths(self, ruleset_root: Path, manifest: dict) -> list[Path]:
+        """Resolve ruleset rule registry paths."""
+        return [
+            self._resolve_ruleset_path(ruleset_root, path_text)
+            for path_text in self._as_string_list(manifest.get(ConfigKeys.RULES, []))
+        ]
+
+    def _resolve_ruleset_path(self, ruleset_root: Path, path_text: str) -> Path:
+        """Resolve a ruleset-local resource path."""
+        path = Path(path_text)
+
+        if path.is_absolute():
+            return path
+
+        return self.resource_locator.join(ruleset_root, path_text)
+
+    def _as_string_list(self, value: Any) -> list[str]:
+        """Normalize a scalar or list config field to strings."""
+        if isinstance(value, str):
+            return [value]
+
+        if not isinstance(value, list):
+            raise ValueError("Ruleset path fields must be strings or string lists")
+
+        for item in value:
+            if not isinstance(item, str):
+                raise ValueError("Ruleset path fields must contain only strings")
+
+        return value
 
     def merge_runtime_config(self, profile_config: dict, project_config: dict) -> dict:
         """Merge runtime settings with project precedence."""
@@ -227,6 +369,59 @@ class ConfigManager:
             ConfigKeys.INCLUDE: include_patterns,
             ConfigKeys.EXCLUDE: exclude_patterns,
         }
+
+    def _validate_ruleset_manifest(
+        self,
+        document: dict,
+        path: Path,
+        ruleset_name: str,
+    ) -> None:
+        """Validate the ruleset manifest contract."""
+        self._validate_document_version(document, path)
+
+        ruleset_block = document.get(ConfigKeys.RULESET)
+        if not isinstance(ruleset_block, dict):
+            raise ValueError(f"Ruleset manifest must define ruleset metadata: {path}")
+
+        if ruleset_block.get(ConfigKeys.NAME) != ruleset_name:
+            raise ValueError(f"Ruleset manifest name must match requested ruleset: {path}")
+
+        if not isinstance(document.get(ConfigKeys.CONFIG), dict):
+            raise ValueError(f"Ruleset manifest must define config paths: {path}")
+
+        if not isinstance(document.get(ConfigKeys.RULES), list):
+            raise ValueError(f"Ruleset manifest rules must be a list: {path}")
+
+    def _validate_ruleset_profiles(self, document: dict, path: Path) -> None:
+        """Validate a ruleset profiles document."""
+        self._validate_document_version(document, path)
+
+        profiles = document.get(ConfigKeys.PROFILES)
+        if not isinstance(profiles, dict):
+            raise ValueError(f"Ruleset profiles must be a mapping: {path}")
+
+    def _validate_ruleset_overrides(self, document: dict, path: Path) -> None:
+        """Validate a ruleset overrides document."""
+        self._validate_document_version(document, path)
+
+        if not isinstance(document.get(ConfigKeys.OVERRIDES, {}), dict):
+            raise ValueError(f"Ruleset overrides must be a mapping: {path}")
+
+    def _normalize_ruleset_profile(self, profile_name: str, profile_config: dict) -> dict:
+        """Normalize a profile entry from a ruleset profiles document."""
+        if not isinstance(profile_config, dict):
+            raise ValueError(f"Ruleset profile must be a mapping: {profile_name}")
+
+        normalized = deepcopy(profile_config)
+        normalized[ConfigKeys.VERSION] = Defaults.SCHEMA_VERSION
+        normalized.setdefault(
+            ConfigKeys.PROFILE,
+            {
+                ConfigKeys.NAME: profile_name,
+            },
+        )
+        self._validate_profile_config(normalized, Path(f"<ruleset-profile:{profile_name}>"))
+        return normalized
 
     def _validate_project_config(self, document: dict, path: Path) -> None:
         """Validate the project config contract."""

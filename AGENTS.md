@@ -27,10 +27,10 @@ Read only when the task touches that area:
 
 ## Default Check
 
-For normal changes, run:
+For MemoX ruleset verification, run from the MemoX repository root:
 
 ```powershell
-python guard\run.py check --project .
+python code-verification-guard\guard\run.py check --project . --ruleset memox
 ```
 
 Expected success:
@@ -39,6 +39,9 @@ Expected success:
 Code verification passed.
 No violations found.
 ```
+
+For Python engine changes in this repository, also run `pytest -q` and
+`python -m compileall -q code_verification_guard`.
 
 ## Completion Report
 

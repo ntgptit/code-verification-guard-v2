@@ -1,0 +1,451 @@
+version: 1
+metadata:
+  id: memox-ruleset-scopes
+  name: MemoX Ruleset Scopes
+  description: Scopes loaded by the MemoX ruleset manifest.
+scopes:
+  project_files:
+    include:
+      - code-verification-guard.yaml
+      - pubspec.yaml
+      - analysis_options.yaml
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+      - web/**
+      - tools/**
+      - code-verification-guard/**
+  all_text_files:
+    include:
+      - code-verification-guard.yaml
+      - pubspec.yaml
+      - analysis_options.yaml
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+      - web/**
+      - tools/**
+      - code-verification-guard/**
+  text_source_files:
+    include:
+      - code-verification-guard.yaml
+      - pubspec.yaml
+      - analysis_options.yaml
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+      - web/**
+      - tools/**
+      - code-verification-guard/**
+  source_files:
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+      - web/**
+      - tools/**
+      - code-verification-guard/**
+  source_and_config_files:
+    include:
+      - code-verification-guard.yaml
+      - pubspec.yaml
+      - analysis_options.yaml
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+      - web/**
+      - tools/**
+      - code-verification-guard/**
+  dart_source:
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+  dart_lib:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/.dart_tool/**'
+      - '**/build/**'
+  flutter_source:
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+  flutter_app_source:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/core/theme/**
+      - lib/core/tokens/**
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/.dart_tool/**'
+      - '**/build/**'
+  all:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  app_bar_header_files:
+    include:
+      - lib/presentation/features/**/*_header_section.dart
+      - lib/presentation/features/study/screens/study_session_screen.dart
+      - lib/presentation/features/study/widgets/study_session/study_mode_session_scaffold.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  app_bar_header_framed_button_files:
+    include:
+      - lib/presentation/features/**/*_header_section.dart
+      - lib/presentation/features/study/widgets/study_session/study_mode_session_scaffold.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  app_source_except_logger:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/core/logging/app_logger.dart
+      - '**/core/logging/app_logger.dart'
+  app_ui:
+    include:
+      - lib/main.dart
+      - lib/app/app.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  child_widget_layout_files:
+    include:
+      - lib/presentation/shared/widgets/*.dart
+      - lib/presentation/shared/widgets/**/*.dart
+      - lib/presentation/shared/feedback/*.dart
+      - lib/presentation/shared/feedback/**/*.dart
+      - lib/presentation/features/**/widgets/*.dart
+      - lib/presentation/features/**/widgets/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/presentation/features/**/widgets/**/dialogs/**/*.dart
+      - lib/presentation/features/**/widgets/**/sheets/**/*.dart
+      - lib/presentation/features/**/widgets/**/bottom_sheets/**/*.dart
+      - lib/presentation/features/**/widgets/**/overlays/**/*.dart
+      - lib/presentation/features/**/widgets/**/*_dialog.dart
+      - lib/presentation/features/**/widgets/**/*_bottom_sheet.dart
+      - lib/presentation/features/**/widgets/**/*_overlay.dart
+      - lib/presentation/features/**/widgets/**/*_fullscreen_modal.dart
+      - lib/presentation/features/**/widgets/**/*_image_preview.dart
+  child_widget_screen_width_files:
+    include:
+      - lib/presentation/shared/widgets/*.dart
+      - lib/presentation/shared/widgets/**/*.dart
+      - lib/presentation/shared/feedback/*.dart
+      - lib/presentation/shared/feedback/**/*.dart
+      - lib/presentation/features/**/widgets/*.dart
+      - lib/presentation/features/**/widgets/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/presentation/features/**/widgets/**/dialogs/**/*.dart
+      - lib/presentation/features/**/widgets/**/overlays/**/*.dart
+      - lib/presentation/features/**/widgets/**/*_dialog.dart
+      - lib/presentation/features/**/widgets/**/*_overlay.dart
+      - lib/presentation/features/**/widgets/**/*_fullscreen_modal.dart
+  core_di:
+    include:
+      - lib/app/di/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  domain_files:
+    include:
+      - lib/domain/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  feature_ui:
+    include:
+      - lib/presentation/features/**/screens/*.dart
+      - lib/presentation/features/**/screens/**/*.dart
+      - lib/presentation/features/**/widgets/*.dart
+      - lib/presentation/features/**/widgets/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  features:
+    include:
+      - lib/presentation/features/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  guard_python_non_constants:
+    include: []
+    exclude: []
+  navigation_surfaces:
+    include:
+      - lib/main.dart
+      - lib/presentation/features/**/*.dart
+      - lib/presentation/shared/**/*.dart
+      - lib/app/app.dart
+      - lib/app/router/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  non_data_layer_source:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/data/**/*.dart
+      - '**/data/**/*.dart'
+      - lib/core/database/**/*.dart
+      - '**/core/database/**/*.dart'
+  non_legacy_app_source:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - '**/legacy/**/*.dart'
+  non_router_source:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/app/router/app_router.dart
+      - '**/app/router/app_router.dart'
+  presentation_async_action_controller_files:
+    include:
+      - lib/presentation/features/decks/viewmodels/deck_action_viewmodel.dart
+      - lib/presentation/features/flashcards/viewmodels/flashcard_editor_viewmodel.dart
+      - lib/presentation/features/flashcards/viewmodels/flashcard_import_viewmodel.dart
+      - lib/presentation/features/flashcards/viewmodels/flashcard_list_viewmodel.dart
+      - lib/presentation/features/folders/viewmodels/folder_detail_viewmodel.dart
+      - lib/presentation/features/folders/viewmodels/library_overview_viewmodel.dart
+      - lib/presentation/features/progress/providers/progress_session_notifier.dart
+      - lib/presentation/features/study/providers/study_session_notifier.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  provider_files:
+    include:
+      - lib/presentation/features/**/*_provider.dart
+      - lib/presentation/features/**/*_providers.dart
+      - lib/presentation/features/**/*_notifier.dart
+      - lib/presentation/features/**/*_notifiers.dart
+      - lib/presentation/features/**/*_viewmodel.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  screen_like_files:
+    include:
+      - lib/**/*_screen.dart
+      - lib/**/*_page.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  screens:
+    include:
+      - lib/presentation/features/**/screens/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  shared_layout_files:
+    include:
+      - lib/presentation/shared/layouts/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  shared_widget_component_api_files:
+    include:
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/presentation/shared/widgets/mx_text.dart
+      - lib/presentation/shared/widgets/mx_text_field.dart
+  shared_widget_dirs:
+    include:
+      - lib/presentation/shared/layouts/**/*.dart
+      - lib/presentation/shared/widgets/**/*.dart
+      - lib/presentation/shared/dialogs/**/*.dart
+      - lib/presentation/shared/feedback/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  stateless_di_provider_files:
+    include:
+      - lib/app/di/content/content_core_providers.dart
+      - lib/app/di/content/content_data_providers.dart
+      - lib/app/di/content/deck_providers.dart
+      - lib/app/di/content/flashcard_providers.dart
+      - lib/app/di/content/folder_providers.dart
+      - lib/app/di/study/study_data_providers.dart
+      - lib/app/di/study/study_settings_providers.dart
+      - lib/app/di/study/study_strategy_providers.dart
+      - lib/app/di/study/study_usecase_providers.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  study_session_widget_files:
+    include:
+      - lib/presentation/features/study/widgets/study_session/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  theme_file:
+    include:
+      - lib/core/theme/**/app_theme.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  theme_sources:
+    include:
+      - lib/core/theme/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  ui:
+    include:
+      - lib/presentation/features/**/*.dart
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  ui_surfaces:
+    include:
+      - lib/main.dart
+      - lib/presentation/features/**/*.dart
+      - lib/presentation/shared/**/*.dart
+      - lib/app/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  viewmodel_files:
+    include:
+      - lib/presentation/features/*/providers/*_viewmodel.dart
+      - lib/presentation/features/*/viewmodels/*_viewmodel.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  widget_ui_files:
+    include:
+      - lib/main.dart
+      - lib/presentation/features/**/screens/**/*.dart
+      - lib/presentation/features/**/widgets/**/*.dart
+      - lib/presentation/shared/**/*.dart
+      - lib/app/app.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+  widget_ui_async_surfaces:
+    include:
+      - lib/main.dart
+      - lib/presentation/features/**/screens/*.dart
+      - lib/presentation/features/**/screens/**/*.dart
+      - lib/presentation/features/**/widgets/*.dart
+      - lib/presentation/features/**/widgets/**/*.dart
+      - lib/presentation/shared/**/*.dart
+      - lib/app/app.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/presentation/features/**/providers/**
+      - lib/presentation/features/**/viewmodels/**

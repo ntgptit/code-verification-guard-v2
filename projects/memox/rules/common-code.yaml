@@ -1,0 +1,101 @@
+version: 1
+
+metadata:
+  id: common-code-rules
+  name: Common Code Rules
+  description: Generic maintainability rules for all source code projects.
+
+rules:
+  - id: common.no_trailing_whitespace
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not leave trailing whitespace at the end of lines.
+    scopes:
+      - text_source_files
+    patterns:
+      - "[ \\t]+$"
+    tags:
+      - common
+      - formatting
+    fix:
+      hint: Remove spaces or tabs at the end of the line.
+
+  - id: common.no_multiple_blank_lines
+    type: regex
+    mode: file
+    severity: warning
+    enabled: true
+    message: Avoid too many consecutive blank lines.
+    scopes:
+      - text_source_files
+    patterns:
+      - "(\\r?\\n\\s*){4,}"
+    tags:
+      - common
+      - formatting
+    fix:
+      hint: Keep at most two consecutive blank lines.
+
+  - id: common.no_todo_without_ticket
+    type: regex
+    severity: warning
+    enabled: true
+    message: TODO/FIXME must include a ticket id or clear tracking reference.
+    scopes:
+      - source_files
+    patterns:
+      - "\\b(TODO|FIXME)\\b(?!.*([A-Z]+-[0-9]+|#[0-9]+))"
+    tags:
+      - common
+      - maintainability
+    fix:
+      hint: Add a ticket id such as MEMOX-123 or issue reference such as #123.
+
+  - id: common.max_file_lines
+    type: max_lines
+    severity: warning
+    enabled: true
+    message: File is too long. Split it into smaller files.
+    scopes:
+      - source_files
+    max_lines: 400
+    tags:
+      - common
+      - maintainability
+    fix:
+      hint: Extract smaller modules/classes/widgets/functions.
+
+  - id: common.no_merge_conflict_markers
+    type: regex
+    severity: error
+    enabled: true
+    message: Merge conflict markers must not be committed.
+    scopes:
+      - text_source_files
+    patterns:
+      - "^<<<<<<< "
+      - "^=======$"
+      - "^>>>>>>> "
+    tags:
+      - common
+      - git
+      - correctness
+    fix:
+      hint: Resolve the merge conflict and remove conflict markers.
+
+  - id: common.no_debugger_statement
+    type: regex
+    severity: error
+    enabled: true
+    message: Debugger statements must not be committed.
+    scopes:
+      - source_files
+    patterns:
+      - "\\bdebugger\\s*;"
+      - "\\bbreakpoint\\s*\\("
+    tags:
+      - common
+      - debug
+    fix:
+      hint: Remove debugger/breakpoint statements before committing.

@@ -1,0 +1,960 @@
+version: 1
+metadata:
+  id: memox-normalized
+  name: MemoX Normalized Rules
+  description: MemoX normalized local rules ported from the legacy guard policy.
+  owner: code-verification-guard
+rules:
+  - id: memox.legacy_state_notifier
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not use `StateNotifier` in non-legacy app source; new state should use `Notifier` or `AsyncNotifier`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bStateNotifier\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+    fix:
+      hint: Use Riverpod 3 annotation syntax with generated notifiers instead.
+  - id: memox.change_notifier_provider_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not import or use `ChangeNotifierProvider`; it is a migration bridge and is not allowed in this codebase.
+    scopes:
+      - all
+    patterns:
+      - \bChangeNotifierProvider\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.state_notifier_provider_creation
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not create `StateNotifierProvider` in non-legacy app source; new state should use generated `Notifier` or
+      `AsyncNotifier`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bStateNotifierProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.manual_provider_constructor_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: App source should use Riverpod code generation instead of manual provider constructors.
+    scopes:
+      - all
+    patterns:
+      - \bProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+      - \bStateProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+      - \bFutureProvider\b
+      - \bStreamProvider\b
+      - \bNotifierProvider\b
+      - \bAsyncNotifierProvider\b
+      - \bStreamNotifierProvider\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.raw_debug_logging
+    type: regex
+    severity: error
+    enabled: true
+    message: App source must not use raw debug logging APIs directly.
+    scopes:
+      - app_source_except_logger
+    patterns:
+      - \bprint\s*\(
+      - \bdebugPrint\s*\(
+      - \bdeveloper\.log\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.raw_monitoring_call
+    type: regex
+    severity: error
+    enabled: true
+    message: App source must not call Sentry APIs directly; monitoring should flow through the repo's centralized logging
+      or monitoring utility.
+    scopes:
+      - app_source_except_logger
+    patterns:
+      - \bSentryFlutter\.init\s*\(
+      - \bSentry\.captureException\s*\(
+      - \bSentry\.captureMessage\s*\(
+      - \bSentry\.configureScope\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.sensitive_log_payload
+    type: regex
+    severity: error
+    enabled: true
+    message: Logging calls must not interpolate sensitive values such as tokens, passwords, secrets, or session identifiers.
+    scopes:
+      - app_source_except_logger
+    patterns:
+      - (?:AppLogger\.(?:debug|info|warning|error|fatal)|debugPrint|print|developer\.log)\s*\([^\n]*(?:token|password|secret|cookie|session|credential|api[
+        _-]?key)[^\n:=]{0,32}[:=]
+      - (?:AppLogger\.(?:debug|info|warning|error|fatal)|debugPrint|print|developer\.log)\s*\([^\n]*[Bb]earer\s+[A-Za-z0-9\-._~+/=]+
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.feature_bottom_sheet_entrypoint
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw `showModalBottomSheet(...)` in feature presentation code; route through a shared helper.
+    scopes:
+      - features
+    patterns:
+      - showModalBottomSheet\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.app_bar_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material app bars in feature code; prefer shared toolbar primitives.
+    scopes:
+      - features
+    patterns:
+      - \bAppBar\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.floating_action_button_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material floating action buttons in feature code; prefer shared FAB primitives.
+    scopes:
+      - features
+    patterns:
+      - \bFloatingActionButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.button_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material button widgets in feature code; prefer shared button primitives.
+    scopes:
+      - features
+    patterns:
+      - \bElevatedButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bFilledButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bOutlinedButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bTextButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.card_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material card widgets in feature code; prefer shared card primitives.
+    scopes:
+      - features
+    patterns:
+      - \bCard(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.dialog_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material dialog widgets in feature code; prefer shared dialog primitives.
+    scopes:
+      - features
+    patterns:
+      - \bAlertDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSimpleDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bAboutDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.input_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material text input widgets in feature code; prefer shared text-field primitives.
+    scopes:
+      - features
+    patterns:
+      - \bTextField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bTextFormField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSearchBar(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSearchAnchor(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.chip_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material chip widgets in feature code; prefer shared chip primitives.
+    scopes:
+      - features
+    patterns:
+      - \bChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bChoiceChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bFilterChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bActionChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bInputChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.icon_button_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material icon buttons in feature code; prefer shared icon-button primitives.
+    scopes:
+      - features
+    patterns:
+      - \bIconButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.select_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material dropdown widgets in feature code; prefer shared select-field primitives.
+    scopes:
+      - features
+    patterns:
+      - \bDropdownButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDropdownButtonFormField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDropdownMenu(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.progress_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material progress indicators in feature code; prefer shared loading/progress primitives.
+    scopes:
+      - features
+    patterns:
+      - \bCircularProgressIndicator(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bLinearProgressIndicator(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.divider_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material dividers in feature code; prefer shared divider primitives.
+    scopes:
+      - features
+    patterns:
+      - \bDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bVerticalDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.switch_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material switches in feature code; prefer shared toggle primitives.
+    scopes:
+      - features
+    patterns:
+      - \bSwitch(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSwitchListTile(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.feature_raw_flutter_widget_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Flutter Material widgets in feature code, including basic surfaces such as `Scaffold`, `AppBar`, buttons,
+      cards, text fields, chips, icon buttons, selects, progress indicators, dividers, and switches, plus higher-level controls
+      such as menus, tiles, tabs, navigation widgets, sliders, and pickers.
+    scopes:
+      - features
+    patterns:
+      - \bScaffold\s*\(
+      - \bAppBar\s*\(
+      - \bFloatingActionButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bElevatedButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bFilledButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bOutlinedButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bTextButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bCard(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bAlertDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSimpleDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bAboutDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bTextField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bTextFormField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSearchBar(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSearchAnchor(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bChoiceChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bFilterChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bActionChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bInputChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bIconButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDropdownButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDropdownButtonFormField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDropdownMenu(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bCircularProgressIndicator(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bLinearProgressIndicator(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bVerticalDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSwitch(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSwitchListTile(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bCheckbox\s*\(
+      - \bCheckboxListTile\s*\(
+      - \bRadio\s*\(
+      - \bRadioListTile\s*\(
+      - \bSlider\s*\(
+      - \bRangeSlider\s*\(
+      - \bSegmentedButton(?:<[^>]+>)?\s*\(
+      - \bPopupMenuButton(?:<[^>]+>)?\s*\(
+      - \bMenuAnchor\s*\(
+      - \bMenuBar\s*\(
+      - \bSubmenuButton\s*\(
+      - \bListTile\s*\(
+      - \bExpansionTile\s*\(
+      - \bNavigationBar\s*\(
+      - \bBottomNavigationBar\s*\(
+      - \bNavigationRail\s*\(
+      - \bNavigationDrawer\s*\(
+      - \bTabBar\s*\(
+      - \bTabBarView\s*\(
+      - \bTabPageSelector\s*\(
+      - \bStepper\s*\(
+      - \bshowDatePicker\s*\(
+      - \bshowDateRangePicker\s*\(
+      - \bshowTimePicker\s*\(
+      - \bDatePickerDialog\s*\(
+      - \bTimePickerDialog\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.snackbar_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material snack bars in feature code; prefer shared snackbar helpers.
+    scopes:
+      - features
+    patterns:
+      - \bSnackBar\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.popup_menu_button_child_forbidden
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Do not use `PopupMenuButton(child: ...)` on UI surfaces because its internal overlay may not match the child''s
+      rounded shape.'
+    scopes:
+      - ui
+    patterns:
+      - '(?s)\bPopupMenuButton(?:<[^>]+>)?\s*\(.*?\bchild\s*:'
+    mode: file
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.snackbar_messenger_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature UI should not call `ScaffoldMessenger.of(...)` directly; route feedback through shared snackbar helpers.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bScaffoldMessenger\.of\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.dialog_entrypoint_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature UI should not call `showDialog(...)` directly; route dialog flows through shared dialog helpers.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bshowDialog\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.ui_error_stringify
+    type: regex
+    severity: error
+    enabled: true
+    message: UI and app layout surfaces should not stringify raw errors directly.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - error\.toString\(\)
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.ui_low_level_exception_surface
+    type: regex
+    severity: error
+    enabled: true
+    message: UI and app layout surfaces must not depend on low-level network or database exception types.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - \bSqliteException\b
+      - \bDriftWrappedException\b
+      - \bDioException\b
+      - \bSocketException\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_low_level_exception_surface
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not depend on low-level database or network exception types.
+    scopes:
+      - provider_files
+    patterns:
+      - \bSqliteException\b
+      - \bDriftWrappedException\b
+      - \bDioException\b
+      - \bSocketException\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_ui_ref_types
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not depend on UI-bound types such as BuildContext or WidgetRef.
+    scopes:
+      - provider_files
+    patterns:
+      - \bBuildContext\b
+      - \bWidgetRef\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_async_error_wrapper
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not wrap errors with raw `AsyncError`; map them to `AppFailure`.
+    scopes:
+      - provider_files
+    patterns:
+      - throw\s+AsyncError\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_raw_async_error_state
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not assign raw caught errors into AsyncValue.error; map them to AppFailure first.
+    scopes:
+      - provider_files
+    patterns:
+      - AsyncValue\.error\s*\(\s*error\b
+      - AsyncValue\.error\s*\(\s*e\b
+      - AsyncValue\.error\s*\(\s*exception\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_raw_string_error_state
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not publish raw string error states.
+    scopes:
+      - provider_files
+    patterns:
+      - AsyncValue\.error\s*\(\s*'[^']+'
+      - AsyncValue\.error\s*\(\s*"[^"]+"
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_no_unnamed_catch
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not use unnamed catch bindings such as `catch (_)`, because they hide the real failure
+      source.
+    scopes:
+      - provider_files
+    patterns:
+      - \bcatch\s*\(_\)
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_invalidate_self
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not use `invalidateSelf()`; explicit retry or invalidation boundaries are required.
+    scopes:
+      - provider_files
+    patterns:
+      - \binvalidateSelf\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.provider_ui_side_effects
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not perform UI side effects directly.
+    scopes:
+      - provider_files
+    patterns:
+      - \bSnackBar\s*\(
+      - \bshowDialog\s*\(
+      - \bshowModalBottomSheet\s*\(
+      - \bScaffoldMessenger\.
+      - \bNavigator\.
+      - \bcontext\.go\s*\(
+      - \bcontext\.push\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.transaction_outside_data_layer
+    type: regex
+    severity: error
+    enabled: true
+    message: Database transactions must stay in the data or database layer; do not call `transaction(...)` from UI, app providers,
+      presentation notifiers, services, or use cases.
+    scopes:
+      - non_data_layer_source
+    patterns:
+      - \btransaction\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.text_style
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw `TextStyle(...)` in feature UI files; prefer theme text styles and shared typography.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bTextStyle\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.ui_direct_color_typography_tokens
+    type: regex
+    severity: error
+    enabled: true
+    message: UI code should access colors and typography through theme/context extensions, not directly from raw theme source
+      files such as `app_colors.dart` or `app_typography.dart`.
+    scopes:
+      - ui
+    patterns:
+      - import\s+'package:memox/core/theme/tokens/app_colors\.dart';
+      - import\s+'package:memox/core/theme/tokens/app_typography\.dart';
+      - import\s+'(?:\.\./)+core/theme/tokens/app_colors\.dart';
+      - import\s+'(?:\.\./)+core/theme/tokens/app_typography\.dart';
+      - \bAppColors\.
+      - \bAppTypography\.
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.app_no_direct_material_colors
+    type: regex
+    severity: error
+    enabled: true
+    message: App source must not use `Colors.*` directly. Read colors from the active `ColorScheme`, a custom theme extension,
+      or a shared semantic accessor instead.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bColors\.
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.presentation_raw_color_literals
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature presentation code must not construct raw color literals such as `Color(0x...)`, `Color.fromARGB(...)`,
+      or `Color.fromRGBO(...)`. Route colors through `Theme.of(context)`, `colorScheme`, or shared semantic color accessors
+      instead.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bColor\s*\(\s*0x[0-9A-Fa-f]+\s*\)
+      - \bColor\.(?:fromARGB|fromRGBO)\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.presentation_deprecated_with_opacity
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature presentation code must not call `.withOpacity(...)`; route opacity through theme-driven semantic color
+      APIs or centralized opacity tokens instead.
+    scopes:
+      - feature_ui
+    patterns:
+      - \.withOpacity\s*\(
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.screen_scaffold
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature screens should migrate away from raw `Scaffold` toward a shared screen shell.
+    scopes:
+      - screens
+    patterns:
+      - \bScaffold\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.widget_repository_impl_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not import repository implementation files directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - import\s+'package:memox/data/repositories/[^']+\.dart';
+      - import\s+'(?:\.\./)+data/repositories/[^']+\.dart';
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.route_literal_navigation_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: UI navigation calls must not hardcode route string literals; use shared route names or route helper builders
+      instead.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - \bcontext\.(?:go|push|pushReplacement|replace)\s*\(\s*['"]/[^'"]*['"]
+      - \brouter\.(?:go|push|pushReplacement|replace)\s*\(\s*['"]/[^'"]*['"]
+      - \bGoRouter\.of\s*\([^)]*\)\.(?:go|push|pushReplacement|replace)\s*\(\s*['"]/[^'"]*['"]
+      - \b[A-Za-z_][A-Za-z0-9_]*\.(?:goTo|pushTo|replaceWith|clearStackAndGo)\s*\(\s*['"]/[^'"]*['"]
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.common_navigation_extension_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Navigation call sites in UI, shared layout, app shell, and router surfaces must use the shared BuildContext navigation
+      extension instead of raw `GoRouter` APIs or legacy `NavigationHelper` wrappers.
+    scopes:
+      - navigation_surfaces
+    exclude:
+      - lib/app/router/app_navigation.dart
+    patterns:
+      - \bGoRouter\.of\s*\([^)]*\)\.(?:go|push|pushReplacement|replace|pop)\s*\(
+      - \bcontext\.(?:go|push|pushReplacement|replace)\s*\(
+      - \bNavigationHelper\.(?:popToRoot|clearStackAndGo|safeNavigate|pushWithResult|logout|loginSuccess)\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.raw_navigator_push_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: UI code should not use raw `Navigator` push APIs; route through `GoRouter` or shared navigation helpers with
+      `RouteConstants`.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - \bNavigator\.(?:push|pushNamed|pushReplacement|pushAndRemoveUntil|restorablePush)\s*\(
+      - \bNavigator\.of\s*\([^)]*\)\.(?:push|pushNamed|pushReplacement|pushAndRemoveUntil|restorablePush)\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.route_definition_outside_router
+    type: regex
+    severity: error
+    enabled: true
+    message: GoRouter route definitions must stay in `lib/app/router/app_router.dart` or feature-local route registries.
+    scopes:
+      - non_router_source
+    patterns:
+      - \bGoRoute\s*\(
+    exclude:
+      - presentation/features/*/routes/*_routes.dart
+      - '**/presentation/features/*/routes/*_routes.dart'
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.widget_repository_provider_access
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not read or watch repository providers directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - ref\.(?:read|watch)\s*\(\s*\w*RepositoryProvider(?:\b|\s*[.)])
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.widget_callback_ref_watch_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: UI callbacks must not call `ref.watch(...)`; callbacks should use `ref.read(...)` for one-shot imperative work.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?s)\bon[A-Z][A-Za-z0-9_]*\b\s*:\s*(?:\([^)]*\)\s*=>\s*ref\.watch\(|\([^)]*\)\s*\{.{0,240}?ref\.watch\()
+    mode: file
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.widget_database_layer_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not import DAO or database files directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - ^import\s+'package:memox/core/database/[^']+\.dart';
+      - ^import\s+'package:memox/data/dao/[^']+\.dart';
+      - ^import\s+'(?:\.\./)+[^']*/(?:dao|database)/[^']+\.dart';
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.widget_database_query_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not query Drift or call DAO objects directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - \b(?:_?database|db|appDatabase)\s*\.\s*(?:select|into|customSelect|customSelectStream)\s*\(
+      - \b(?:_?[A-Za-z0-9]*Dao)\s*\.\s*[A-Za-z_][A-Za-z0-9_]*\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.widget_direct_stream_watch
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not subscribe to direct `.watch()` streams; stream data should be normalized behind a provider
+      and the widget should only use `ref.watch(...)`.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?<!ref)\.watch\s*\(
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.ui_font_size_media_query_scaling
+    type: regex
+    severity: error
+    enabled: true
+    message: UI code must not scale `fontSize` directly from `MediaQuery`, raw screen dimensions, or per-widget text scaling
+      math.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - \bfontSize\s*:\s*[^,\n)]*MediaQuery
+      - \bfontSize\s*:\s*[^,\n)]*screenWidth
+      - \bfontSize\s*:\s*[^,\n)]*screenHeight
+      - \bfontSize\s*:\s*[^,\n)]*textScaleFactor
+      - \bfontSize\s*:\s*[^,\n)]*textScaler
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.ui_raw_radius_literals
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature UI code should prefer named shared radius constants over raw numeric radius literals.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bBorderRadius\.circular\(\s*\d+(?:\.\d+)?\s*\)
+      - \bRadius\.circular\(\s*\d+(?:\.\d+)?\s*\)
+    tags:
+      - memox
+      - normalized
+      - design_system
+  - id: memox.child_widget_media_query_layout
+    type: regex
+    severity: warning
+    enabled: true
+    message: Child widgets must not read `MediaQuery.of(context).size` or `MediaQuery.sizeOf(context)` directly for layout
+      decisions. Keep screen-wide size ownership in root page layouts, app shell, dialogs, sheets, or overlays.
+    scopes:
+      - child_widget_layout_files
+    patterns:
+      - \bMediaQuery\.of\(context\)\.size\b
+      - \bMediaQuery\.sizeOf\(context\)\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.child_widget_screen_width_layout
+    type: regex
+    severity: error
+    enabled: true
+    message: Child widgets must not read `MediaQuery.of(context).size.width` or `MediaQuery.sizeOf(context).width` to derive
+      local layout widths. Drive child layout from local constraints, `LayoutBuilder`, or responsive helpers instead.
+    scopes:
+      - child_widget_screen_width_files
+    patterns:
+      - \bMediaQuery\.of\(context\)\.size\.width\b
+      - \bMediaQuery\.sizeOf\(context\)\.width\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.child_widget_local_responsive_constants
+    type: regex
+    severity: warning
+    enabled: true
+    message: Child widgets should not declare local responsive sizing constants such as min/max width, min/max height, thresholds,
+      or column counts. Move shared layout sizing into `ResponsiveRules`, tokens, or a parent-owned responsive contract instead.
+    scopes:
+      - child_widget_layout_files
+    patterns:
+      - (?:^|\s)(?:static\s+)?const\s+(?:double|int)\s+_[A-Za-z0-9_]*(?:Threshold|MinWidth|MaxWidth|MinHeight|MaxHeight|Breakpoint|Columns)\s*=\s*\d
+    tags:
+      - memox
+      - normalized
+      - architecture
+  - id: memox.child_widget_screen_type_direct_usage
+    type: regex
+    severity: warning
+    enabled: true
+    message: Child widgets should not call `ScreenType.of(context)` directly. Keep direct screen-type branching inside responsive
+      core helpers, shared layouts, or root screens, and let widgets consume `context.screenType`, parent-owned parameters,
+      or local constraints instead.
+    scopes:
+      - child_widget_layout_files
+    patterns:
+      - \bScreenType\.of\(context\)\b
+      - \bScreenType\.of\(this\)\b
+    tags:
+      - memox
+      - normalized
+      - architecture
+
+  - id: memox.no_empty_catch_block
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Empty `catch (...) {}` silently swallows errors and hides bugs. Either
+      log + rethrow, map to an `AppFailure`, or extract the swallowing into a
+      named helper that documents the intentional discard.
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+    patterns:
+      - 'catch\s*\([^)]*\)\s*\{\s*\}'
+    tags:
+      - memox
+      - normalized
+      - error-handling
+
+  - id: memox.no_throw_raw_exception
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `throw Exception(...)` is the generic catch-all and carries no semantic
+      type. For business failures throw `AppFailure(...)`; for true programmer
+      errors use a typed `StateError` / `ArgumentError` / `UnsupportedError`.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+    patterns:
+      - 'throw\s+Exception\s*\('
+    tags:
+      - memox
+      - normalized
+      - error-handling

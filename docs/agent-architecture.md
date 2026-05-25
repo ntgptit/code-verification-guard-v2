@@ -7,18 +7,18 @@ does not keep a packaged copy of built-in YAML resources under
 `code_verification_guard/`, and it does not support a separate installed-package
 resource mode.
 
-The source tree has one built-in YAML source of truth:
+The source tree supports ruleset-local YAML sources of truth:
 
 ```text
-guard-manifest.yaml
-profiles/
-scopes/
-registries/
+projects/<ruleset>/
+  guard-manifest.yaml
+  config/
+  rules/
 ```
 
-`ResourceLocator` resolves these files from the tool source root. If
-`guard-manifest.yaml` is missing from that root, startup must fail clearly
-instead of falling back to another resource location.
+`--project` selects the scan root. `--ruleset` selects the policy bundle under
+`projects/<ruleset>`. Ruleset manifest paths resolve relative to the ruleset
+root, while file scanning always runs against the project root.
 
 ## Core Flow
 
@@ -27,13 +27,13 @@ The architecture must remain:
 ```text
 Vendored Source Root
         |
-Root Guard Manifest
+Ruleset Manifest
         |
-Root Scopes / Registries / Profiles
+Ruleset Config / Rules
         |
-Project Config
+Project Scan Root
         |
-Project Profile Selection
+Ruleset Profile Selection
         |
 Scope Registry
         |

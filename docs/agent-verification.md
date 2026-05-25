@@ -2,10 +2,10 @@
 
 ## Default Check
 
-For normal changes, run:
+For MemoX ruleset verification, run from the MemoX repository root:
 
 ```powershell
-python guard\run.py check --project .
+python code-verification-guard\guard\run.py check --project . --ruleset memox
 ```
 
 The expected success output includes:

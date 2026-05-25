@@ -7,6 +7,7 @@ class ConfigKeys:
     NAME = "name"
     DESCRIPTION = "description"
     PROFILE = "profile"
+    PROFILES = "profiles"
     SCOPES = "scopes"
     SCOPE = "scope"
     FIX = "fix"
@@ -25,6 +26,8 @@ class ConfigKeys:
     LANGUAGES = "languages"
     PROJECTS = "projects"
     REGISTRIES = "registries"
+    CONFIG = "config"
+    RULESET = "ruleset"
 
     RULES = "rules"
     ID = "id"

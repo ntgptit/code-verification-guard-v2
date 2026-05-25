@@ -7,7 +7,9 @@ For normal rule additions, do not modify Python code. Add or update YAML only:
 - `scopes/*.yaml`
 - `registries/**/*.yaml`
 - `profiles/*.yaml`
-- `guard-manifest.yaml`
+- `projects/<ruleset>/guard-manifest.yaml`
+- `projects/<ruleset>/config/*.yaml`
+- `projects/<ruleset>/rules/*.yaml`
 - project-level `code-verification-guard.yaml`
 
 Only modify Python code when adding a new generic capability such as a matcher type, reporter type, resource loading behavior, registry behavior, CLI command, or validation mechanism.
@@ -16,7 +18,8 @@ Only modify Python code when adding a new generic capability such as a matcher t
 
 Do not put inline rules inside `code-verification-guard.yaml`.
 
-`code-verification-guard.yaml` is only for project metadata, selected profile, selected rule sets, custom registries, custom scopes, overrides, failure policy, and report options.
+`code-verification-guard.yaml` is legacy project config. New reusable policy
+bundles should prefer `projects/<ruleset>/guard-manifest.yaml`.
 
 Rules must be defined only in registry files. Scopes must be defined only in scope files. Profiles must only override behavior and must not define new rules.
 
@@ -52,7 +55,9 @@ scopes:
 
 Do not hardcode registry paths in Python core.
 
-Rule set mapping must be declared in `guard-manifest.yaml`. The manifest maps rule set names to scope files and registry files.
+Rule set mapping for the new flow must be declared in
+`projects/<ruleset>/guard-manifest.yaml`. The manifest maps config files and
+rule registry files relative to the ruleset root.
 
 If a new language/framework/project rule set is needed, update `guard-manifest.yaml`.
 

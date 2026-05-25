@@ -1,0 +1,84 @@
+version: 1
+metadata:
+  id: memox-global
+  name: MemoX Global Rules
+  description: Global MemoX coding rules ported from the legacy guard policy.
+  owner: code-verification-guard
+rules:
+  - id: memox.no_else
+    type: regex
+    severity: error
+    enabled: true
+    message: Prefer early return, guard clauses, or switch expressions over `else`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - (?m)(?:^|[}\s])else(?:\s+if\b|\s*\{|\s*$)
+    tags:
+      - memox
+      - global
+      - style
+    fix:
+      hint: Refactor control flow to return early and flatten nesting.
+  - id: memox.naming_convention
+    type: file_name
+    severity: warning
+    enabled: true
+    message: Dart file names should follow snake_case.
+    scopes:
+      - all
+    pattern: ^[a-z0-9_]+\.dart$
+    tags:
+      - memox
+      - global
+      - style
+  - id: memox.no_hardcoded_string
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid user-facing hardcoded strings in feature render code.
+    scopes:
+      - feature_ui
+    patterns:
+      - Text\(\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - Text\(\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+      - (?:text|label|hint|tooltip|title|subtitle|message)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - (?:text|label|hint|tooltip|title|subtitle|message)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+      - \b(?:vi|en)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - \b(?:vi|en)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+    tags:
+      - memox
+      - global
+      - i18n
+  - id: memox.no_hardcoded_app_string
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid user-facing hardcoded strings in app layout and shell code.
+    scopes:
+      - app_ui
+    patterns:
+      - Text\(\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - Text\(\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+      - (?:text|label|hint|tooltip|title|subtitle|message)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - (?:text|label|hint|tooltip|title|subtitle|message)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+      - \b(?:vi|en)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - \b(?:vi|en)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+    tags:
+      - memox
+      - global
+      - i18n
+  - id: memox.no_inline_locale_pair_strings
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid inline `vi:` / `en:` locale pair strings in UI code; move user-facing copy into generated l10n resources.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - \b(?:vi|en)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - \b(?:vi|en)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+    tags:
+      - memox
+      - global
+      - i18n

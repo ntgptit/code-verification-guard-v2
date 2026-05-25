@@ -25,9 +25,16 @@ def main() -> None:
 def check_command(
     project: str = typer.Option(Defaults.PROJECT_PATH, help="Target project path"),
     config: str = typer.Option(Defaults.CONFIG_FILE_NAME, help="Project config file name"),
+    ruleset: str | None = typer.Option(None, help="Ruleset bundle name, for example: memox"),
+    profile: str | None = typer.Option(None, help="Ruleset profile override"),
 ) -> None:
     """Run configured rules against a project."""
-    should_fail = GuardApplication().run(project, config)
+    if not ruleset:
+        raise typer.BadParameter(
+            "--ruleset is required. Example: check --project . --ruleset memox"
+        )
+
+    should_fail = GuardApplication().run(project, config, ruleset, profile)
 
     # Return a failing process status only for configured severities.
     if should_fail:
