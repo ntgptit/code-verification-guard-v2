@@ -127,6 +127,32 @@ rules:
       - ui
       - async
 
+  - id: memox.presentation_raw_future_stream_builder
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Presentation widgets should route async rendering through Riverpod
+      providers and shared async surfaces instead of raw FutureBuilder /
+      StreamBuilder. Raw builders couple fetch lifecycles to widget rebuilds and
+      make retained loading/error handling harder to keep consistent.
+    include:
+      - lib/main.dart
+      - lib/app/app.dart
+      - lib/presentation/features/**/*.dart
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - '\b(?:FutureBuilder|StreamBuilder)(?:<[^>]+>)?\s*\('
+    tags:
+      - memox
+      - state-management
+      - ui
+      - performance
+      - async
+
   - id: memox.watch_state_side_effect_requires_listen
     type: regex
     severity: warning

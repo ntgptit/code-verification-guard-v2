@@ -492,3 +492,25 @@ rules:
     tags:
       - memox
       - architecture
+
+  - id: memox.drift_database_must_run_off_main_isolate
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `AppDatabase` must keep its `QueryExecutor` off the main isolate. Use
+      the `driftDatabase(...)` factory from `drift_flutter` (which wires
+      `shareAcrossIsolates: true`) or `NativeDatabase.createInBackground(...)`.
+      Constructing `NativeDatabase(...)` synchronously runs every query on the
+      UI isolate and blocks frames during large reads/writes.
+    include:
+      - lib/data/datasources/local/**/*.dart
+    exclude:
+      - "**/*.g.dart"
+    patterns:
+      - '\bNativeDatabase\s*\('
+    tags:
+      - memox
+      - architecture
+      - performance
+      - drift

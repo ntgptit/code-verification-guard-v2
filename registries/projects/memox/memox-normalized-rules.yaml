@@ -917,3 +917,44 @@ rules:
       - memox
       - normalized
       - architecture
+
+  - id: memox.no_empty_catch_block
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Empty `catch (...) {}` silently swallows errors and hides bugs. Either
+      log + rethrow, map to an `AppFailure`, or extract the swallowing into a
+      named helper that documents the intentional discard.
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+    patterns:
+      - 'catch\s*\([^)]*\)\s*\{\s*\}'
+    tags:
+      - memox
+      - normalized
+      - error-handling
+
+  - id: memox.no_throw_raw_exception
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `throw Exception(...)` is the generic catch-all and carries no semantic
+      type. For business failures throw `AppFailure(...)`; for true programmer
+      errors use a typed `StateError` / `ArgumentError` / `UnsupportedError`.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+    patterns:
+      - 'throw\s+Exception\s*\('
+    tags:
+      - memox
+      - normalized
+      - error-handling

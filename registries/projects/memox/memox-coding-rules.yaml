@@ -158,10 +158,10 @@ rules:
       - ui-shell
   - id: memox.feature_screen_no_raw_padding_radius_color
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: >-
-      Feature screens should not use raw numeric literals in `EdgeInsets`, `BorderRadius`, or `Radius` constructors.
+      Feature screens must not use raw numeric literals in `EdgeInsets`, `BorderRadius`, or `Radius` constructors.
       Prefer `MxSpace`, `MxGap`, `AppLayout` / `LayoutContext`, or shared layout tokens. Token-only constructor calls
       such as `EdgeInsets.symmetric(vertical: MxSpace.xs)` are allowed. Add `guard:layout-value-reviewed` only for
       reviewed raw-number exceptions. Route colors through `ColorScheme` / theme extensions, not `Color(...)` or `Colors.*`.

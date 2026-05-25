@@ -302,6 +302,70 @@ def test_screen_async_value_when_rule_flags_inline_screen_branching(
     assert not _violations("memox.screen_async_value_when_section_split", tmp_path, good)
 
 
+def test_intrinsic_layout_requires_review(tmp_path: Path) -> None:
+    bad = """
+    Widget build(BuildContext context) {
+      return IntrinsicHeight(child: Row(children: cards));
+    }
+    """
+    good = """
+    Widget build(BuildContext context) {
+      return SizedBox(height: MxSpace.xxl, child: Row(children: cards));
+    }
+    """
+
+    assert _violations("memox.intrinsic_layout_requires_review", tmp_path, bad)
+    assert not _violations("memox.intrinsic_layout_requires_review", tmp_path, good)
+
+
+def test_scrollable_shrinkwrap_requires_review(tmp_path: Path) -> None:
+    bad = """
+    Widget build(BuildContext context) {
+      return ListView.builder(
+        shrinkWrap: true,
+        itemBuilder: (context, index) => Text(items[index].name),
+      );
+    }
+    """
+    good = """
+    Widget build(BuildContext context) {
+      return Expanded(
+        child: ListView.builder(
+          itemBuilder: (context, index) => Text(items[index].name),
+        ),
+      );
+    }
+    """
+
+    assert _violations("memox.scrollable_shrinkwrap_requires_review", tmp_path, bad)
+    assert not _violations("memox.scrollable_shrinkwrap_requires_review", tmp_path, good)
+
+
+def test_raw_future_stream_builders_should_use_async_surfaces(
+    tmp_path: Path,
+) -> None:
+    bad = """
+    Widget build(BuildContext context) {
+      return FutureBuilder<DeckState>(
+        future: loadDeck(),
+        builder: (context, snapshot) => Text('${snapshot.data}'),
+      );
+    }
+    """
+    good = """
+    Widget build(BuildContext context, WidgetRef ref) {
+      return AppAsyncBuilder(value: ref.watch(deckProvider));
+    }
+    """
+
+    assert _violations("memox.presentation_raw_future_stream_builder", tmp_path, bad)
+    assert not _violations(
+        "memox.presentation_raw_future_stream_builder",
+        tmp_path,
+        good,
+    )
+
+
 def test_watch_driven_side_effects_should_use_ref_listen(tmp_path: Path) -> None:
     bad = """
     Widget build(BuildContext context, WidgetRef ref) {
