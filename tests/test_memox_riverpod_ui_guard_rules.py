@@ -54,6 +54,82 @@ def test_existing_callback_ref_watch_rule_flags_ui_callbacks(tmp_path: Path) -> 
     assert not _violations("memox.widget_callback_ref_watch_usage", tmp_path, good)
 
 
+def test_feature_screens_must_not_return_raw_scaffold(tmp_path: Path) -> None:
+    bad = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Scaffold(body: DeckListSection());
+      }
+    }
+    """
+    good = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const MxScaffold(body: DeckListSection());
+      }
+    }
+    """
+
+    assert _violations("memox.screen_scaffold", tmp_path, bad)
+    assert not _violations("memox.screen_scaffold", tmp_path, good)
+
+
+def test_feature_screens_should_use_mx_screen_shell_when_returning_top_shell(
+    tmp_path: Path,
+) -> None:
+    bad = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return CustomScrollView(slivers: []);
+      }
+    }
+    """
+    good = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const MxListScaffold(body: DeckListSection());
+      }
+    }
+    """
+
+    assert _violations("memox.feature_screen_uses_mx_screen_shell", tmp_path, bad)
+    assert not _violations(
+        "memox.feature_screen_uses_mx_screen_shell",
+        tmp_path,
+        good,
+    )
+
+
+def test_widget_repository_provider_access_is_forbidden_in_screens(
+    tmp_path: Path,
+) -> None:
+    bad = """
+    class DeckScreen extends ConsumerWidget {
+      @override
+      Widget build(BuildContext context, WidgetRef ref) {
+        final repository = ref.read(deckRepositoryProvider);
+        return MxScaffold(body: Text('${repository.hashCode}'));
+      }
+    }
+    """
+    good = """
+    class DeckSection extends ConsumerWidget {
+      @override
+      Widget build(BuildContext context, WidgetRef ref) {
+        final state = ref.watch(deckListProvider);
+        return DeckListView(state: state);
+      }
+    }
+    """
+
+    assert _violations("memox.widget_repository_provider_access", tmp_path, bad)
+    assert not _violations("memox.widget_repository_provider_access", tmp_path, good)
+
+
 def test_infrastructure_provider_keep_alive_rule_flags_plain_riverpod(
     tmp_path: Path,
 ) -> None:
@@ -249,3 +325,165 @@ def test_watch_driven_side_effects_should_use_ref_listen(tmp_path: Path) -> None
 
     assert _violations("memox.watch_state_side_effect_requires_listen", tmp_path, bad)
     assert not _violations("memox.watch_state_side_effect_requires_listen", tmp_path, good)
+
+
+def test_template_screen_shell_ref_watch_is_staged_to_mx_templates(
+    tmp_path: Path,
+) -> None:
+    bad = """
+    class DeckScreen extends ConsumerWidget {
+      @override
+      Widget build(BuildContext context, WidgetRef ref) {
+        final decks = ref.watch(deckListProvider);
+        return MxListScaffold(body: DeckListSection(decks: decks));
+      }
+    }
+    """
+    good = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const MxListScaffold(body: DeckListSection());
+      }
+    }
+
+    class DeckListSection extends ConsumerWidget {
+      @override
+      Widget build(BuildContext context, WidgetRef ref) {
+        final decks = ref.watch(deckListProvider);
+        return DeckListView(decks: decks);
+      }
+    }
+    """
+    base_scaffold = bad.replace("MxListScaffold", "MxScaffold")
+
+    assert _violations("memox.template_screen_shell_no_ref_watch", tmp_path, bad)
+    assert not _violations(
+        "memox.template_screen_shell_no_ref_watch",
+        tmp_path,
+        good,
+    )
+    assert _violations(
+        "memox.template_screen_shell_no_ref_watch",
+        tmp_path,
+        base_scaffold,
+    )
+
+
+def test_section_widgets_may_watch_provider_state(tmp_path: Path) -> None:
+    source = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const MxListScaffold(body: DeckListSection());
+      }
+    }
+
+    class DeckListSection extends ConsumerWidget {
+      @override
+      Widget build(BuildContext context, WidgetRef ref) {
+        final decks = ref.watch(deckListProvider);
+        return DeckListView(decks: decks);
+      }
+    }
+    """
+
+    assert not _violations("memox.template_screen_shell_no_ref_watch", tmp_path, source)
+
+
+def test_template_screen_shell_ref_watch_escape_hatch_requires_reason(
+    tmp_path: Path,
+) -> None:
+    allowed = """
+    class DeckScreen extends ConsumerWidget {
+      @override
+      Widget build(BuildContext context, WidgetRef ref) {
+        // guard:allow-screen-watch -- reason: route-owned permission state.
+        final permission = ref.watch(deckPermissionProvider);
+        return MxListScaffold(body: PermissionGate(permission: permission));
+      }
+    }
+    """
+    missing_reason = allowed.replace(" -- reason: route-owned permission state.", "")
+
+    assert not _violations(
+        "memox.template_screen_shell_no_ref_watch",
+        tmp_path,
+        allowed,
+    )
+    assert _violations(
+        "memox.screen_watch_escape_hatch_requires_reason",
+        tmp_path,
+        missing_reason,
+    )
+    assert not _violations(
+        "memox.screen_watch_escape_hatch_requires_reason",
+        tmp_path,
+        allowed,
+    )
+
+
+def test_feature_screen_raw_padding_radius_color_is_flagged(tmp_path: Path) -> None:
+    bad = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return MxScaffold(
+          body: Padding(
+            padding: EdgeInsets.all(16),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        );
+      }
+    }
+    """
+    good = """
+    class DeckScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const MxListScaffold(body: DeckListSection());
+      }
+    }
+    """
+
+    assert _violations("memox.feature_screen_no_raw_padding_radius_color", tmp_path, bad)
+    assert not _violations(
+        "memox.feature_screen_no_raw_padding_radius_color",
+        tmp_path,
+        good,
+    )
+
+
+def test_base_screen_raw_layout_values_require_review_marker(tmp_path: Path) -> None:
+    bad = """
+    class MxListScaffold extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Padding(padding: EdgeInsets.all(16), child: body);
+      }
+    }
+    """
+    good = """
+    class MxListScaffold extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.all(16),
+          // guard:layout-value-reviewed -- reason: mirrors Material minimum inset.
+          child: body,
+        );
+      }
+    }
+    """
+
+    assert _violations("memox.base_screen_no_hardcoded_layout_values", tmp_path, bad)
+    assert not _violations(
+        "memox.base_screen_no_hardcoded_layout_values",
+        tmp_path,
+        good,
+    )

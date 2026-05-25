@@ -142,3 +142,36 @@ rules:
       - memox
       - state-management
       - side-effects
+
+  - id: memox.template_screen_shell_no_ref_watch
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Template-only screen shells that return `MxScaffold`, `MxListScaffold`, `MxFormScaffold`, or `MxStudyScaffold` should not
+      also watch providers in the same build body. Move provider watching into a section widget, or add
+      `// guard:allow-screen-watch -- reason: ...` when the screen shell must stay reactive.
+    scopes:
+      - screen_like_files
+    patterns:
+      - '(?s)Widget\s+build\s*\(\s*BuildContext\s+context\s*,\s*WidgetRef\s+ref\s*\)\s*\{(?![\s\S]{0,1600}guard:allow-screen-watch\s+--\s+reason:\s*\S)[\s\S]{0,1600}?\bref\.watch\s*\([^)]+\)[\s\S]{0,1600}?\breturn\s+(?:const\s+)?Mx(?:Scaffold|ListScaffold|FormScaffold|StudyScaffold)\s*\('
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - ui-shell
+
+  - id: memox.screen_watch_escape_hatch_requires_reason
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `guard:allow-screen-watch` must include `-- reason: ...` so template-shell provider watches stay reviewed.
+    scopes:
+      - screen_like_files
+    patterns:
+      - 'guard:allow-screen-watch(?!\s+--\s+reason:\s*\S)'
+    tags:
+      - memox
+      - state-management
+      - ui-shell

@@ -139,6 +139,62 @@ rules:
       - memox
       - coding
       - architecture
+  - id: memox.feature_screen_uses_mx_screen_shell
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Feature screens that directly return a top-level shell should use `MxScaffold`, `MxListScaffold`, `MxFormScaffold`,
+      or `MxStudyScaffold`. Keep provider watching and business state in smaller section widgets.
+    scopes:
+      - screen_like_files
+    patterns:
+      - '(?s)\bclass\s+\w+(?:Screen|Page)\s+extends\s+(?:ConsumerWidget|ConsumerStatefulWidget|StatelessWidget|StatefulWidget)\s*\{(?:(?!\bclass\s).){0,1800}?\bWidget\s+build\s*\([^)]*\)\s*(?:=>\s*(?:const\s+)?(?!Mx(?:Scaffold|ListScaffold|FormScaffold|StudyScaffold)\s*\()[A-Z]\w+\s*\(|\{\s*(?:(?:final|const|var)\s+[^;]+;\s*){0,8}return\s+(?:const\s+)?(?!Mx(?:Scaffold|ListScaffold|FormScaffold|StudyScaffold)\s*\()[A-Z]\w+\s*\()'
+    mode: file
+    tags:
+      - memox
+      - coding
+      - architecture
+      - ui-shell
+  - id: memox.feature_screen_no_raw_padding_radius_color
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Feature screens should not hardcode padding, radius, or color constructors. Use `MxScaffold`, `MxContentShell`,
+      `AppLayout`, theme colors, and shared layout tokens instead.
+    scopes:
+      - screen_like_files
+    patterns:
+      - '(?m)\b(?:EdgeInsets|BorderRadius|Radius)\.(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
+      - '(?m)\b(?:Color\s*\(|Color\.from|Colors\.)(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
+    mode: file
+    tags:
+      - memox
+      - coding
+      - architecture
+      - design_system
+  - id: memox.base_screen_no_hardcoded_layout_values
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Base screen templates should use layout/theme tokens for padding, radius, and color. Any unavoidable raw layout value
+      must include `guard:layout-value-reviewed -- reason: ...` on the same line or immediately following line.
+    include:
+      - lib/presentation/shared/layouts/mx_*scaffold.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - '(?m)\b(?:EdgeInsets|BorderRadius|Radius)\.(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
+      - '(?m)\b(?:Color\s*\(|Color\.from|Colors\.)(?![^\n]*guard:layout-value-reviewed\s+--\s+reason:\s*\S)(?![^\n]*\n\s*// guard:layout-value-reviewed\s+--\s+reason:\s*\S)'
+    mode: file
+    tags:
+      - memox
+      - coding
+      - architecture
+      - design_system
   - id: memox.mx_gap_horizontal_constructor_forbidden
     type: regex
     severity: error
