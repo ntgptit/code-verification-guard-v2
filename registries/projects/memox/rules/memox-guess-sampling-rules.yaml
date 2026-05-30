@@ -1,0 +1,28 @@
+version: 1
+
+metadata:
+  id: memox-guess-sampling
+  name: MemoX Guess Sampling Rules
+  description: Keeps Guess decoy sampling in the domain GuessOptionBuilder.
+  owner: code-verification-guard
+
+rules:
+  - id: memox.study_session_notifier_no_inline_guess_sampling
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      study_session_notifier.dart must not own Guess decoy sampling. Keep
+      Random/shuffle/take option sampling in the domain GuessOptionBuilder.
+    include:
+      - lib/presentation/features/study/providers/study_session_notifier.dart
+    patterns:
+      - "import\\s+'dart:math'"
+      - "\\bRandom\\s*\\("
+      - "\\.shuffle\\s*\\("
+      - "\\.take\\s*\\("
+    tags:
+      - memox
+      - study
+      - guess
+      - architecture
