@@ -25,3 +25,4 @@ rules:
   - rules/memox-ui-rules.yaml
   - rules/memox-state-management-rules.yaml
   - rules/memox-ui-async-guard-rules.yaml
+  - rules/memox-action-density-rules.yaml

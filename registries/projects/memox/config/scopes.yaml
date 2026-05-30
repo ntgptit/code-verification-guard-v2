@@ -225,6 +225,17 @@ scopes:
       - '**/*.freezed.dart'
       - '**/*.config.dart'
       - '**/gen/**'
+  feature_card_list_dashboard_widgets:
+    include:
+      - lib/presentation/features/**/widgets/**/*_card.dart
+      - lib/presentation/features/**/widgets/**/*_list.dart
+      - lib/presentation/features/**/widgets/**/*_tile.dart
+      - lib/presentation/features/dashboard/widgets/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
   features:
     include:
       - lib/presentation/features/**/*.dart

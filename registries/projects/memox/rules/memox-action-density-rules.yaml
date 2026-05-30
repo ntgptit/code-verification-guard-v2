@@ -1,0 +1,64 @@
+version: 1
+
+metadata:
+  id: memox-action-density
+  name: MemoX Action Density Rules
+  description: >-
+    Enforces the action-hierarchy / density contract
+    (docs/ui-ux/action-hierarchy-contract.md). Card / list / dashboard action
+    surfaces must stay dense: no large buttons and no full-width buttons, which
+    otherwise turn compact card actions into oversized hero CTAs.
+
+    Severity is `warning` for now because the guard engine supports only
+    path-glob excludes, not inline `// guard:full-width-action-reviewed`
+    waivers. Several legitimate full-width sites already exist outside card/list
+    surfaces (bottom action bars, form footers, empty states, onboarding, study
+    submit). Promotion to `error` is tracked in
+    docs/checklist/implementation-ledger.md and requires either inline-waiver
+    support in the engine or a path allowlist of the legitimate contexts.
+
+    Shared components (`MxActionButton`, `MxCardActions`, `MxPrimaryButton`,
+    `MxSecondaryButton`) are intentionally NOT in scope — these rules target
+    feature usage only, so the primitives themselves are never flagged.
+  owner: code-verification-guard
+
+rules:
+  - id: memox.no_large_button_in_card_surface
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Card/list/dashboard actions must not use MxButtonSize.large. Use a
+      semantic MxActionButton(intent: cardPrimary/cardSecondary) — compact, not
+      hero-sized. See docs/ui-ux/action-hierarchy-contract.md.
+    scopes:
+      - feature_card_list_dashboard_widgets
+    patterns:
+      - "MxButtonSize\\.large"
+    tags:
+      - memox
+      - ui
+      - action-density
+    fix:
+      hint: "Replace with MxActionButton(intent: MxActionIntent.cardPrimary, ...)."
+
+  - id: memox.no_full_width_button_in_card_surface
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Card/list/dashboard actions must not be full-width by default. Full-width
+      is reserved for bottom action bars, form footers, empty states,
+      onboarding, and specified study submit actions. Use MxCardActions /
+      MxActionButton(intent: cardPrimary). See
+      docs/ui-ux/action-hierarchy-contract.md.
+    scopes:
+      - feature_card_list_dashboard_widgets
+    patterns:
+      - "fullWidth\\s*:\\s*true"
+    tags:
+      - memox
+      - ui
+      - action-density
+    fix:
+      hint: "Use MxCardActions or MxActionButton(intent: cardPrimary) without fullWidth."
