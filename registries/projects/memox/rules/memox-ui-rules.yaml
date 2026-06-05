@@ -11,7 +11,7 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: MemoX must not use Card directly. Use AppCard.
+    message: MemoX must not use Card directly. Use MxCard or a more specific shared surface.
     scopes:
       - flutter_source
     exclude:
@@ -23,7 +23,7 @@ rules:
       - ui
       - design-system
     fix:
-      hint: Replace raw Card usage with AppCard.
+      hint: Replace raw Card usage with MxCard or a more specific shared surface.
 
   - id: memox.no_async_value_when
     type: regex

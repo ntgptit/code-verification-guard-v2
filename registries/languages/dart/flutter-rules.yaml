@@ -11,7 +11,7 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: Do not use hardcoded Color. Use theme colorScheme or AppColors.
+    message: Do not use hardcoded Color. Use theme colorScheme, theme extensions, or project color tokens.
     scopes:
       - flutter_app_source
     patterns:
@@ -22,7 +22,7 @@ rules:
       - ui
       - design-system
     fix:
-      hint: Use context.colorScheme or AppColors instead of raw Color/Colors.
+      hint: Use context.colorScheme, theme extensions, or project color tokens instead of raw Color/Colors.
       example_bad: "Color(0xFF123456)"
       example_good: context.colorScheme.primary
 
@@ -30,7 +30,7 @@ rules:
     type: regex
     severity: warning
     enabled: true
-    message: Do not use hardcoded Duration values. Use AppDurations.
+    message: Do not use hardcoded Duration values. Use project duration or motion tokens.
     scopes:
       - flutter_app_source
     patterns:
@@ -40,13 +40,13 @@ rules:
       - ui
       - design-system
     fix:
-      hint: Use a named duration token such as AppDurations.
+      hint: Use a named duration or motion token, such as DurationTokens or AppMotion when available.
 
   - id: flutter.no_hardcoded_radius
     type: regex
     severity: error
     enabled: true
-    message: Do not use hardcoded BorderRadius or Radius values. Use AppRadius.
+    message: Do not use hardcoded BorderRadius or Radius values. Use project radius tokens.
     scopes:
       - flutter_app_source
     patterns:
@@ -57,7 +57,7 @@ rules:
       - ui
       - design-system
     fix:
-      hint: Use a named radius token such as AppRadius.
+      hint: Use a named radius token, such as RadiusTokens when available.
 
   - id: flutter.max_build_lines
     type: max_build_lines

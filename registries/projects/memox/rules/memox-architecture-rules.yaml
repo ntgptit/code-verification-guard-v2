@@ -11,7 +11,7 @@ rules:
     enabled: true
     message: The domain layer must not import Flutter packages.
     include:
-      - lib/features/**/domain/**/*.dart
+      - lib/domain/**/*.dart
     patterns:
       - package:flutter/
     tags:
@@ -25,9 +25,10 @@ rules:
     enabled: true
     message: The domain layer must not import the data layer.
     include:
-      - lib/features/**/domain/**/*.dart
+      - lib/domain/**/*.dart
     patterns:
-      - /data/
+      - package:memox/data/
+      - (?:\.\./)+data/
     tags:
       - memox
       - architecture
@@ -39,9 +40,10 @@ rules:
     enabled: true
     message: The domain layer must not import the presentation layer.
     include:
-      - lib/features/**/domain/**/*.dart
+      - lib/domain/**/*.dart
     patterns:
-      - /presentation/
+      - package:memox/presentation/
+      - (?:\.\./)+presentation/
     tags:
       - memox
       - architecture
@@ -53,9 +55,10 @@ rules:
     enabled: true
     message: The presentation layer must not import the data layer directly.
     include:
-      - lib/features/**/presentation/**/*.dart
+      - lib/presentation/**/*.dart
     patterns:
-      - /data/
+      - package:memox/data/
+      - (?:\.\./)+data/
     tags:
       - memox
       - architecture
@@ -498,11 +501,13 @@ rules:
     severity: error
     enabled: true
     message: >-
-      `AppDatabase` must keep its `QueryExecutor` off the main isolate. Use
-      the `driftDatabase(...)` factory from `drift_flutter` (which wires
-      `shareAcrossIsolates: true`) or `NativeDatabase.createInBackground(...)`.
-      Constructing `NativeDatabase(...)` synchronously runs every query on the
-      UI isolate and blocks frames during large reads/writes.
+      `AppDatabase` must keep its `QueryExecutor` off the main isolate on native
+      platforms and configured explicitly for web. Use the `driftDatabase(...)`
+      factory from `drift_flutter` with `native: DriftNativeOptions(...)` and,
+      when web is supported, `web: DriftWebOptions(...)`; alternatively use
+      `NativeDatabase.createInBackground(...)` for native-only code. Constructing
+      `NativeDatabase(...)` synchronously runs every query on the UI isolate and
+      blocks frames during large reads/writes.
     include:
       - lib/data/datasources/local/**/*.dart
     exclude:

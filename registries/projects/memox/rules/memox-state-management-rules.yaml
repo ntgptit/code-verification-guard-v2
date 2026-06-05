@@ -66,8 +66,8 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: Command methods should use `ref.read(...RepositoryProvider)` for one-shot repository access; use `ref.watch`
-      only when the command result must be reactive to repository replacement.
+    message: Command methods must not `ref.watch(...RepositoryProvider)`. Presentation commands should read injected
+      use-case providers for one-shot work; repository providers stay behind app DI and use-case boundaries.
     scopes:
       - provider_files
     patterns:
