@@ -15,9 +15,7 @@ rules:
     scopes:
       - flutter_source
     exclude:
-      - "lib/core/widgets/**"
-      - "lib/shared/widgets/**"
-      - "lib/presentation/shared/widgets/**"
+      - "lib/presentation/shared/**"
     patterns:
       - "\\bCard\\s*\\("
     tags:
@@ -35,8 +33,7 @@ rules:
     scopes:
       - flutter_source
     exclude:
-      - "lib/core/widgets/**"
-      - "lib/shared/widgets/**"
+      - "lib/presentation/shared/**"
     patterns:
       - "\\.when\\s*\\("
     tags:

@@ -238,6 +238,7 @@ scopes:
       - lib/presentation/shared/widgets/mx_text_field.dart
   shared_widget_dirs:
     include:
+      - lib/presentation/shared/bottom_sheets/**/*.dart
       - lib/presentation/shared/layouts/**/*.dart
       - lib/presentation/shared/widgets/**/*.dart
       - lib/presentation/shared/dialogs/**/*.dart
