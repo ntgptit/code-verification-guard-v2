@@ -149,6 +149,16 @@ scopes:
       - '**/gen/**'
       - lib/core/logging/app_logger.dart
       - '**/core/logging/app_logger.dart'
+  app_and_presentation_source:
+    include:
+      - lib/app/**/*.dart
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/l10n/generated/**
   app_ui:
     include:
       - lib/main.dart

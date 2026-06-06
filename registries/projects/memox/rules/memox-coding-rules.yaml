@@ -82,23 +82,77 @@ rules:
     type: regex
     severity: warning
     enabled: true
-    message: Flutter class names must be 25 characters or fewer.
-    include:
-      - lib/**/*.dart
-    exclude:
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
-      - '**/*.config.dart'
-      - '**/gen/**'
-      - lib/l10n/generated/**
+    message: Flutter class names must be between 10 and 35 characters.
+    scopes:
+      - app_and_presentation_source
     patterns:
-      - '(?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+[A-Za-z_][A-Za-z0-9_]{25,}\b'
+      - '(?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!Mx[A-Za-z0-9_]*\b)[A-Za-z_][A-Za-z0-9_]{0,8}\b'
+      - '(?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!Mx[A-Za-z0-9_]*\b)[A-Za-z_][A-Za-z0-9_]{35,}\b'
     tags:
       - memox
       - coding
       - naming
     fix:
-      hint: Shorten the class name to 25 characters or fewer.
+      hint: Keep the class name between 10 and 35 characters.
+  - id: memox.flutter_local_variable_name_length
+    type: regex
+    severity: warning
+    enabled: true
+    message: Local variable names must be between 3 and 18 characters.
+    scopes:
+      - app_and_presentation_source
+    patterns:
+      - '(?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|:))'
+      - '(?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{18,}\b(?=\s*(?:=|;|:))'
+      - '(?m)^\s{4,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|:))'
+      - '(?m)^\s{4,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{18,}\b(?=\s*(?:=|;|:))'
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Keep the local variable name between 3 and 18 characters.
+  - id: memox.flutter_model_state_field_name_length
+    type: regex
+    mode: file
+    severity: warning
+    enabled: true
+    message: Model and State field names must be between 3 and 22 characters.
+    scopes:
+      - app_and_presentation_source
+    patterns:
+      - '(?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|,|:))'
+      - '(?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{22,}\b(?=\s*(?:=|;|,|:))'
+      - '(?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|,|:))'
+      - '(?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{22,}\b(?=\s*(?:=|;|,|:))'
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Keep the field name between 3 and 22 characters.
+  - id: memox.flutter_boolean_name_length
+    type: regex
+    severity: warning
+    enabled: true
+    message: Boolean variable and field names must be between 5 and 25 characters.
+    scopes:
+      - app_and_presentation_source
+    patterns:
+      - '(?m)^\s{2,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*(?:=|;|:))'
+      - '(?m)^\s{2,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*(?:=|;|:))'
+      - '(?m)^\s{4,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*(?:=|;|:))'
+      - '(?m)^\s{4,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*(?:=|;|:))'
+      - '(?m)^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*=\s*(?:true|false)\b)'
+      - '(?m)^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*=\s*(?:true|false)\b)'
+      - '(?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*=\s*(?:true|false)\b)'
+      - '(?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*=\s*(?:true|false)\b)'
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Keep the boolean name between 5 and 25 characters.
   - id: memox.guard_centralized_constants
     type: regex
     severity: error

@@ -35,16 +35,27 @@ def _violations(rule_id: str, tmp_path: Path, relative_path: str, source: str) -
     return RuleFactory().create(rule_config).check(tmp_path)
 
 
-def test_flutter_class_name_max_length_flags_names_longer_than_25_chars(
+def test_flutter_class_name_length_flags_names_outside_range(
     tmp_path: Path,
 ) -> None:
     bad = """
-    class ABCDEFGHIJKLMNOPQRSTUVWXYZ extends StatelessWidget {
+    class ShortName extends StatelessWidget {
       @override
       Widget build(BuildContext context) => const SizedBox();
     }
     """
-    good = bad.replace("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ABCDEFGHIJKLMNOPQRSTUVWXY")
+    long_bad = """
+    class ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCD extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) => const SizedBox();
+    }
+    """
+    good = """
+    class SampleWidget extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) => const SizedBox();
+    }
+    """
     path = "lib/presentation/features/sample/sample_screen.dart"
 
     assert _violations(
@@ -53,9 +64,32 @@ def test_flutter_class_name_max_length_flags_names_longer_than_25_chars(
         path,
         bad,
     )
+    assert _violations(
+        "memox.flutter_class_name_max_length",
+        tmp_path,
+        path,
+        long_bad,
+    )
     assert not _violations(
         "memox.flutter_class_name_max_length",
         tmp_path,
         path,
         good,
+    )
+
+
+def test_flutter_class_name_length_exempts_mx_prefix(tmp_path: Path) -> None:
+    source = """
+    class MxABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCD extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) => const SizedBox();
+    }
+    """
+    path = "lib/presentation/shared/widgets/mx_demo.dart"
+
+    assert not _violations(
+        "memox.flutter_class_name_max_length",
+        tmp_path,
+        path,
+        source,
     )
