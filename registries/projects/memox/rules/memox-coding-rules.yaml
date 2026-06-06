@@ -78,6 +78,27 @@ rules:
       - architecture
       - naming
       - crud
+  - id: memox.flutter_class_name_max_length
+    type: regex
+    severity: warning
+    enabled: true
+    message: Flutter class names must be 25 characters or fewer.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
+      - lib/l10n/generated/**
+    patterns:
+      - '(?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+[A-Za-z_][A-Za-z0-9_]{25,}\b'
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Shorten the class name to 25 characters or fewer.
   - id: memox.guard_centralized_constants
     type: regex
     severity: error
