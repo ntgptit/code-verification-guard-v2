@@ -92,6 +92,108 @@ rules:
     fix:
       hint: 'Replace raw visual component sizes with ComponentSizeTokens.*, IconSizeTokens.*, or another named component size token.'
 
+  - id: design.no_spacing_token_for_icon_size
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho Icon(size). Hãy dùng IconSizeTokens.*, SizeTokens.icon*, hoặc component token.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bIcon\s*\([\s\S]*?\bsize\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - icon
+    fix:
+      hint: 'Replace Icon(size: SpacingTokens.*) with IconSizeTokens.*, SizeTokens.icon*, or another component token.'
+
+  - id: design.no_spacing_token_for_component_size
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho component size. Hãy dùng component size token.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\b(?:MxIconTile|MxAvatar|MxIconButton)\s*\([\s\S]*?\bsize\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - component-size
+    fix:
+      hint: 'Replace component sizes written with SpacingTokens.* with a named component size token.'
+
+  - id: design.no_spacing_token_for_border_width
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho border width. Hãy dùng BorderTokens hoặc StrokeTokens.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bBorder\.all\s*\([\s\S]*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBorderSide\s*\([\s\S]*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - border
+    fix:
+      hint: 'Replace SpacingTokens.* border widths with BorderTokens.* or StrokeTokens.*.'
+
+  - id: design.no_spacing_token_for_divider_thickness
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho Divider(thickness). Hãy dùng DividerTokens.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bDivider\s*\([\s\S]*?\bthickness\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - divider
+    fix:
+      hint: 'Replace Divider(thickness: SpacingTokens.*) with DividerTokens.* or MxDivider.'
+
+  - id: design.no_spacing_token_for_shadow
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho BoxShadow blur/spread. Hãy dùng ShadowTokens hoặc ElevationTokens.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bBoxShadow\s*\([\s\S]*?\bblurRadius\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBoxShadow\s*\([\s\S]*?\bspreadRadius\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - shadow
+    fix:
+      hint: 'Replace BoxShadow blurRadius/spreadRadius using SpacingTokens.* with ShadowTokens.* or ElevationTokens.*.'
+
   - id: design.require_border_token
     type: regex
     severity: error
@@ -161,28 +263,19 @@ rules:
   - id: design.no_spacing_token_for_non_spacing_property
     type: regex
     severity: error
-    enabled: true
+    enabled: false
     message: >-
-      Spacing token không được dùng cho component size, border width, stroke, hoặc shadow properties. Hãy dùng component tokens, BorderTokens, StrokeTokens, ShadowTokens hoặc ElevationTokens.
+      Fallback category for spacing-token misuse. Prefer the specific spacing-token rules above.
     scopes:
       - flutter_app_source
-    mode: file
-    patterns:
-      - '(?s)\b(?:Container|CircleAvatar|Image|Icon|IconButton)\s*\((?:(?!\)).)*\b(?:width|height|radius|size)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
-      - '(?s)\bMxIconTile\s*\((?:(?!\)).)*\bsize\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*(?!\s*[*/+\-])'
-      - '(?s)\bBorderSide\s*\((?:(?!\)).)*\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
-      - '(?s)\bstrokeWidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
-      - '(?s)\bBoxShadow\s*\((?:(?!\)).)*\b(?:blurRadius|spreadRadius)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    patterns: []
     tags:
       - memox
       - design
       - design-system
       - spacing
-      - component-size
-      - border
-      - shadow
     fix:
-      hint: 'Use component tokens, BorderTokens, StrokeTokens, ShadowTokens, or ElevationTokens instead of spacing tokens for visual component sizing and effects.'
+      hint: 'Use the specific spacing-token rule for the affected property.'
 
   - id: design.require_divider_token
     type: regex

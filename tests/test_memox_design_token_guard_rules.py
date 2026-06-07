@@ -233,21 +233,69 @@ def test_mx_icon_tile_size_must_use_component_tokens(tmp_path: Path) -> None:
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
     assert _violations(
-        "design.no_spacing_token_for_non_spacing_property",
+        "design.no_spacing_token_for_component_size",
         tmp_path,
         spacing_fail,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
 
 
-def test_border_widths_must_use_border_tokens(tmp_path: Path) -> None:
+def test_icon_size_spacing_token_is_forbidden(tmp_path: Path) -> None:
+    bad_multiline = """
+    Widget build(BuildContext context) => Icon(
+      Icons.check,
+      size: SpacingTokens.md,
+    );
+    """
+    bad_inline = """
+    Widget build(BuildContext context) => Icon(Icons.check, size: SpacingTokens.md);
+    """
+    good = """
+    Widget build(BuildContext context) => Icon(Icons.check, size: IconSizeTokens.sm);
+    """
+
+    assert _violations(
+        "design.no_spacing_token_for_icon_size",
+        tmp_path,
+        bad_multiline,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+    assert _violations(
+        "design.no_spacing_token_for_icon_size",
+        tmp_path,
+        bad_inline,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+    assert not _violations(
+        "design.no_spacing_token_for_icon_size",
+        tmp_path,
+        good,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+
+
+def test_border_width_spacing_token_is_forbidden(tmp_path: Path) -> None:
     bad = """
     class SampleCard extends StatelessWidget {
       @override
       Widget build(BuildContext context) {
         return DecoratedBox(
           decoration: BoxDecoration(
-            border: Border.all(width: 1),
+            border: Border.all(width: SpacingTokens.xxs),
+          ),
+        );
+      }
+    }
+    """
+    bad_side = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(width: SpacingTokens.xxs),
+            ),
           ),
         );
       }
@@ -267,20 +315,66 @@ def test_border_widths_must_use_border_tokens(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.require_border_token",
+        "design.no_spacing_token_for_border_width",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_border_token",
+        "design.no_spacing_token_for_border_width",
+        tmp_path,
+        good,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert _violations(
+        "design.no_spacing_token_for_border_width",
+        tmp_path,
+        bad_side,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+
+
+def test_divider_thickness_spacing_token_is_forbidden(tmp_path: Path) -> None:
+    bad = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Column(
+          children: const [
+            Divider(thickness: SpacingTokens.xxs),
+          ],
+        );
+      }
+    }
+    """
+    good = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const Column(
+          children: [
+            MxDivider(),
+          ],
+        );
+      }
+    }
+    """
+
+    assert _violations(
+        "design.no_spacing_token_for_divider_thickness",
+        tmp_path,
+        bad,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.no_spacing_token_for_divider_thickness",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
 
 
-def test_shadow_properties_must_use_shadow_tokens(tmp_path: Path) -> None:
+def test_shadow_spacing_token_is_forbidden(tmp_path: Path) -> None:
     bad = """
     class SampleCard extends StatelessWidget {
       @override
@@ -289,8 +383,8 @@ def test_shadow_properties_must_use_shadow_tokens(tmp_path: Path) -> None:
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                blurRadius: 8,
-                spreadRadius: 2,
+                blurRadius: 0,
+                spreadRadius: SpacingTokens.sm,
               ),
             ],
           ),
@@ -317,56 +411,26 @@ def test_shadow_properties_must_use_shadow_tokens(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.require_shadow_token",
+        "design.no_spacing_token_for_shadow",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_shadow_token",
+        "design.no_spacing_token_for_shadow",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
 
 
-def test_spacing_token_is_forbidden_for_divider_border_and_stroke_properties(
-    tmp_path: Path,
-) -> None:
-    bad = """
-    class SampleCard extends StatelessWidget {
-      @override
-      Widget build(BuildContext context) {
-        return Column(
-          children: [
-            Container(width: SpacingTokens.xs, height: SpacingTokens.xs),
-            Icon(Icons.check, size: SpacingTokens.xs),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(width: SpacingTokens.xs),
-                ),
-              ),
-            ),
-            CustomPaint(
-              painter: _SamplePainter(strokeWidth: SpacingTokens.xs),
-            ),
-            BoxShadow(
-              blurRadius: SpacingTokens.xs,
-              spreadRadius: SpacingTokens.xs,
-            ),
-          ],
-        );
-      }
-    }
-    """
-    good = """
+def test_spacing_gap_sizedbox_with_token_is_allowed(tmp_path: Path) -> None:
+    source = """
     class SampleCard extends StatelessWidget {
       @override
       Widget build(BuildContext context) {
         return const Column(
           children: [
-            MxDivider(),
             SizedBox(height: SpacingTokens.xxs),
           ],
         );
@@ -374,16 +438,34 @@ def test_spacing_token_is_forbidden_for_divider_border_and_stroke_properties(
     }
     """
 
-    assert _violations(
-        "design.no_spacing_token_for_non_spacing_property",
+    assert not _violations(
+        "design.no_spacing_token_for_icon_size",
         tmp_path,
-        bad,
+        source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_non_spacing_property",
+        "design.no_spacing_token_for_component_size",
         tmp_path,
-        good,
+        source,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.no_spacing_token_for_border_width",
+        tmp_path,
+        source,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.no_spacing_token_for_divider_thickness",
+        tmp_path,
+        source,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.no_spacing_token_for_shadow",
+        tmp_path,
+        source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
 
