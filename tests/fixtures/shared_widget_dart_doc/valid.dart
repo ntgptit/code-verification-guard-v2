@@ -48,9 +48,7 @@ class MxButton extends StatelessWidget {
   final String size;
 
   @override
-  Widget build(BuildContext context) {
-    return const SizedBox.shrink();
-  }
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
 /// Displays a reusable shared text field.
@@ -97,8 +95,7 @@ class MxTextField extends StatelessWidget {
   final bool isLoading;
 
   @override
-  Widget build(BuildContext context) {
-    return TextField(
+  Widget build(BuildContext context) => TextField(
       controller: controller,
       onChanged: onChanged,
       decoration: InputDecoration(
@@ -106,5 +103,4 @@ class MxTextField extends StatelessWidget {
         errorText: errorText,
       ),
     );
-  }
 }

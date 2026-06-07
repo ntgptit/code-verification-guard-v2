@@ -59,6 +59,7 @@ class DartSharedWidgetDocMatcher(BaseMatcher):
         variant_field_names = set(rule.rule_config.get(ConfigKeys.VARIANT_FIELD_NAMES, []))
         allowed_values = set(rule.rule_config.get(ConfigKeys.ALLOWED_VALUES, []))
         known_contracts = tuple(rule.rule_config.get(ConfigKeys.KNOWN_CONTRACTS, []))
+        only_categories = set(rule.rule_config.get(ConfigKeys.ONLY_CATEGORIES, []))
 
         violations: list[Violation] = []
         for rule_file in rule.target_rule_files(context.project_root):
@@ -72,6 +73,7 @@ class DartSharedWidgetDocMatcher(BaseMatcher):
                     variant_field_names=variant_field_names,
                     allowed_values=allowed_values,
                     known_contracts=known_contracts,
+                    only_categories=only_categories,
                 )
             )
 
@@ -87,6 +89,7 @@ class DartSharedWidgetDocMatcher(BaseMatcher):
         variant_field_names: set[str],
         allowed_values: set[str],
         known_contracts: tuple[str, ...],
+        only_categories: set[str],
     ) -> list[Violation]:
         """Check one Dart file for shared widget doc violations."""
         violations: list[Violation] = []
@@ -146,6 +149,10 @@ class DartSharedWidgetDocMatcher(BaseMatcher):
                 continue
 
             if check == "do_not_use_when_required":
+                category_value = self._first_non_empty_line(doc_sections.get("category", []))
+                if only_categories and category_value not in only_categories:
+                    continue
+
                 if not doc_sections.get("do_not_use_when"):
                     violations.append(self._create_violation(rule, rule_file.path, block))
                 continue

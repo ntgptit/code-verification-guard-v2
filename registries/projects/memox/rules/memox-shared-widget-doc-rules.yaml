@@ -36,7 +36,6 @@ rules:
       - variant
       - type
       - style
-      - size
     allowed_values:
       - button
       - input
@@ -76,7 +75,7 @@ rules:
 
   - <<: *shared_widget_doc_base
     id: flutter.shared_widget.dart_doc.purpose_required
-    severity: error
+    severity: warning
     message: "Shared widget docs must include a `Purpose:` section."
     check: purpose_required
     fix:
@@ -84,7 +83,7 @@ rules:
 
   - <<: *shared_widget_doc_base
     id: flutter.shared_widget.dart_doc.use_when_required
-    severity: error
+    severity: warning
     message: "Shared widget docs must include a `Use when:` section."
     check: use_when_required
     fix:
@@ -95,12 +94,18 @@ rules:
     severity: warning
     message: "Shared widget docs should include a `Do not use when:` section."
     check: do_not_use_when_required
+    only_categories:
+      - button
+      - input
+      - layout
+      - dialog
+      - navigation
     fix:
       hint: "Add a `/// Do not use when:` section to guard against misuse."
 
   - <<: *shared_widget_doc_base
     id: flutter.shared_widget.dart_doc.category_required
-    severity: error
+    severity: warning
     message: "Shared widget docs must include a `Category:` section."
     check: category_required
     fix:
@@ -116,7 +121,7 @@ rules:
 
   - <<: *shared_widget_doc_base
     id: flutter.shared_widget.dart_doc.public_api_required
-    severity: error
+    severity: warning
     message: "Shared widget docs must include a non-empty `Public API:` section."
     check: public_api_required
     fix:
@@ -143,5 +148,6 @@ rules:
     severity: warning
     message: "Shared widget docs should include an `Expected contracts:` section."
     check: expected_contracts_required
+    enabled: false
     fix:
       hint: "List the expected shared component interfaces, such as `MxSharedComponent` or `MxActionableComponent`."

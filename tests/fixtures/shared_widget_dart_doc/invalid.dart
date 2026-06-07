@@ -6,9 +6,7 @@ class MxMissingDocButton extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) {
-    return Text(label);
-  }
+  Widget build(BuildContext context) => Text(label);
 }
 
 /// Purpose:
@@ -33,10 +31,8 @@ class MxBrokenButton extends StatelessWidget {
   final String size;
 
   @override
-  Widget build(BuildContext context) {
-    return TextButton(
+  Widget build(BuildContext context) => TextButton(
       onPressed: onPressed,
       child: Text(label),
     );
-  }
 }

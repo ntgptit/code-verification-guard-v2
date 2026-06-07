@@ -48,6 +48,7 @@ class ConfigKeys:
     VARIANT_FIELD_NAMES = "variant_field_names"
     ALLOWED_VALUES = "allowed_values"
     KNOWN_CONTRACTS = "known_contracts"
+    ONLY_CATEGORIES = "only_categories"
     MAX_LINES = "max_lines"
     COUNT_MODE = "count_mode"
 

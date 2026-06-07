@@ -280,6 +280,7 @@ Các field phổ biến:
 | `widget_base_classes` | Danh sách base widget classes để nhận diện shared widget public class. |
 | `state_field_names` | Danh sách field names buộc phải có `States:` section. |
 | `variant_field_names` | Danh sách field names buộc phải có `Variants:` section. |
+| `only_categories` | Danh sách category giới hạn để áp dụng một số check có điều kiện. |
 | `allowed_values` | Giá trị hợp lệ cho `Category:`. |
 | `known_contracts` | Danh sách interface names hợp lệ trong `Expected contracts:`. |
 | `tags` | Nhãn tùy chọn để phân nhóm. |
@@ -308,7 +309,7 @@ Tránh ID mơ hồ như `rule1`, `check_something` hoặc `no_bad_code`.
 | `forbidden_import` | Báo lỗi các import declaration bị cấm. | `patterns` |
 | `if_comment` | Yêu cầu comment ngay phía trên các `if` statement khớp rule. | `patterns`, optional `comment_prefixes` |
 | `python_docstring` | Kiểm tra docstring trên Python AST nodes. | optional `node_types` |
-| `dart_shared_widget_doc` | Kiểm tra Dart doc blocks và API contract của shared widget public classes. | `check`, `widget_base_classes`, `state_field_names`, `variant_field_names`, `allowed_values`, `known_contracts` |
+| `dart_shared_widget_doc` | Kiểm tra Dart doc blocks và API contract của shared widget public classes. | `check`, `widget_base_classes`, `state_field_names`, `variant_field_names`, `only_categories`, `allowed_values`, `known_contracts` |
 
 `regex` dùng line mode theo mặc định. Có thể chọn file mode bằng `mode` khi rule
 cần match nhiều line.

@@ -63,6 +63,24 @@ rules:
     fix:
       hint: Extract private build helpers or smaller internal widgets without widening the shared widget public API.
 
+  - id: memox.flashcard_editor_widgets_no_part_of
+    type: regex
+    severity: error
+    enabled: true
+    message: Flashcard editor widgets must stay as standalone Dart libraries; do not split them with `part of` directives.
+    include:
+      - lib/presentation/features/flashcards/widgets/flashcard_editor_view*.dart
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+    patterns:
+      - "^\\s*part\\s+of\\s+['\\\"][^'\\\"]+['\\\"];?$"
+    tags:
+      - memox
+      - ui
+      - architecture
+      - maintainability
+
   - id: memox.no_hardcoded_animation_duration
     type: regex
     severity: error

@@ -736,6 +736,7 @@ class ConfigManager:
             ConfigKeys.VARIANT_FIELD_NAMES,
             ConfigKeys.ALLOWED_VALUES,
             ConfigKeys.KNOWN_CONTRACTS,
+            ConfigKeys.ONLY_CATEGORIES,
         ]:
             self._validate_string_list(rule, key, path)
 
