@@ -160,6 +160,14 @@ def test_visual_component_sizes_must_use_component_tokens(tmp_path: Path) -> Non
       }
     }
     """
+    gap_layout = """
+    class SampleSwatch extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const SizedBox(height: SpacingTokens.sm);
+      }
+    }
+    """
 
     assert _violations(
         "design.require_component_size_token",
@@ -171,6 +179,12 @@ def test_visual_component_sizes_must_use_component_tokens(tmp_path: Path) -> Non
         "design.require_component_size_token",
         tmp_path,
         good,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.require_component_size_token",
+        tmp_path,
+        gap_layout,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
 
@@ -301,6 +315,44 @@ def test_border_width_spacing_token_is_forbidden(tmp_path: Path) -> None:
       }
     }
     """
+    raw_width = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(width: 1),
+          ),
+        );
+      }
+    }
+    """
+    color_only = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(color: scheme.outlineVariant),
+          ),
+        );
+      }
+    }
+    """
+    side_color_only = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: dividerColor),
+            ),
+          ),
+        );
+      }
+    }
+    """
     good = """
     class SampleCard extends StatelessWidget {
       @override
@@ -330,6 +382,36 @@ def test_border_width_spacing_token_is_forbidden(tmp_path: Path) -> None:
         "design.no_spacing_token_for_border_width",
         tmp_path,
         bad_side,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert _violations(
+        "design.require_border_token",
+        tmp_path,
+        raw_width,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.no_spacing_token_for_border_width",
+        tmp_path,
+        color_only,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.no_spacing_token_for_border_width",
+        tmp_path,
+        side_color_only,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.require_border_token",
+        tmp_path,
+        color_only,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.require_border_token",
+        tmp_path,
+        side_color_only,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
 
@@ -438,6 +520,12 @@ def test_spacing_gap_sizedbox_with_token_is_allowed(tmp_path: Path) -> None:
     }
     """
 
+    assert not _violations(
+        "design.require_component_size_token",
+        tmp_path,
+        source,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
     assert not _violations(
         "design.no_spacing_token_for_icon_size",
         tmp_path,

@@ -1,7 +1,8 @@
 version: 1
 
 overrides:
-  disabled_rules: []
+  disabled_rules:
+    - common.no_large_source_file
   severity: {}
   rule_options:
     memox.provider_file_naming:
@@ -19,17 +20,6 @@ overrides:
         - test/**
         - integration_test/**
     common.max_file_lines:
-      include:
-        - lib/**/*.dart
-      exclude:
-        - '**/*.g.dart'
-        - '**/*.freezed.dart'
-        - lib/l10n/generated/**
-        - test/**
-        - integration_test/**
-      max_lines: 500
-      count_mode: logical
-    common.no_large_source_file:
       include:
         - lib/**/*.dart
       exclude:

@@ -57,7 +57,9 @@ rules:
     severity: error
     enabled: true
     message: >-
-      Không tính toán trực tiếp trên token trong UI. Hãy thêm token mới có ý nghĩa semantic.
+      Không tính toán trực tiếp trên token trong UI. Nếu đây là spacing/padding, hãy thêm
+      SpacingTokens hoặc ComponentSpacingTokens. Nếu đây là visual size/thickness/effect,
+      hãy dùng component/border/divider/shadow token phù hợp.
     scopes:
       - flutter_app_source
     patterns:
@@ -82,7 +84,7 @@ rules:
     patterns:
       - '\bIcon\s*\([\s\S]*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
       - '\bMxIconTile\s*\([\s\S]*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\b(?:Container|SizedBox|CircleAvatar|Image|IconButton)\s*\([\s\S]*?\b(?:width|height|radius|size)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\b(?:Container|CircleAvatar|Image|IconButton|MxAvatar|MxIconButton)\s*\([\s\S]*?\b(?:width|height|radius|size)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
     tags:
       - memox
       - design
@@ -142,8 +144,8 @@ rules:
       - flutter_app_source
     mode: file
     patterns:
-      - '\bBorder\.all\s*\([\s\S]*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
-      - '\bBorderSide\s*\([\s\S]*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBorder\.all\s*\((?:(?!\)).)*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBorderSide\s*\((?:(?!\)).)*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
     tags:
       - memox
       - design
@@ -204,8 +206,8 @@ rules:
       - flutter_app_source
     mode: file
     patterns:
-      - '\bBorder\.all\s*\((?:(?!\)).)*\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
-      - '\bBorderSide\s*\((?:(?!\)).)*\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bBorder\.all\s*\((?:(?!\)).)*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bBorderSide\s*\((?:(?!\)).)*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
     tags:
       - memox
       - design
