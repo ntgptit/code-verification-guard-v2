@@ -37,8 +37,9 @@ rules:
     enabled: true
     message: >-
       Raw numeric literals in `SizedBox(width/height: N)` and `SizedBox.square(dimension: N)`
-      must not appear outside token/theme files. Use `MxSpace.*`, `MxGap(...)`, or
-      `AppLayout` spacing primitives instead. Value 0 is allowed.
+      must not appear outside token/theme files. Use `MxSpace.*`, `MxGap(...)`,
+      `SpacingTokens.*`, `ComponentSpacingTokens.*`, or `AppLayout` spacing primitives instead.
+      Value 0 is allowed.
     scopes:
       - flutter_app_source
     patterns:
@@ -50,7 +51,7 @@ rules:
       - design-system
       - spacing
     fix:
-      hint: "Replace the literal with MxSpace.*, MxGap(...), or an AppLayout spacing token. SizedBox(width: 0) and SizedBox.shrink() are allowed."
+      hint: "Replace the literal with MxSpace.*, MxGap(...), SpacingTokens.*, ComponentSpacingTokens.*, or an AppLayout spacing token. SizedBox(width: 0) and SizedBox.shrink() are allowed."
 
   - id: design.no_token_arithmetic_in_ui
     type: regex
@@ -63,7 +64,7 @@ rules:
     scopes:
       - flutter_app_source
     patterns:
-      - '\b(?:SpacingTokens|RadiusTokens)\.[A-Za-z_][A-Za-z0-9_]*\s*[*/+\-]\s*(?:\d+(?:\.\d+)?|\b(?:SpacingTokens|RadiusTokens)\.[A-Za-z_][A-Za-z0-9_]*)'
+      - '\b(?:SpacingTokens|ComponentSpacingTokens|RadiusTokens|SizeTokens|IconSizeTokens|ComponentSizeTokens|BorderTokens|DividerTokens|ShadowTokens|ElevationTokens|OpacityTokens)\.[A-Za-z_][A-Za-z0-9_]*\s*[*/+\-]\s*(?:\d+(?:\.\d+)?|\b(?:SpacingTokens|ComponentSpacingTokens|RadiusTokens|SizeTokens|IconSizeTokens|ComponentSizeTokens|BorderTokens|DividerTokens|ShadowTokens|ElevationTokens|OpacityTokens)\.[A-Za-z_][A-Za-z0-9_]*)'
     tags:
       - memox
       - design
@@ -72,19 +73,37 @@ rules:
     fix:
       hint: 'Add a semantic token instead of computing token values directly in UI code.'
 
-  - id: design.require_component_size_token
+  - id: design.require_icon_size_token
     type: regex
     severity: error
     enabled: true
     message: >-
-      Visual component sizes must use component-specific size tokens such as ComponentSizeTokens or IconSizeTokens instead of raw numbers.
+      Icon(size) must use a named icon size token instead of a raw number.
     scopes:
       - flutter_app_source
     mode: file
     patterns:
-      - '\bIcon\s*\([\s\S]*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\bMxIconTile\s*\([\s\S]*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\b(?:Container|CircleAvatar|Image|IconButton|MxAvatar|MxIconButton)\s*\([\s\S]*?\b(?:width|height|radius|size)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bIcon\s*\((?:[^()]|\([^()]*\))*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - sizing
+      - icon-size
+    fix:
+      hint: 'Replace Icon(size: N) with IconSizeTokens.*, SizeTokens.icon*, or another named icon size token.'
+
+  - id: design.require_mx_icon_tile_size_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      MxIconTile(size) must use a named component size token instead of a raw number.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bMxIconTile\s*\((?:[^()]|\([^()]*\))*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
     tags:
       - memox
       - design
@@ -92,7 +111,27 @@ rules:
       - sizing
       - component-size
     fix:
-      hint: 'Replace raw visual component sizes with ComponentSizeTokens.*, IconSizeTokens.*, or another named component size token.'
+      hint: 'Replace MxIconTile(size: N) with ComponentSizeTokens.*, IconSizeTokens.*, or another named component size token.'
+
+  - id: design.require_visual_box_size_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Visual boxes must use named width, height, radius, or size tokens instead of raw numbers.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\b(?:Container|CircleAvatar|Image|IconButton|MxAvatar|MxIconButton)\s*\((?:[^()]|\([^()]*\))*?\b(?:width|height|radius|size)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - sizing
+      - component-size
+    fix:
+      hint: 'Replace raw visual box sizes with ComponentSizeTokens.*, BorderTokens.*, IconSizeTokens.*, or another named size token.'
 
   - id: design.no_spacing_token_for_icon_size
     type: regex
@@ -144,8 +183,8 @@ rules:
       - flutter_app_source
     mode: file
     patterns:
-      - '\bBorder\.all\s*\((?:(?!\)).)*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
-      - '\bBorderSide\s*\((?:(?!\)).)*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBorder\.all\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBorderSide\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
     tags:
       - memox
       - design
@@ -206,8 +245,8 @@ rules:
       - flutter_app_source
     mode: file
     patterns:
-      - '\bBorder\.all\s*\((?:(?!\)).)*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
-      - '\bBorderSide\s*\((?:(?!\)).)*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bBorder\.all\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bBorderSide\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
     tags:
       - memox
       - design
@@ -226,8 +265,8 @@ rules:
       - flutter_app_source
     mode: file
     patterns:
-      - '\bblurRadius\s*:\s*[1-9]\d*(?:\.\d+)?'
-      - '\bspreadRadius\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bBoxShadow\s*\((?:[^()]|\([^()]*\))*?\bblurRadius\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bBoxShadow\s*\((?:[^()]|\([^()]*\))*?\bspreadRadius\s*:\s*[1-9]\d*(?:\.\d+)?\b'
     tags:
       - memox
       - design
@@ -244,15 +283,16 @@ rules:
       EdgeInsets phải dùng token spacing/component token hoặc EdgeInsets.zero. Không dùng số thô hoặc biến cục bộ.
     scopes:
       - flutter_app_source
+    mode: file
     patterns:
-      - '\bEdgeInsets\.all\s*\(\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.all\s*\(\s*(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
-      - '\bEdgeInsets\.symmetric\s*\((?:(?!\)).)*\b(?:horizontal|vertical)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.symmetric\s*\((?:(?!\)).)*\b(?:horizontal|vertical)\s*:\s*(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
-      - '\bEdgeInsets\.only\s*\((?:(?!\)).)*\b(?:left|top|right|bottom)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.only\s*\((?:(?!\)).)*\b(?:left|top|right|bottom)\s*:\s*(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
-      - '\bEdgeInsets\.fromLTRB\s*\((?:(?!\)).)*\b[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.fromLTRB\s*\((?:(?!\)).)*\b(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+      - '\bEdgeInsets\.all\s*\((?:[^()]|\([^()]*\))*?\b[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.all\s*\((?:[^()]|\([^()]*\))*?(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+      - '\bEdgeInsets\.symmetric\s*\((?:[^()]|\([^()]*\))*?\b(?:horizontal|vertical)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.symmetric\s*\((?:[^()]|\([^()]*\))*?\b(?:horizontal|vertical)\s*:\s*(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+      - '\bEdgeInsets\.only\s*\((?:[^()]|\([^()]*\))*?\b(?:left|top|right|bottom)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.only\s*\((?:[^()]|\([^()]*\))*?\b(?:left|top|right|bottom)\s*:\s*(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+      - '\bEdgeInsets\.fromLTRB\s*\((?:[^()]|\([^()]*\))*?\b[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.fromLTRB\s*\((?:[^()]|\([^()]*\))*?(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
     tags:
       - memox
       - design
