@@ -24,6 +24,12 @@ def test_registries_are_singletons():
     assert ScopeRegistry() is ScopeRegistry()
 
 
+def test_matcher_registry_registers_dart_shared_widget_doc_rule_type():
+    registry = MatcherRegistry()
+
+    assert "dart_shared_widget_doc" in registry.keys()
+
+
 def test_rule_registry_reset_clears_shared_state():
     registry = RuleRegistry()
     shared_registry = RuleRegistry()

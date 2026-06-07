@@ -276,6 +276,12 @@ Các field phổ biến:
 | `exclude` | Rule-local exclude patterns. |
 | `patterns` | Regex patterns dùng bởi pattern-based matcher. |
 | `pattern` | Một regex pattern dùng bởi file-name rule. |
+| `check` | Tên check chuyên dụng cho matcher có nhiều rule con. |
+| `widget_base_classes` | Danh sách base widget classes để nhận diện shared widget public class. |
+| `state_field_names` | Danh sách field names buộc phải có `States:` section. |
+| `variant_field_names` | Danh sách field names buộc phải có `Variants:` section. |
+| `allowed_values` | Giá trị hợp lệ cho `Category:`. |
+| `known_contracts` | Danh sách interface names hợp lệ trong `Expected contracts:`. |
 | `tags` | Nhãn tùy chọn để phân nhóm. |
 | `fix.hint` | Hướng dẫn sửa tùy chọn hiển thị trong report. |
 
@@ -302,6 +308,7 @@ Tránh ID mơ hồ như `rule1`, `check_something` hoặc `no_bad_code`.
 | `forbidden_import` | Báo lỗi các import declaration bị cấm. | `patterns` |
 | `if_comment` | Yêu cầu comment ngay phía trên các `if` statement khớp rule. | `patterns`, optional `comment_prefixes` |
 | `python_docstring` | Kiểm tra docstring trên Python AST nodes. | optional `node_types` |
+| `dart_shared_widget_doc` | Kiểm tra Dart doc blocks và API contract của shared widget public classes. | `check`, `widget_base_classes`, `state_field_names`, `variant_field_names`, `allowed_values`, `known_contracts` |
 
 `regex` dùng line mode theo mặc định. Có thể chọn file mode bằng `mode` khi rule
 cần match nhiều line.

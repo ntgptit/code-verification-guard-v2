@@ -1,0 +1,147 @@
+version: 1
+
+metadata:
+  id: memox-shared-widget-dart-doc
+  name: MemoX Shared Widget Dart Doc Rules
+  description: Validate public shared widget Dart doc blocks and expected contracts.
+  owner: code-verification-guard
+
+rules:
+  - &shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.required
+    type: dart_shared_widget_doc
+    severity: error
+    enabled: true
+    message: "Shared widget classes must have a Dart doc block immediately above the class declaration."
+    scopes:
+      - shared_widget_dart_doc_source
+    widget_base_classes:
+      - StatelessWidget
+      - StatefulWidget
+      - ConsumerWidget
+      - HookWidget
+      - HookConsumerWidget
+    state_field_names:
+      - isLoading
+      - isDisabled
+      - isSelected
+      - isExpanded
+      - isCollapsed
+      - hasError
+      - errorText
+      - emptyText
+      - state
+      - status
+    variant_field_names:
+      - variant
+      - type
+      - style
+      - size
+    allowed_values:
+      - button
+      - input
+      - card
+      - layout
+      - feedback
+      - dialog
+      - async
+      - navigation
+      - display
+      - utility
+    known_contracts:
+      - MxSharedComponent
+      - MxLabeledComponent
+      - MxActionableComponent
+      - MxLoadableComponent
+      - MxSizableComponent
+      - MxVariantComponent
+      - MxTextInputComponent
+      - MxErrorDisplayComponent
+    check: required
+    tags:
+      - memox
+      - ui
+      - shared-widget
+      - documentation
+    fix:
+      hint: "Add a `///` doc block immediately above the class declaration."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.summary_required
+    severity: warning
+    message: "Shared widget docs should start with a short summary sentence."
+    check: summary_required
+    fix:
+      hint: "Add a short first-line summary sentence before the section markers."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.purpose_required
+    severity: error
+    message: "Shared widget docs must include a `Purpose:` section."
+    check: purpose_required
+    fix:
+      hint: "Add a `/// Purpose:` section explaining why this widget exists."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.use_when_required
+    severity: error
+    message: "Shared widget docs must include a `Use when:` section."
+    check: use_when_required
+    fix:
+      hint: "Add a `/// Use when:` section describing the valid usage scenarios."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.do_not_use_when_required
+    severity: warning
+    message: "Shared widget docs should include a `Do not use when:` section."
+    check: do_not_use_when_required
+    fix:
+      hint: "Add a `/// Do not use when:` section to guard against misuse."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.category_required
+    severity: error
+    message: "Shared widget docs must include a `Category:` section."
+    check: category_required
+    fix:
+      hint: "Add a `/// Category:` section with one of the allowed shared widget categories."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.category_allowed_value
+    severity: error
+    message: "Shared widget docs must use an allowed category value."
+    check: category_allowed_value
+    fix:
+      hint: "Use one of the allowed category values: button, input, card, layout, feedback, dialog, async, navigation, display, or utility."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.public_api_required
+    severity: error
+    message: "Shared widget docs must include a non-empty `Public API:` section."
+    check: public_api_required
+    fix:
+      hint: "Add `- fieldName:` bullet items that describe the public fields or callbacks."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.states_required_when_state_field_exists
+    severity: warning
+    message: "Shared widget docs should include a `States:` section when state fields exist."
+    check: states_required_when_state_field_exists
+    fix:
+      hint: "Add a `/// States:` section when the widget exposes state-related fields."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.variants_required_when_variant_field_exists
+    severity: warning
+    message: "Shared widget docs should include a `Variants:` section when variant fields exist."
+    check: variants_required_when_variant_field_exists
+    fix:
+      hint: "Add a `/// Variants:` section when the widget exposes variant-related fields."
+
+  - <<: *shared_widget_doc_base
+    id: flutter.shared_widget.dart_doc.expected_contracts_required
+    severity: warning
+    message: "Shared widget docs should include an `Expected contracts:` section."
+    check: expected_contracts_required
+    fix:
+      hint: "List the expected shared component interfaces, such as `MxSharedComponent` or `MxActionableComponent`."

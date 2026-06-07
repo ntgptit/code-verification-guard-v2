@@ -60,6 +60,16 @@ scopes:
       - '**/*.freezed.dart'
       - '**/*.config.dart'
       - '**/gen/**'
+  source_files:
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.config.dart'
+      - '**/gen/**'
   child_widget_layout_files:
     include:
       - lib/presentation/shared/widgets/*.dart
@@ -246,6 +256,14 @@ scopes:
       - '**/gen/**'
       - lib/presentation/shared/widgets/mx_text.dart
       - lib/presentation/shared/widgets/mx_text_field.dart
+  shared_widget_dart_doc_source:
+    include:
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.mocks.dart'
+      - '**/*.config.dart'
   shared_widget_dirs:
     include:
       - lib/presentation/shared/bottom_sheets/**/*.dart

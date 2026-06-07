@@ -700,7 +700,7 @@ class ConfigManager:
 
     def _validate_rule_id(self, rule_id: str, path: Path) -> None:
         """Validate namespaced rule id format."""
-        pattern = r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*(?:_[a-z0-9]+)*$"
+        pattern = r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$"
 
         # Namespaced IDs keep rules traceable across registries.
         if not re.match(pattern, rule_id):
@@ -731,6 +731,11 @@ class ConfigManager:
             ConfigKeys.PATTERNS,
             ConfigKeys.TAGS,
             ConfigKeys.NODE_TYPES,
+            ConfigKeys.WIDGET_BASE_CLASSES,
+            ConfigKeys.STATE_FIELD_NAMES,
+            ConfigKeys.VARIANT_FIELD_NAMES,
+            ConfigKeys.ALLOWED_VALUES,
+            ConfigKeys.KNOWN_CONTRACTS,
         ]:
             self._validate_string_list(rule, key, path)
 

@@ -30,3 +30,4 @@ rules:
   - rules/memox-design-token-rules.yaml
   - rules/memox-routing-rules.yaml
   - rules/memox-dart-convention-rules.yaml
+  - rules/memox-shared-widget-doc-rules.yaml

@@ -11,6 +11,9 @@ from code_verification_guard.matchers.forbidden_import_matcher import ForbiddenI
 from code_verification_guard.matchers.if_comment_matcher import IfCommentMatcher
 from code_verification_guard.matchers.max_build_lines_matcher import MaxBuildLinesMatcher
 from code_verification_guard.matchers.max_lines_matcher import MaxLinesMatcher
+from code_verification_guard.matchers.dart_shared_widget_doc_matcher import (
+    DartSharedWidgetDocMatcher,
+)
 from code_verification_guard.matchers.python_docstring_matcher import PythonDocstringMatcher
 from code_verification_guard.matchers.regex_matcher import RegexMatcher
 
@@ -42,6 +45,7 @@ class MatcherRegistry:
             RuleType.FORBIDDEN_IMPORT: ForbiddenImportMatcher,
             RuleType.IF_COMMENT: IfCommentMatcher,
             RuleType.PYTHON_DOCSTRING: PythonDocstringMatcher,
+            RuleType.DART_SHARED_WIDGET_DOC: DartSharedWidgetDocMatcher,
         }
         self._initialized = True
 

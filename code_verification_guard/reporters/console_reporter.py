@@ -82,6 +82,8 @@ class ConsoleReporter:
             Text(f"[{violation.severity.upper()}] {violation.rule_id}", style=severity_style)
         )
         self.console.print(f"  File: {location}")
+        if violation.class_name:
+            self.console.print(f"  Class: {violation.class_name}")
         self.console.print(f"  Message: {violation.message}")
 
         # Code snippets are omitted when the rule reports only a location.
@@ -90,7 +92,7 @@ class ConsoleReporter:
 
         # Fix hints are shown only when requested by report config.
         if self.show_fix_hint and violation.fix_hint:
-            self.console.print(f"  Fix: {violation.fix_hint}")
+            self.console.print(f"  Suggested fix: {violation.fix_hint}")
 
     def _severity_style(self, severity: str) -> str:
         """Return the Rich style for a severity."""

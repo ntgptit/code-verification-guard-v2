@@ -75,6 +75,7 @@ class BaseRule(ABC):
     def create_violation(
         self,
         file_path: Path,
+        class_name: str | None = None,
         line_number: int | None = None,
         column_number: int | None = None,
         code_line: str | None = None,
@@ -87,6 +88,7 @@ class BaseRule(ABC):
             severity=self.severity,
             message=message or self.message,
             file_path=file_path,
+            class_name=class_name,
             line_number=line_number,
             column_number=column_number,
             code_line=code_line,

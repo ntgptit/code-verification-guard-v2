@@ -308,6 +308,8 @@ def test_memox_rule_set_loads_ported_project_rules():
     assert "memox.legacy_state_notifier" in rules_by_id
     assert "memox.domain_no_flutter_import" in rules_by_id
     assert "memox.presentation_no_dart_io_imports" in rules_by_id
+    assert "flutter.shared_widget.dart_doc.required" in rules_by_id
+    assert "flutter.shared_widget.dart_doc.expected_contracts_required" in rules_by_id
     assert "lib/**/*.dart" in rules_by_id["memox.no_else"][ConfigKeys.INCLUDE]
 
 

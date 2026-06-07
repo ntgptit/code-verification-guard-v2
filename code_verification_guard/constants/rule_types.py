@@ -12,3 +12,4 @@ class RuleType(StrEnum):
     FORBIDDEN_IMPORT = "forbidden_import"
     IF_COMMENT = "if_comment"
     PYTHON_DOCSTRING = "python_docstring"
+    DART_SHARED_WIDGET_DOC = "dart_shared_widget_doc"

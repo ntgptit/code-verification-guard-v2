@@ -41,17 +41,17 @@ def test_widget_ui_scope_includes_screens_and_widgets(
             include_patterns,
             exclude_patterns,
         )
-    ]
+    ] 
 
     assert (
-        "lib/presentation/features/study/screens/study_entry_screen.dart"
+        "lib/presentation/features/flashcards/screens/flashcard_editor_screen.dart"
         in matched
     )
     assert any(
-        path.startswith("lib/presentation/features/study/widgets/")
+        path.startswith("lib/presentation/shared/widgets/")
         for path in matched
     )
-    assert "lib/presentation/shared/widgets/mx_card.dart" in matched
+    assert "lib/presentation/shared/widgets/buttons/mx_primary_button.dart" in matched
 
 
 def test_widget_ui_scope_excludes_providers_and_viewmodels(
@@ -67,14 +67,13 @@ def test_widget_ui_scope_excludes_providers_and_viewmodels(
             include_patterns,
             exclude_patterns,
         )
-    ]
+    ] 
 
     assert (
-        "lib/presentation/features/study/providers/study_entry_notifier.dart"
+        "lib/presentation/features/flashcards/viewmodels/flashcard_editor_viewmodel.dart"
         not in matched
     )
     assert (
         "lib/presentation/features/decks/viewmodels/deck_action_viewmodel.dart"
         not in matched
     )
-

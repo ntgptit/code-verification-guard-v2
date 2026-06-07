@@ -42,6 +42,12 @@ class ConfigKeys:
     PATTERN = "pattern"
     COMMENT_PREFIXES = "comment_prefixes"
     NODE_TYPES = "node_types"
+    CHECK = "check"
+    WIDGET_BASE_CLASSES = "widget_base_classes"
+    STATE_FIELD_NAMES = "state_field_names"
+    VARIANT_FIELD_NAMES = "variant_field_names"
+    ALLOWED_VALUES = "allowed_values"
+    KNOWN_CONTRACTS = "known_contracts"
     MAX_LINES = "max_lines"
     COUNT_MODE = "count_mode"
 

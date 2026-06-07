@@ -13,6 +13,7 @@ class Violation:
     severity: str
     message: str
     file_path: Path
+    class_name: str | None = None
     line_number: int | None = None
     column_number: int | None = None
     code_line: str | None = None

@@ -19,10 +19,12 @@ class JsonReporter:
                 ConfigKeys.SEVERITY: violation.severity,
                 ConfigKeys.MESSAGE: violation.message,
                 "file_path": str(violation.file_path),
+                "class_name": violation.class_name,
                 "line_number": violation.line_number,
                 "column_number": violation.column_number,
                 "code_line": violation.code_line,
                 "fix_hint": violation.fix_hint,
+                "suggested_fix": violation.fix_hint,
                 "fix_example_bad": violation.fix_example_bad,
                 "fix_example_good": violation.fix_example_good,
             }
