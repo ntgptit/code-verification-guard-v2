@@ -304,6 +304,35 @@ def test_screen_async_value_when_rule_flags_inline_screen_branching(
     assert not _violations("memox.screen_async_value_when_section_split", tmp_path, good)
 
 
+def test_screen_part_of_screen_library_is_forbidden(tmp_path: Path) -> None:
+    bad = """
+    part of 'learning_settings_screen.dart';
+
+    class LearningSettingsPartsScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) => const SizedBox.shrink();
+    }
+    """
+    good = """
+    class LearningSettingsPartsScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) => const SizedBox.shrink();
+    }
+    """
+    widget_part = """
+    part of 'audio_speech_settings_content.dart';
+
+    class AudioSpeechSettingsContentVoicePart extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) => const SizedBox.shrink();
+    }
+    """
+
+    assert _violations("memox.screen_part_of_forbidden", tmp_path, bad)
+    assert not _violations("memox.screen_part_of_forbidden", tmp_path, good)
+    assert not _violations("memox.screen_part_of_forbidden", tmp_path, widget_part)
+
+
 def test_intrinsic_layout_requires_review(tmp_path: Path) -> None:
     bad = """
     Widget build(BuildContext context) {

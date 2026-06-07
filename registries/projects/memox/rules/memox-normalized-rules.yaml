@@ -675,6 +675,20 @@ rules:
       - memox
       - normalized
       - architecture
+  - id: memox.screen_part_of_forbidden
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature screen splits must not use `part of '..._screen.dart'`; extract a real widget file instead.
+    scopes:
+      - feature_ui
+    patterns:
+      - '(?m)^\s*part\s+of\s+["''][^"'']+_screen\.dart["'']\s*;'
+    tags:
+      - memox
+      - normalized
+      - architecture
+      - maintainability
   - id: memox.widget_repository_impl_import
     type: regex
     severity: error
