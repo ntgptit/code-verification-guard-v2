@@ -69,7 +69,6 @@ def test_token_arithmetic_is_forbidden_in_feature_ui(tmp_path: Path) -> None:
       static const double hairline = SpacingTokens.xxs / 2;
     }
     """
-
     assert _violations(
         "design.no_token_arithmetic_in_ui",
         tmp_path,
@@ -91,6 +90,246 @@ def test_token_arithmetic_is_forbidden_in_feature_ui(tmp_path: Path) -> None:
     )
 
 
+def test_edge_insets_must_use_spacing_tokens_or_zero(tmp_path: Path) -> None:
+    bad = """
+    class SampleHeader extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        final localHeaderPadding = 12.0;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: localHeaderPadding),
+            margin: EdgeInsets.only(left: SpacingTokens.md + 2),
+          ),
+        );
+      }
+    }
+    """
+    good = """
+    class SampleHeader extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return const Padding(
+          padding: EdgeInsets.zero,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: SpacingTokens.md),
+            child: SizedBox.shrink(),
+          ),
+        );
+      }
+    }
+    """
+
+    assert _violations(
+        "design.require_spacing_token_for_edge_insets",
+        tmp_path,
+        bad,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.require_spacing_token_for_edge_insets",
+        tmp_path,
+        good,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+
+
+def test_visual_component_sizes_must_use_component_tokens(tmp_path: Path) -> None:
+    bad = """
+    class SampleSwatch extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Container(
+          width: 28,
+          height: 28,
+          child: const Icon(Icons.check, size: 14),
+        );
+      }
+    }
+    """
+    good = """
+    class SampleSwatch extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Container(
+          width: ComponentSizeTokens.controlSm,
+          height: ComponentSizeTokens.controlSm,
+          child: const Icon(Icons.check, size: IconSizeTokens.sm),
+        );
+      }
+    }
+    """
+
+    assert _violations(
+        "design.require_component_size_token",
+        tmp_path,
+        bad,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.require_component_size_token",
+        tmp_path,
+        good,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+
+
+def test_mx_icon_tile_size_must_use_component_tokens(tmp_path: Path) -> None:
+    bad_multiline = """
+    Widget _buildHeader(ColorScheme scheme) => MxIconTile(
+      icon: Icons.folder_delete_outlined,
+      color: scheme.error,
+      size: 48,
+    );
+    """
+    bad_inline = """
+    Widget _buildHeader(ColorScheme scheme) => MxIconTile(icon: Icons.folder_delete_outlined, color: scheme.error, size: 48);
+    """
+    good = """
+    Widget _buildHeader(ColorScheme scheme) => MxIconTile(
+      icon: Icons.folder_delete_outlined,
+      color: scheme.error,
+      size: IconSizeTokens.md,
+    );
+    """
+    arithmetic_fail = """
+    Widget _buildHeader(ColorScheme scheme) => MxIconTile(
+      icon: Icons.folder_delete_outlined,
+      color: scheme.error,
+      size: SpacingTokens.xs + SpacingTokens.sm,
+    );
+    """
+    spacing_fail = """
+    Widget _buildHeader(ColorScheme scheme) => MxIconTile(
+      icon: Icons.folder_delete_outlined,
+      color: scheme.error,
+      size: SpacingTokens.xs,
+    );
+    """
+
+    assert _violations(
+        "design.require_component_size_token",
+        tmp_path,
+        bad_multiline,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+    assert _violations(
+        "design.require_component_size_token",
+        tmp_path,
+        bad_inline,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+    assert not _violations(
+        "design.require_component_size_token",
+        tmp_path,
+        good,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+    assert _violations(
+        "design.no_token_arithmetic_in_ui",
+        tmp_path,
+        arithmetic_fail,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+    assert _violations(
+        "design.no_spacing_token_for_non_spacing_property",
+        tmp_path,
+        spacing_fail,
+        relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
+    )
+
+
+def test_border_widths_must_use_border_tokens(tmp_path: Path) -> None:
+    bad = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(width: 1),
+          ),
+        );
+      }
+    }
+    """
+    good = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(width: BorderTokens.width),
+          ),
+        );
+      }
+    }
+    """
+
+    assert _violations(
+        "design.require_border_token",
+        tmp_path,
+        bad,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.require_border_token",
+        tmp_path,
+        good,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+
+
+def test_shadow_properties_must_use_shadow_tokens(tmp_path: Path) -> None:
+    bad = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 8,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+        );
+      }
+    }
+    """
+    good = """
+    class SampleCard extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 0,
+                spreadRadius: ShadowTokens.spreadSm,
+              ),
+            ],
+          ),
+        );
+      }
+    }
+    """
+
+    assert _violations(
+        "design.require_shadow_token",
+        tmp_path,
+        bad,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+    assert not _violations(
+        "design.require_shadow_token",
+        tmp_path,
+        good,
+        relative_path="lib/presentation/features/sample/sample_screen.dart",
+    )
+
+
 def test_spacing_token_is_forbidden_for_divider_border_and_stroke_properties(
     tmp_path: Path,
 ) -> None:
@@ -100,11 +339,8 @@ def test_spacing_token_is_forbidden_for_divider_border_and_stroke_properties(
       Widget build(BuildContext context) {
         return Column(
           children: [
-            Divider(thickness: SpacingTokens.xxs),
-            SizedBox(
-              height: SpacingTokens.xxs / 2,
-              child: const ColoredBox(color: Colors.red),
-            ),
+            Container(width: SpacingTokens.xs, height: SpacingTokens.xs),
+            Icon(Icons.check, size: SpacingTokens.xs),
             DecoratedBox(
               decoration: BoxDecoration(
                 border: Border(
@@ -114,6 +350,10 @@ def test_spacing_token_is_forbidden_for_divider_border_and_stroke_properties(
             ),
             CustomPaint(
               painter: _SamplePainter(strokeWidth: SpacingTokens.xs),
+            ),
+            BoxShadow(
+              blurRadius: SpacingTokens.xs,
+              spreadRadius: SpacingTokens.xs,
             ),
           ],
         );
@@ -127,7 +367,7 @@ def test_spacing_token_is_forbidden_for_divider_border_and_stroke_properties(
         return const Column(
           children: [
             MxDivider(),
-            SizedBox(height: 1, child: ColoredBox(color: Colors.red)),
+            SizedBox(height: SpacingTokens.xxs),
           ],
         );
       }

@@ -59,39 +59,130 @@ rules:
     message: >-
       Không tính toán trực tiếp trên token trong UI. Hãy thêm token mới có ý nghĩa semantic.
     scopes:
-      - feature_ui
+      - flutter_app_source
     patterns:
-      - '\b(?:SpacingTokens|RadiusTokens|BorderTokens|SizeTokens|OpacityTokens|TypographyTokens|DurationTokens|ColorTokens|ElevationTokens)\.[A-Za-z_][A-Za-z0-9_]*\s*[*/+\-]\s*(?:\d+(?:\.\d+)?|\b(?:SpacingTokens|RadiusTokens|BorderTokens|SizeTokens|OpacityTokens|TypographyTokens|DurationTokens|ColorTokens|ElevationTokens)\.[A-Za-z_][A-Za-z0-9_]*)'
+      - '\b(?:SpacingTokens|RadiusTokens)\.[A-Za-z_][A-Za-z0-9_]*\s*[*/+\-]\s*(?:\d+(?:\.\d+)?|\b(?:SpacingTokens|RadiusTokens)\.[A-Za-z_][A-Za-z0-9_]*)'
     tags:
       - memox
       - design
       - design-system
       - token
     fix:
-      hint: Add a semantic token instead of computing token values directly in UI code.
+      hint: 'Add a semantic token instead of computing token values directly in UI code.'
+
+  - id: design.require_component_size_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Visual component sizes must use component-specific size tokens such as ComponentSizeTokens or IconSizeTokens instead of raw numbers.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bIcon\s*\([\s\S]*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bMxIconTile\s*\([\s\S]*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\b(?:Container|SizedBox|CircleAvatar|Image|IconButton)\s*\([\s\S]*?\b(?:width|height|radius|size)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - sizing
+      - component-size
+    fix:
+      hint: 'Replace raw visual component sizes with ComponentSizeTokens.*, IconSizeTokens.*, or another named component size token.'
+
+  - id: design.require_border_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Border widths must use BorderTokens, StrokeTokens, or a component border token instead of raw numbers.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bBorder\.all\s*\((?:(?!\)).)*\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bBorderSide\s*\((?:(?!\)).)*\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+    tags:
+      - memox
+      - design
+      - design-system
+      - border
+    fix:
+      hint: 'Replace Border.all(width: N) with BorderTokens.*, StrokeTokens.*, or another named border token.'
+
+  - id: design.require_shadow_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      BoxShadow blurRadius and spreadRadius must use ShadowTokens, ElevationTokens, or a component shadow token instead of hardcoded values.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bblurRadius\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bspreadRadius\s*:\s*[1-9]\d*(?:\.\d+)?'
+    tags:
+      - memox
+      - design
+      - design-system
+      - shadow
+    fix:
+      hint: 'Replace BoxShadow blurRadius/spreadRadius with ShadowTokens.*, ElevationTokens.*, or a named shadow token.'
+
+  - id: design.require_spacing_token_for_edge_insets
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      EdgeInsets phải dùng token spacing/component token hoặc EdgeInsets.zero. Không dùng số thô hoặc biến cục bộ.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - '\bEdgeInsets\.all\s*\(\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.all\s*\(\s*(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+      - '\bEdgeInsets\.symmetric\s*\((?:(?!\)).)*\b(?:horizontal|vertical)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.symmetric\s*\((?:(?!\)).)*\b(?:horizontal|vertical)\s*:\s*(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+      - '\bEdgeInsets\.only\s*\((?:(?!\)).)*\b(?:left|top|right|bottom)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.only\s*\((?:(?!\)).)*\b(?:left|top|right|bottom)\s*:\s*(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+      - '\bEdgeInsets\.fromLTRB\s*\((?:(?!\)).)*\b[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.fromLTRB\s*\((?:(?!\)).)*\b(?!0\b|(?:SpacingTokens|ComponentSpacingTokens|MxSpace|AppLayout)\.)[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - edge-insets
+    fix:
+      hint: 'Use spacing/component tokens or EdgeInsets.zero instead of raw EdgeInsets values.'
 
   - id: design.no_spacing_token_for_non_spacing_property
     type: regex
     severity: error
     enabled: true
     message: >-
-      Spacing token không được dùng cho thickness/stroke/border/divider size. Hãy dùng DividerTokens, BorderTokens hoặc StrokeTokens.
+      Spacing token không được dùng cho component size, border width, stroke, hoặc shadow properties. Hãy dùng component tokens, BorderTokens, StrokeTokens, ShadowTokens hoặc ElevationTokens.
     scopes:
-      - feature_ui
+      - flutter_app_source
+    mode: file
     patterns:
-      - '(?s)\bDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\b(?:height|thickness)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
-      - '(?s)\bVerticalDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '(?s)\b(?:Container|CircleAvatar|Image|Icon|IconButton)\s*\((?:(?!\)).)*\b(?:width|height|radius|size)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '(?s)\bMxIconTile\s*\((?:(?!\)).)*\bsize\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*(?!\s*[*/+\-])'
       - '(?s)\bBorderSide\s*\((?:(?!\)).)*\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
       - '(?s)\bstrokeWidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
-      - '(?s)\bSizedBox\s*\((?:(?!\)).)*\b(?:height|width)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*(?:\s*[*/+\-]\s*[0-9.]+)?(?:(?!\)).)*\bchild\s*:\s*(?:const\s+)?ColoredBox\b'
+      - '(?s)\bBoxShadow\s*\((?:(?!\)).)*\b(?:blurRadius|spreadRadius)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
     tags:
       - memox
       - design
       - design-system
       - spacing
-      - divider
+      - component-size
+      - border
+      - shadow
     fix:
-      hint: Use DividerTokens, BorderTokens, or StrokeTokens for divider/border/stroke dimensions instead of spacing tokens.
+      hint: 'Use component tokens, BorderTokens, StrokeTokens, ShadowTokens, or ElevationTokens instead of spacing tokens for visual component sizing and effects.'
 
   - id: design.require_divider_token
     type: regex
@@ -110,7 +201,7 @@ rules:
       - design-system
       - divider
     fix:
-      hint: Replace raw Divider dimensions with DividerTokens.* or a shared MxDivider widget.
+      hint: 'Replace raw Divider dimensions with DividerTokens.* or a shared MxDivider widget.'
 
   - id: design.no_raw_radius_value
     type: regex
@@ -131,7 +222,7 @@ rules:
       - design-system
       - radius
     fix:
-      hint: Replace the literal with AppRadius.*, RadiusTokens.*, or an equivalent named radius constant. BorderRadius.circular(0) is allowed.
+      hint: 'Replace the literal with AppRadius.*, RadiusTokens.*, or an equivalent named radius constant. BorderRadius.circular(0) is allowed.'
 
   - id: design.no_raw_text_style_value
     type: regex
@@ -154,7 +245,7 @@ rules:
       - design-system
       - typography
     fix:
-      hint: "Use MxText(role: ...) or AppTypography.* for typography instead of raw TextStyle in feature code."
+      hint: 'Use MxText(role: ...) or AppTypography.* for typography instead of raw TextStyle in feature code.'
 
   - id: design.no_raw_duration_value
     type: regex
@@ -174,4 +265,4 @@ rules:
       - design-system
       - motion
     fix:
-      hint: Replace with AppMotion.*, DurationTokens.*, or a named constant. Duration.zero is allowed where the value is truly zero.
+      hint: 'Replace with AppMotion.*, DurationTokens.*, or a named constant. Duration.zero is allowed where the value is truly zero.'
