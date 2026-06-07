@@ -1,0 +1,117 @@
+version: 1
+
+metadata:
+  id: memox-design-token
+  name: MemoX Design Token Rules
+  description: >-
+    Enforce design token usage across lib/. Raw color, spacing, radius, typography, and
+    duration literals must never appear outside token / theme definition files.
+  owner: code-verification-guard
+
+rules:
+  - id: design.no_raw_color_hex_outside_tokens
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw hex/ARGB/RGBO color constructors (`Color(0x...)`, `Color.fromARGB`, `Color.fromRGBO`)
+      must not be used outside token/theme files. Route colors through ColorScheme, theme
+      extensions, or named color tokens from the MemoX Design System.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - 'Color\s*\(\s*0x[0-9A-Fa-f]+'
+      - '\bColor\.fromARGB\s*\('
+      - '\bColor\.fromRGBO\s*\('
+    tags:
+      - memox
+      - design
+      - design-system
+      - color
+    fix:
+      hint: Replace with a named color token (e.g. AppColors.*, scheme.primary) or a ColorScheme accessor from the MemoX Design System.
+
+  - id: design.no_raw_spacing_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric literals in `SizedBox(width/height: N)` and `SizedBox.square(dimension: N)`
+      must not appear outside token/theme files. Use `MxSpace.*`, `MxGap(...)`, or
+      `AppLayout` spacing primitives instead. Value 0 is allowed.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - 'SizedBox\s*\(\s*(?:width|height)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - 'SizedBox\.square\s*\(\s*dimension\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+    fix:
+      hint: "Replace the literal with MxSpace.*, MxGap(...), or an AppLayout spacing token. SizedBox(width: 0) and SizedBox.shrink() are allowed."
+
+  - id: design.no_raw_radius_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric radius literals in `BorderRadius.circular(N)` and `Radius.circular(N)`
+      must not appear outside token/theme files. Use `AppRadius.*` or `RadiusTokens.*`
+      named constants. Value 0 is allowed.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - 'BorderRadius\.circular\s*\([1-9]\d*(?:\.\d+)?\s*[,)]'
+      - '\bRadius\.circular\s*\([1-9]\d*(?:\.\d+)?\s*[,)]'
+    tags:
+      - memox
+      - design
+      - design-system
+      - radius
+    fix:
+      hint: Replace the literal with AppRadius.*, RadiusTokens.*, or an equivalent named radius constant. BorderRadius.circular(0) is allowed.
+
+  - id: design.no_raw_text_style_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `TextStyle` with hardcoded `fontSize`, `fontWeight`, `letterSpacing`, or `fontFamily`
+      must not appear outside typography token/theme files. Route semantic typography through
+      `MxText(role: ...)` or theme accessors backed by MemoX typography tokens.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - '\bfontSize\s*:\s*[0-9]'
+      - '\bfontWeight\s*:\s*FontWeight\.'
+      - '\bletterSpacing\s*:\s*[-0-9]'
+      - '\bfontFamily\s*:\s*[''"]'
+    tags:
+      - memox
+      - design
+      - design-system
+      - typography
+    fix:
+      hint: "Use MxText(role: ...) or AppTypography.* for typography instead of raw TextStyle in feature code."
+
+  - id: design.no_raw_duration_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw `Duration(milliseconds: N)`, `Duration(seconds: N)`, or `Duration(minutes: N)`
+      literals must not appear outside motion/duration token files. Source all animation,
+      transition, and debounce durations from `AppMotion.*` or approved duration constants.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - 'Duration\s*\(\s*(?:milliseconds|seconds|minutes)\s*:\s*[0-9]'
+    tags:
+      - memox
+      - design
+      - design-system
+      - motion
+    fix:
+      hint: Replace with AppMotion.*, DurationTokens.*, or a named constant. Duration.zero is allowed where the value is truly zero.

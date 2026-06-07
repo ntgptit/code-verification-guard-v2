@@ -391,3 +391,47 @@ rules:
       - decision-table
     fix:
       hint: Split large tests by event boundary or Decision Table case group while keeping row names aligned with the markdown Decision Table.
+
+  - id: test.no_skip_without_reason
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `skip: true` in a test or group must not be used without a documented reason.
+      A skipped test with no context silently hides regressions. Use
+      `skip: 'reason: ...'` (a non-empty string) so reviewers understand why the
+      test is disabled and when it can be re-enabled.
+    include:
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - '\bskip\s*:\s*true\b'
+    tags:
+      - memox
+      - coding
+      - tests
+    fix:
+      hint: "Change `skip: true` to `skip: 'reason: <explanation>'` or remove the skip and fix the test."
+
+  - id: comment.no_stale_todo_without_ticket
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      `TODO`, `FIXME`, and `HACK` comments must include a ticket id (e.g. `MEMOX-123`,
+      `#123`) or an explicit reason (`-- reason: ...`) so the intent is traceable.
+      Uncommented markers become invisible tech debt. Complements
+      `common.no_todo_without_ticket` and extends coverage to `HACK`.
+    scopes:
+      - source_files
+    patterns:
+      - '\b(TODO|FIXME|HACK)\b(?!.*([A-Z]+-[0-9]+|#[0-9]+|--\s*reason\s*:))'
+    tags:
+      - memox
+      - coding
+      - maintainability
+    fix:
+      hint: "Add a ticket reference (MEMOX-123 / #123) or `-- reason: <why>` on the same line."

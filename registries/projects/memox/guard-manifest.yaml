@@ -27,3 +27,6 @@ rules:
   - rules/memox-ui-async-guard-rules.yaml
   - rules/memox-action-density-rules.yaml
   - rules/memox-guess-sampling-rules.yaml
+  - rules/memox-design-token-rules.yaml
+  - rules/memox-routing-rules.yaml
+  - rules/memox-dart-convention-rules.yaml

@@ -82,3 +82,26 @@ rules:
       - memox
       - global
       - i18n
+
+  - id: l10n.no_hardcoded_user_text
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Hardcoded user-visible text in `hintText`, `helperText`, `labelText`, `errorText`,
+      `placeholderText`, or `semanticsLabel` named parameters must not appear in UI code.
+      Use `AppLocalizations` (via `context.l10n`) for all user-facing strings so the app
+      stays translatable and copy-editable from a single source. Complements
+      `memox.no_hardcoded_string` which covers `Text(...)` and common widget labels.
+    scopes:
+      - feature_ui
+    patterns:
+      - "(?:hintText|helperText|labelText|errorText|placeholderText|semanticsLabel)\\s*:\\s*'(?:[^']*[A-Za-z\\u00C0-\\u1EF9][^']*)'"
+      - "(?:hintText|helperText|labelText|errorText|placeholderText|semanticsLabel)\\s*:\\s*\"(?:[^\"]*[A-Za-z\\u00C0-\\u1EF9][^\"]*)\""
+    tags:
+      - memox
+      - global
+      - i18n
+      - l10n
+    fix:
+      hint: Replace the string literal with `context.l10n.yourKey` from the generated AppLocalizations. Add the key to app_en.arb and app_vi.arb first.

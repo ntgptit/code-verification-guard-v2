@@ -1,0 +1,102 @@
+version: 1
+
+metadata:
+  id: memox-routing
+  name: MemoX Routing Rules
+  description: >-
+    Enforce that navigation calls use `RoutePaths`, `RouteNames`, and param key constants
+    instead of raw string literals. Raw path/name/param strings scatter the route contract
+    and break refactoring.
+  owner: code-verification-guard
+
+rules:
+  - id: routing.no_raw_route_path_string
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw route path string literals (e.g. `context.go('/home')`) must not be passed to
+      `.go()`, `.push()`, `.replace()`, or `.pushReplacement()`. Use `RoutePaths.*`
+      builders/constants so path changes propagate from a single source of truth.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/app/router/route_paths.dart
+      - lib/app/router/route_names.dart
+      - lib/app/router/app_router.dart
+      - lib/app/router/redirect.dart
+      - lib/app/router/route_placeholder.dart
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+    patterns:
+      - "\\.(go|push|replace|pushReplacement)\\s*\\(\\s*['\"][/][a-zA-Z]"
+    tags:
+      - memox
+      - routing
+      - architecture
+    fix:
+      hint: Use RoutePaths.* constants or builder methods (e.g. RoutePaths.folderDetail(id)) instead of raw path strings.
+
+  - id: routing.no_raw_route_name_string
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw string literals must not be passed directly to `.goNamed()`, `.pushNamed()`,
+      `.namedLocation()`, `.pushReplacementNamed()`, or `.replaceNamed()`. Use
+      `RouteNames.*` constants so route-name changes propagate from one place.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/app/router/route_names.dart
+      - lib/app/router/route_paths.dart
+      - lib/app/router/app_router.dart
+      - lib/app/router/app_navigation.dart
+      - lib/app/router/redirect.dart
+      - lib/app/router/route_placeholder.dart
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+    patterns:
+      - "\\.(goNamed|pushNamed|namedLocation|pushReplacementNamed|replaceNamed)\\s*\\(\\s*['\"]"
+    tags:
+      - memox
+      - routing
+      - architecture
+    fix:
+      hint: Replace the string literal with the matching RouteNames.* constant.
+
+  - id: routing.no_raw_route_param_key
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw string literals must not be used as route/query parameter keys in
+      `pathParameters`/`queryParameters` map literals, or when indexing
+      `state.pathParameters[key]`/`state.queryParameters[key]`. Use
+      `RoutePaths.*Param`/`RoutePaths.*QueryParam` constants so key renames are
+      caught at compile time.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/app/router/route_paths.dart
+      - lib/app/router/route_names.dart
+      - lib/app/router/app_navigation.dart
+      - lib/app/router/app_router.dart
+      - lib/app/router/redirect.dart
+      - lib/app/router/route_placeholder.dart
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+    patterns:
+      - "\\bpathParameters\\s*:\\s*(?:<[^>]+>\\s*)?\\{[^}]*['\"][a-zA-Z][a-zA-Z0-9_]*['\"]\\s*:"
+      - "\\bqueryParameters\\s*:\\s*(?:<[^>]+>\\s*)?\\{[^}]*['\"][a-zA-Z][a-zA-Z0-9_]*['\"]\\s*:"
+      - "\\bstate\\.pathParameters\\s*\\[\\s*['\"][a-zA-Z]"
+      - "\\bstate\\.queryParameters\\s*\\[\\s*['\"][a-zA-Z]"
+    tags:
+      - memox
+      - routing
+      - architecture
+    fix:
+      hint: Use RoutePaths.*Param / RoutePaths.*QueryParam string constants as map keys instead of raw string literals.

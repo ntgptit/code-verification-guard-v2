@@ -519,3 +519,51 @@ rules:
       - architecture
       - performance
       - drift
+
+  - id: architecture.no_ui_import_data_layer_directly
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: >-
+      Presentation and feature UI files must not import Drift, raw DAOs, or
+      datasource implementation packages directly. Access persistence through
+      provider/use-case/repository abstractions so the data layer stays swappable
+      and domain boundaries remain enforced.
+    include:
+      - lib/presentation/**/*.dart
+      - lib/app/**/*.dart
+    exclude:
+      - lib/app/di/**/*.dart
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - package:drift/drift.dart
+      - package:drift/native.dart
+      - package:drift_flutter/
+      - package:memox/data/datasources/
+      - package:memox/data/repositories/
+    tags:
+      - memox
+      - architecture
+      - drift
+    fix:
+      hint: Route database access through a use case or repository interface injected via Riverpod. Never import Drift or DAO classes directly in presentation code.
+
+  - id: drift.no_raw_sql_in_ui_or_viewmodel
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw SQL query strings (`SELECT`, `INSERT INTO`, `UPDATE … SET`, `DELETE FROM`)
+      must not appear outside the database/DAO/query layer. UI and viewmodel code must
+      never embed SQL; move queries into Drift table definitions or DAO custom queries.
+    scopes:
+      - non_data_layer_source
+    patterns:
+      - "['\"]\\s*(?:SELECT|INSERT\\s+INTO|UPDATE\\s+\\w|DELETE\\s+FROM|CREATE\\s+TABLE|DROP\\s+TABLE)"
+    tags:
+      - memox
+      - architecture
+      - drift
+    fix:
+      hint: Move the SQL into a Drift DAO method or a `.drift` query file. Reference the DAO through the repository abstraction.

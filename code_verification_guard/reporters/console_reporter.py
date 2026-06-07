@@ -53,15 +53,16 @@ class ConsoleReporter:
             f"Info: {counter.get(Severity.INFO, 0)}"
         )
 
+        for violation in violations:
+            self._print_violation(violation)
+
+        self.console.print()
         self.console.print(
             Panel.fit(
                 summary,
                 title="code-verification-guard",
             )
         )
-
-        for violation in violations:
-            self._print_violation(violation)
 
     def _print_violation(self, violation: Violation) -> None:
         """Print one violation."""
