@@ -52,6 +52,66 @@ rules:
     fix:
       hint: "Replace the literal with MxSpace.*, MxGap(...), or an AppLayout spacing token. SizedBox(width: 0) and SizedBox.shrink() are allowed."
 
+  - id: design.no_token_arithmetic_in_ui
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Không tính toán trực tiếp trên token trong UI. Hãy thêm token mới có ý nghĩa semantic.
+    scopes:
+      - feature_ui
+    patterns:
+      - '\b(?:SpacingTokens|RadiusTokens|BorderTokens|SizeTokens|OpacityTokens|TypographyTokens|DurationTokens|ColorTokens|ElevationTokens)\.[A-Za-z_][A-Za-z0-9_]*\s*[*/+\-]\s*(?:\d+(?:\.\d+)?|\b(?:SpacingTokens|RadiusTokens|BorderTokens|SizeTokens|OpacityTokens|TypographyTokens|DurationTokens|ColorTokens|ElevationTokens)\.[A-Za-z_][A-Za-z0-9_]*)'
+    tags:
+      - memox
+      - design
+      - design-system
+      - token
+    fix:
+      hint: Add a semantic token instead of computing token values directly in UI code.
+
+  - id: design.no_spacing_token_for_non_spacing_property
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Spacing token không được dùng cho thickness/stroke/border/divider size. Hãy dùng DividerTokens, BorderTokens hoặc StrokeTokens.
+    scopes:
+      - feature_ui
+    patterns:
+      - '(?s)\bDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\b(?:height|thickness)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '(?s)\bVerticalDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '(?s)\bBorderSide\s*\((?:(?!\)).)*\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '(?s)\bstrokeWidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '(?s)\bSizedBox\s*\((?:(?!\)).)*\b(?:height|width)\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*(?:\s*[*/+\-]\s*[0-9.]+)?(?:(?!\)).)*\bchild\s*:\s*(?:const\s+)?ColoredBox\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - divider
+    fix:
+      hint: Use DividerTokens, BorderTokens, or StrokeTokens for divider/border/stroke dimensions instead of spacing tokens.
+
+  - id: design.require_divider_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Divider(height/thickness) phải dùng DividerTokens.* hoặc common widget MxDivider.
+    scopes:
+      - feature_ui
+    patterns:
+      - '(?s)\bDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\b(?:height|thickness)\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '(?s)\bVerticalDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+    tags:
+      - memox
+      - design
+      - design-system
+      - divider
+    fix:
+      hint: Replace raw Divider dimensions with DividerTokens.* or a shared MxDivider widget.
+
   - id: design.no_raw_radius_value
     type: regex
     severity: error
