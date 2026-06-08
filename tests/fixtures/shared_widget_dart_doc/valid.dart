@@ -29,8 +29,8 @@ import 'package:flutter/material.dart';
 ///
 /// Expected contracts:
 /// MxSharedComponent, MxLabeledComponent, MxActionableComponent,
-/// MxLoadableComponent, MxSizableComponent<MxButtonSize>,
-/// MxVariantComponent<MxButtonVariant>
+/// MxLoadableComponent, MxSizableComponent for MxButtonSize,
+/// MxVariantComponent for MxButtonVariant
 class MxButton extends StatelessWidget {
   const MxButton({
     required this.label,
@@ -96,11 +96,8 @@ class MxTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextField(
-      controller: controller,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        labelText: label,
-        errorText: errorText,
-      ),
-    );
+    controller: controller,
+    onChanged: onChanged,
+    decoration: InputDecoration(labelText: label, errorText: errorText),
+  );
 }
