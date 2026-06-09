@@ -183,6 +183,7 @@ thay vì hardcode allowlist theo class hoặc file cụ thể. Các hook helper 
 - local text controller value hoặc submit state -> `useMxTextValue` /
   `useMxTextSubmitState`
 - post-frame focus lifecycle -> `useMxRequestFocusAfterFrame`
+- shared custom hook declarations -> `useMx...` prefix
 
 Các rule warning cho submit/focus có thể được nâng lên error sau khi codebase
 đã migrate xong. Pure controlled hoặc stateless design-system widgets không nên

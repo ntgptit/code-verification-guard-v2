@@ -94,6 +94,50 @@ def test_hook_boundary_blocks_hooks_outside_presentation(tmp_path: Path) -> None
     )
 
 
+def test_shared_hook_declarations_must_use_mx_prefix(tmp_path: Path) -> None:
+    bad = """
+    String useSharedTextValue(TextEditingController controller) {
+      useListenable(controller);
+      return controller.text;
+    }
+    """
+    good = """
+    String useMxSharedTextValue(TextEditingController controller) {
+      useListenable(controller);
+      return controller.text;
+    }
+    """
+    safe_calls_only = """
+    class SampleWidget extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        final controller = useTextEditingController();
+        useListenable(controller);
+        return const SizedBox.shrink();
+      }
+    }
+    """
+
+    assert _violations(
+        "memox.shared_hook_custom_names_use_mx_prefix",
+        tmp_path,
+        "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
+        bad,
+    )
+    assert not _violations(
+        "memox.shared_hook_custom_names_use_mx_prefix",
+        tmp_path,
+        "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
+        good,
+    )
+    assert not _violations(
+        "memox.shared_hook_custom_names_use_mx_prefix",
+        tmp_path,
+        "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
+        safe_calls_only,
+    )
+
+
 def test_search_field_rule_requires_shared_search_hook_for_owned_controller(
     tmp_path: Path,
 ) -> None:

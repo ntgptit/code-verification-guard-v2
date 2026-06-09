@@ -7,21 +7,49 @@ metadata:
   owner: code-verification-guard
 
 rules:
-  - id: memox.hooks_presentation_only
+  - id: memox.shared_hook_custom_names_use_mx_prefix
     type: regex
     mode: file
     severity: error
     enabled: true
-    message: Hooks are presentation-only in MemoX. Keep hook widgets and hook APIs inside lib/presentation/**.
+    message: Shared hook declarations must use the useMx prefix so custom hooks stay easy to match and grep.
     include:
-      - lib/**/*.dart
+      - lib/presentation/shared/hooks/**/*.dart
     exclude:
-      - lib/presentation/**/*.dart
       - "**/*.g.dart"
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
     patterns:
-      - '(?s)(?=.*(?:package:flutter_hooks/flutter_hooks\.dart|package:hooks_riverpod/hooks_riverpod\.dart|\bHook(?:Consumer)?Widget\b|\buse[A-Z]\w*\b)).+'
+      - '(?m)^\s*(?:[A-Za-z_][A-Za-z0-9_<>, ?]*\s+)+use(?!Mx)[A-Z]\w*\s*\('
+    tags:
+      - memox
+      - hooks
+      - naming
+      - architecture
+    fix:
+      hint: Rename the custom shared hook to useMx<FeatureName>... and keep built-in hook calls unchanged.
+
+  - id: memox.hooks_presentation_only
+    type: regex
+    mode: line
+    severity: error
+    enabled: true
+    message: Hooks are presentation-only in MemoX. Keep hook widgets and hook APIs inside lib/presentation/**.
+    include:
+      - lib/app/**/*.dart
+      - lib/core/**/*.dart
+      - lib/data/**/*.dart
+      - lib/domain/**/*.dart
+      - lib/main.dart
+    exclude:
+      - "**/*.g.dart"
+      - "**/*.freezed.dart"
+      - lib/l10n/generated/**
+    patterns:
+      - 'package:flutter_hooks/flutter_hooks\.dart'
+      - 'package:hooks_riverpod/hooks_riverpod\.dart'
+      - '\bHook(?:Consumer)?Widget\b'
+      - '\buse[A-Z]\w*\s*\('
     tags:
       - memox
       - hooks
@@ -35,8 +63,8 @@ rules:
     severity: error
     enabled: true
     message: Files that own search controller state around MxSearchField must use useMxSearchController.
-    include:
-      - lib/presentation/**/*.dart
+    scopes:
+      - feature_ui
     exclude:
       - lib/presentation/shared/widgets/inputs/mx_search_field.dart
       - "**/*.g.dart"
@@ -61,8 +89,8 @@ rules:
     severity: error
     enabled: true
     message: Local text controller value and listen logic must use the shared MemoX text hooks.
-    include:
-      - lib/presentation/**/*.dart
+    scopes:
+      - feature_ui
     exclude:
       - "**/*.g.dart"
       - "**/*.freezed.dart"
@@ -83,8 +111,8 @@ rules:
     severity: warning
     enabled: true
     message: Hook-based single-field submit forms should use useMxTextSubmitState for derived button state.
-    include:
-      - lib/presentation/**/*.dart
+    scopes:
+      - feature_ui
     exclude:
       - "**/*.g.dart"
       - "**/*.freezed.dart"
@@ -105,8 +133,8 @@ rules:
     severity: warning
     enabled: true
     message: Post-frame focus handoff in presentation code should use useMxRequestFocusAfterFrame.
-    include:
-      - lib/presentation/**/*.dart
+    scopes:
+      - feature_ui
     exclude:
       - "**/*.g.dart"
       - "**/*.freezed.dart"

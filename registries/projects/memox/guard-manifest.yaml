@@ -24,6 +24,7 @@ rules:
   - rules/memox-architecture-rules.yaml
   - rules/memox-ui-rules.yaml
   - rules/memox-state-management-rules.yaml
+  - rules/memox-hook-rules.yaml
   - rules/memox-ui-async-guard-rules.yaml
   - rules/memox-action-density-rules.yaml
   - rules/memox-guess-sampling-rules.yaml

@@ -91,6 +91,8 @@ value or submit state should use `useMxTextValue` or
 `useMxRequestFocusAfterFrame`. Warning rules may be promoted later once the
 codebase has migrated, but controlled/stateless design-system widgets should
 not be converted to hooks just to satisfy the guard.
+For MemoX shared hooks, custom hook declarations should use the `useMx...`
+prefix so regex rules remain simple and stable.
 
 ## Scope Rules
 
