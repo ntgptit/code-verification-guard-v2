@@ -249,6 +249,23 @@ def test_text_editing_controller_rule_requires_use_mx_hook(
       }
     }
     """
+    controlled_widget = """
+    class FlashcardEditorBody extends StatelessWidget {
+      const FlashcardEditorBody({super.key, required this.frontController});
+
+      final TextEditingController frontController;
+    }
+    """
+    contract_interface = """
+    abstract interface class MxTextInputComponent {
+      TextEditingController get controller;
+    }
+    """
+    constructor_parameter = """
+    Widget buildInput(TextEditingController controller) {
+      return MxTextField(controller: controller);
+    }
+    """
     shared_hook_impl = """
     class MxTextControllerHooks {
       TextEditingController createController() => TextEditingController();
@@ -294,6 +311,24 @@ def test_text_editing_controller_rule_requires_use_mx_hook(
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         good_mx_draft,
+    )
+    assert not _violations(
+        "memox.text_editing_controller_requires_use_mx_hook",
+        tmp_path,
+        "lib/presentation/features/flashcards/widgets/flashcard_editor_body.dart",
+        controlled_widget,
+    )
+    assert not _violations(
+        "memox.text_editing_controller_requires_use_mx_hook",
+        tmp_path,
+        "lib/presentation/shared/contracts/mx_text_input_component.dart",
+        contract_interface,
+    )
+    assert not _violations(
+        "memox.text_editing_controller_requires_use_mx_hook",
+        tmp_path,
+        "lib/presentation/features/sample/build_input.dart",
+        constructor_parameter,
     )
     assert not _violations(
         "memox.text_editing_controller_requires_use_mx_hook",

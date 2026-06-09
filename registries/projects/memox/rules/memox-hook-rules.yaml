@@ -96,7 +96,7 @@ rules:
       - lib/presentation/shared/widgets/inputs/mx_text_field.dart
       - lib/presentation/shared/widgets/inputs/mx_search_field.dart
     patterns:
-      - '(?s)\A(?=.*\b(?:TextEditingController|useTextEditingController)\b)(?!.*\buseMx[A-Z]\w*\s*\()[\s\S]*\Z'
+      - '(?s)\A(?=.*=\s*(?:useTextEditingController|TextEditingController)\s*\()(?!.*\buseMx[A-Z]\w*\s*\()[\s\S]*\Z'
     tags:
       - memox
       - hooks
