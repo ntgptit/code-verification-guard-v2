@@ -64,5 +64,6 @@ rule_sets:
       - registries/projects/memox/rules/memox-architecture-rules.yaml
       - registries/projects/memox/rules/memox-ui-rules.yaml
       - registries/projects/memox/rules/memox-state-management-rules.yaml
+      - registries/projects/memox/rules/memox-hook-rules.yaml
       - registries/projects/memox/rules/memox-ui-async-guard-rules.yaml
       - registries/projects/memox/rules/memox-shared-widget-doc-rules.yaml

@@ -82,6 +82,16 @@ memox.no_raw_card
 
 Do not use vague IDs such as `rule1`, `check_something`, or `no_bad_code`.
 
+Project rules should stay pattern-based and generic. Do not encode class-specific
+or file-specific allowlists when a reusable regex, scope, or matcher can express
+the policy safely. For MemoX, hook usage is presentation-only: local search
+controller state should use `useMxSearchController`, local text controller
+value or submit state should use `useMxTextValue` or
+`useMxTextSubmitState`, and post-frame focus lifecycle should use
+`useMxRequestFocusAfterFrame`. Warning rules may be promoted later once the
+codebase has migrated, but controlled/stateless design-system widgets should
+not be converted to hooks just to satisfy the guard.
+
 ## Scope Rules
 
 Prefer scopes over repeated include/exclude patterns.

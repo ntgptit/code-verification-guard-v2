@@ -173,6 +173,21 @@ Với policy thuộc riêng một dự án, hãy giữ file rule cụ thể tron
 `registries/projects/<ruleset>/rules/`. Shared common hoặc language registry nên
 được reference lại thay vì copy.
 
+## MemoX Shared Hooks
+
+MemoX dùng các rule pattern-based để giữ hook usage ở đúng lớp presentation
+thay vì hardcode allowlist theo class hoặc file cụ thể. Các hook helper shared
+được ưu tiên cho state cục bộ có lifecycle rõ ràng:
+
+- local search controller state -> `useMxSearchController`
+- local text controller value hoặc submit state -> `useMxTextValue` /
+  `useMxTextSubmitState`
+- post-frame focus lifecycle -> `useMxRequestFocusAfterFrame`
+
+Các rule warning cho submit/focus có thể được nâng lên error sau khi codebase
+đã migrate xong. Pure controlled hoặc stateless design-system widgets không nên
+bị ép chuyển sang hook chỉ để thỏa guard.
+
 ## Mô Hình YAML
 
 Guard tách policy quét mã nguồn thành một vài loại file:
