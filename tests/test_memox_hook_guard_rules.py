@@ -23,6 +23,22 @@ def _rule_config(rule_id: str) -> dict:
     raise AssertionError(f"Rule not found: {rule_id}")
 
 
+def _rule_configs(rule_ids: set[str]) -> dict[str, dict]:
+    configs: dict[str, dict] = {}
+    for registry_path in REGISTRY_DIR.glob("*-rules.yaml"):
+        registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
+        for rule_config in registry.get("rules", []):
+            rule_id = rule_config["id"]
+            if rule_id in rule_ids and rule_id not in configs:
+                configs[rule_id] = deepcopy(rule_config)
+
+    missing = sorted(rule_ids - configs.keys())
+    if missing:
+        raise AssertionError(f"Rule not found: {', '.join(missing)}")
+
+    return configs
+
+
 def _violations(rule_id: str, tmp_path: Path, relative_path: str, source: str) -> list:
     case_root = tmp_path / sha1(f"{relative_path}\n{source}".encode("utf-8")).hexdigest()
     source_path = case_root / relative_path
@@ -245,6 +261,58 @@ def test_text_value_rule_requires_shared_text_hooks_for_manual_listeners(
     )
 
 
+def test_text_controller_rule_catches_statefulwidget_owned_controller(
+    tmp_path: Path,
+) -> None:
+    bad = """
+    class DeckImportScreen extends StatefulWidget {
+      const DeckImportScreen({super.key});
+
+      @override
+      State<DeckImportScreen> createState() => _DeckImportScreenState();
+    }
+
+    class _DeckImportScreenState extends State<DeckImportScreen> {
+      final TextEditingController _csvController = TextEditingController();
+
+      void _previewCsv() {
+        final text = _csvController.text;
+        final trimmed = StringUtils.trimmed(text);
+      }
+
+      @override
+      Widget build(BuildContext context) {
+        return const SizedBox.shrink();
+      }
+    }
+    """
+    good = """
+    class DeckImportScreen extends HookWidget {
+      const DeckImportScreen({super.key});
+
+      @override
+      Widget build(BuildContext context) {
+        final controller = useTextEditingController();
+        final value = useMxTextValue(controller);
+        return const SizedBox.shrink();
+      }
+    }
+    """
+
+    assert _violations(
+        "memox.text_controller_value_uses_shared_text_hook",
+        tmp_path,
+        "lib/presentation/features/flashcards/screens/deck_import_screen.dart",
+        bad,
+    )
+    assert not _violations(
+        "memox.text_controller_value_uses_shared_text_hook",
+        tmp_path,
+        "lib/presentation/features/flashcards/screens/deck_import_screen.dart",
+        good,
+    )
+
+
 def test_submit_hook_rule_flags_manual_disabled_submit_state(
     tmp_path: Path,
 ) -> None:
@@ -323,6 +391,23 @@ def test_focus_hook_rule_flags_manual_post_frame_focus(tmp_path: Path) -> None:
         "lib/presentation/features/sample/sample_screen.dart",
         good,
     )
+
+
+def test_file_mode_hook_rules_use_anchored_lookahead_patterns() -> None:
+    rule_ids = {
+        "memox.mx_search_field_uses_shared_search_hook",
+        "memox.text_controller_value_uses_shared_text_hook",
+        "memox.text_submit_state_uses_shared_submit_hook",
+        "memox.post_frame_focus_uses_shared_focus_hook",
+    }
+    configs = _rule_configs(rule_ids)
+
+    for rule_id in rule_ids:
+        rule_config = configs[rule_id]
+        assert rule_config["mode"] == "file"
+        assert len(rule_config["patterns"]) == 1
+        assert rule_config["patterns"][0].startswith("(?s)\\A")
+        assert rule_config["patterns"][0].endswith("\\Z")
 
 
 def test_generic_safety_cases_stay_compliant(tmp_path: Path) -> None:

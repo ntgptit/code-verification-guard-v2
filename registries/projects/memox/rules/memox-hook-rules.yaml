@@ -9,7 +9,7 @@ metadata:
 rules:
   - id: memox.shared_hook_custom_names_use_mx_prefix
     type: regex
-    mode: file
+    mode: line
     severity: error
     enabled: true
     message: Shared hook declarations must use the useMx prefix so custom hooks stay easy to match and grep.
@@ -20,7 +20,7 @@ rules:
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
     patterns:
-      - '(?m)^\s*(?:[A-Za-z_][A-Za-z0-9_<>, ?]*\s+)+use(?!Mx)[A-Z]\w*\s*\('
+      - '^\s*(?:[A-Za-z_][A-Za-z0-9_<>, ?]*\s+)+use(?!Mx)[A-Z]\w*\s*\('
     tags:
       - memox
       - hooks
@@ -63,18 +63,15 @@ rules:
     severity: error
     enabled: true
     message: Files that own search controller state around MxSearchField must use useMxSearchController.
-    scopes:
-      - feature_ui
+    include:
+      - lib/presentation/**/*.dart
     exclude:
-      - lib/presentation/shared/widgets/inputs/mx_search_field.dart
       - "**/*.g.dart"
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
+      - lib/presentation/shared/widgets/inputs/mx_search_field.dart
     patterns:
-      - '(?s)(?=.*\bMxSearchField\b)(?=.*\buseTextEditingController\b)(?!.*\buseMxSearchController\b).+'
-      - '(?s)(?=.*\bMxSearchField\b)(?=.*\bTextEditingController\b)(?!.*\buseMxSearchController\b).+'
-      - '(?s)(?=.*\bMxSearchField\b)(?=.*\bsearchQueryProvider\b)(?!.*\buseMxSearchController\b).+'
-      - '(?s)(?=.*\bMxSearchField\b)(?=.*\bonChanged\b)(?=.*\buseTextEditingController\b)(?!.*\buseMxSearchController\b).+'
+      - '(?s)\A(?=.*\bMxSearchField\b)(?=.*(?:\buseTextEditingController\b|\bTextEditingController\b|\bsearchQueryProvider\b))(?!.*\buseMxSearchController\b)[\s\S]*\Z'
     tags:
       - memox
       - hooks
@@ -89,14 +86,14 @@ rules:
     severity: error
     enabled: true
     message: Local text controller value and listen logic must use the shared MemoX text hooks.
-    scopes:
-      - feature_ui
+    include:
+      - lib/presentation/**/*.dart
     exclude:
       - "**/*.g.dart"
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
     patterns:
-      - '(?s)(?=.*\buseTextEditingController\b)(?=.*(?:\buseListenable\b|\.addListener\b|\bcontroller\.text\b|\b\w+Controller\.text\b|\.text\.trim\b|\bStringUtils\.trimmed\b))(?!.*(?:\buseMxTextValue\b|\buseMxTextSubmitState\b|\buseMxSearchController\b)).+'
+      - '(?s)\A(?=.*(?:\buseTextEditingController\b|\bTextEditingController\b))(?=.*(?:\buseListenable\b|\.addListener\b|\b\w+Controller\.text\b|\.text\.trim\b|\bStringUtils\.trimmed\b))(?!.*(?:\buseMxTextValue\b|\buseMxTextSubmitState\b|\buseMxSearchController\b))[\s\S]*\Z'
     tags:
       - memox
       - hooks
@@ -111,14 +108,14 @@ rules:
     severity: warning
     enabled: true
     message: Hook-based single-field submit forms should use useMxTextSubmitState for derived button state.
-    scopes:
-      - feature_ui
+    include:
+      - lib/presentation/**/*.dart
     exclude:
       - "**/*.g.dart"
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
     patterns:
-      - '(?s)(?=.*\bHook(?:Consumer)?Widget\b)(?=.*\bText(?:Form)?Field\b)(?=.*\buseTextEditingController\b)(?=.*\bonPressed\b)(?=.*(?:\.trim\b|\bStringUtils\.trimmed\b))(?=.*\bnull\b)(?!.*\buseMxTextSubmitState\b).+'
+      - '(?s)\A(?=.*\bHook(?:Consumer)?Widget\b)(?=.*\bText(?:Form)?Field\b)(?=.*(?:\buseTextEditingController\b|\bTextEditingController\b))(?=.*\bonPressed\s*:)(?=.*(?:\.trim\b|\bStringUtils\.trimmed\b))(?=.*\bnull\b)(?!.*\buseMxTextSubmitState\b)[\s\S]*\Z'
     tags:
       - memox
       - hooks
@@ -133,14 +130,14 @@ rules:
     severity: warning
     enabled: true
     message: Post-frame focus handoff in presentation code should use useMxRequestFocusAfterFrame.
-    scopes:
-      - feature_ui
+    include:
+      - lib/presentation/**/*.dart
     exclude:
       - "**/*.g.dart"
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
     patterns:
-      - '(?s)(?=.*\bWidgetsBinding\.instance\.addPostFrameCallback\b)(?=.*\brequestFocus\b)(?!.*\buseMxRequestFocusAfterFrame\b).+'
+      - '(?s)\A(?=.*\bWidgetsBinding\.instance\.addPostFrameCallback\b)(?=.*\brequestFocus\b)(?!.*\buseMxRequestFocusAfterFrame\b)[\s\S]*\Z'
     tags:
       - memox
       - hooks
