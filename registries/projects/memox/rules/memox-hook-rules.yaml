@@ -80,27 +80,30 @@ rules:
     fix:
       hint: Replace local search controller wiring with useMxSearchController so clear/query sync stays centralized.
 
-  - id: memox.text_controller_value_uses_shared_text_hook
+  - id: memox.text_editing_controller_requires_use_mx_hook
     type: regex
     mode: file
     severity: error
     enabled: true
-    message: Local text controller value and listen logic must use the shared MemoX text hooks.
+    message: Files that use TextEditingController must use a MemoX shared/custom hook with the useMx prefix.
     include:
       - lib/presentation/**/*.dart
     exclude:
       - "**/*.g.dart"
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
+      - lib/presentation/shared/hooks/**/*.dart
+      - lib/presentation/shared/widgets/inputs/mx_text_field.dart
+      - lib/presentation/shared/widgets/inputs/mx_search_field.dart
     patterns:
-      - '(?s)\A(?=.*(?:\buseTextEditingController\b|\bTextEditingController\b))(?=.*(?:\buseListenable\b|\.addListener\b|\b\w+Controller\.text\b|\.text\.trim\b|\bStringUtils\.trimmed\b))(?!.*(?:\buseMxTextValue\b|\buseMxTextSubmitState\b|\buseMxSearchController\b))[\s\S]*\Z'
+      - '(?s)\A(?=.*\b(?:TextEditingController|useTextEditingController)\b)(?!.*\buseMx[A-Z]\w*\s*\()[\s\S]*\Z'
     tags:
       - memox
       - hooks
+      - text-controller
       - ui
-      - text
     fix:
-      hint: Use useMxTextValue, useMxTextSubmitState, or useMxSearchController instead of deriving text state manually.
+      hint: Move TextEditingController ownership into a useMx... hook or use an existing MemoX hook such as useMxTextValue, useMxTextSubmitState, or useMxSearchController instead.
 
   - id: memox.text_submit_state_uses_shared_submit_hook
     type: regex

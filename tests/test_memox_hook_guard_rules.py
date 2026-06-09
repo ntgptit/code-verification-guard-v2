@@ -207,109 +207,105 @@ def test_search_field_rule_requires_shared_search_hook_for_owned_controller(
     )
 
 
-def test_text_value_rule_requires_shared_text_hooks_for_manual_listeners(
+def test_text_editing_controller_rule_requires_use_mx_hook(
     tmp_path: Path,
 ) -> None:
-    bad = """
+    bad_stateful = """
+    class SampleState extends State<SampleScreen> {
+      final TextEditingController input = TextEditingController();
+    }
+    """
+    bad_hook = """
     class SampleTextField extends HookWidget {
       const SampleTextField({super.key});
 
       @override
       Widget build(BuildContext context) {
         final controller = useTextEditingController();
-        useListenable(controller);
         return TextField(controller: controller);
       }
     }
     """
-    with_mx_text_value = bad.replace(
-        "        useListenable(controller);\n",
-        "        final value = useMxTextValue(controller);\n",
-    )
-    with_mx_text_submit_state = bad.replace(
-        "        useListenable(controller);\n",
-        "        final submitState = useMxTextSubmitState(controller);\n",
-    )
-    with_mx_search_controller = bad.replace(
-        "        useListenable(controller);\n",
-        "        final search = useMxSearchController(ref);\n",
-    )
-
-    assert _violations(
-        "memox.text_controller_value_uses_shared_text_hook",
-        tmp_path,
-        "lib/presentation/features/sample/sample_screen.dart",
-        bad,
-    )
-    assert not _violations(
-        "memox.text_controller_value_uses_shared_text_hook",
-        tmp_path,
-        "lib/presentation/features/sample/sample_screen.dart",
-        with_mx_text_value,
-    )
-    assert not _violations(
-        "memox.text_controller_value_uses_shared_text_hook",
-        tmp_path,
-        "lib/presentation/features/sample/sample_screen.dart",
-        with_mx_text_submit_state,
-    )
-    assert not _violations(
-        "memox.text_controller_value_uses_shared_text_hook",
-        tmp_path,
-        "lib/presentation/features/sample/sample_screen.dart",
-        with_mx_search_controller,
-    )
-
-
-def test_text_controller_rule_catches_statefulwidget_owned_controller(
-    tmp_path: Path,
-) -> None:
-    bad = """
-    class DeckImportScreen extends StatefulWidget {
-      const DeckImportScreen({super.key});
-
-      @override
-      State<DeckImportScreen> createState() => _DeckImportScreenState();
-    }
-
-    class _DeckImportScreenState extends State<DeckImportScreen> {
-      final TextEditingController _csvController = TextEditingController();
-
-      void _previewCsv() {
-        final text = _csvController.text;
-        final trimmed = StringUtils.trimmed(text);
-      }
+    good_mx_text_value = """
+    class SampleTextField extends HookWidget {
+      const SampleTextField({super.key});
 
       @override
       Widget build(BuildContext context) {
-        return const SizedBox.shrink();
+        final controller = useTextEditingController();
+        final text = useMxTextValue(controller);
+        return TextField(controller: controller);
       }
     }
     """
-    good = """
+    good_mx_draft = """
     class DeckImportScreen extends HookWidget {
       const DeckImportScreen({super.key});
 
       @override
       Widget build(BuildContext context) {
-        final controller = useTextEditingController();
-        final value = useMxTextValue(controller);
+        final draft = useMxDeckImportDraft();
         return const SizedBox.shrink();
+      }
+    }
+    """
+    shared_hook_impl = """
+    class MxTextControllerHooks {
+      TextEditingController createController() => TextEditingController();
+
+      TextEditingController createControllerFromHook() {
+        return useTextEditingController();
+      }
+    }
+    """
+    shared_input_widget = """
+    class MxTextField extends StatelessWidget {
+      const MxTextField({super.key, required this.controller});
+
+      final TextEditingController controller;
+
+      @override
+      Widget build(BuildContext context) {
+        return TextField(controller: controller);
       }
     }
     """
 
     assert _violations(
-        "memox.text_controller_value_uses_shared_text_hook",
+        "memox.text_editing_controller_requires_use_mx_hook",
         tmp_path,
-        "lib/presentation/features/flashcards/screens/deck_import_screen.dart",
-        bad,
+        "lib/presentation/features/sample/sample_screen.dart",
+        bad_stateful,
+    )
+    assert _violations(
+        "memox.text_editing_controller_requires_use_mx_hook",
+        tmp_path,
+        "lib/presentation/features/sample/sample_screen.dart",
+        bad_hook,
     )
     assert not _violations(
-        "memox.text_controller_value_uses_shared_text_hook",
+        "memox.text_editing_controller_requires_use_mx_hook",
         tmp_path,
-        "lib/presentation/features/flashcards/screens/deck_import_screen.dart",
-        good,
+        "lib/presentation/features/sample/sample_screen.dart",
+        good_mx_text_value,
+    )
+    assert not _violations(
+        "memox.text_editing_controller_requires_use_mx_hook",
+        tmp_path,
+        "lib/presentation/features/sample/sample_screen.dart",
+        good_mx_draft,
+    )
+    assert not _violations(
+        "memox.text_editing_controller_requires_use_mx_hook",
+        tmp_path,
+        "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
+        shared_hook_impl,
+    )
+    assert not _violations(
+        "memox.text_editing_controller_requires_use_mx_hook",
+        tmp_path,
+        "lib/presentation/shared/widgets/inputs/mx_text_field.dart",
+        shared_input_widget,
     )
 
 
@@ -396,7 +392,7 @@ def test_focus_hook_rule_flags_manual_post_frame_focus(tmp_path: Path) -> None:
 def test_file_mode_hook_rules_use_anchored_lookahead_patterns() -> None:
     rule_ids = {
         "memox.mx_search_field_uses_shared_search_hook",
-        "memox.text_controller_value_uses_shared_text_hook",
+        "memox.text_editing_controller_requires_use_mx_hook",
         "memox.text_submit_state_uses_shared_submit_hook",
         "memox.post_frame_focus_uses_shared_focus_hook",
     }
@@ -445,7 +441,7 @@ def test_generic_safety_cases_stay_compliant(tmp_path: Path) -> None:
         controlled_widget,
     )
     assert not _violations(
-        "memox.text_controller_value_uses_shared_text_hook",
+        "memox.text_editing_controller_requires_use_mx_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         safe_screen,
