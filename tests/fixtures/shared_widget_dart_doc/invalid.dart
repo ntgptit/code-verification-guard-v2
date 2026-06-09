@@ -31,8 +31,6 @@ class MxBrokenButton extends StatelessWidget {
   final String size;
 
   @override
-  Widget build(BuildContext context) => TextButton(
-      onPressed: onPressed,
-      child: Text(label),
-    );
+  Widget build(BuildContext context) =>
+      TextButton(onPressed: onPressed, child: Text(label));
 }
