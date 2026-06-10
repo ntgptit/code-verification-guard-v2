@@ -287,19 +287,16 @@ rules:
     severity: error
     enabled: true
     message: >-
-      EdgeInsets phải dùng token spacing/component token hoặc EdgeInsets.zero. Không dùng số thô hoặc biến cục bộ.
+      EdgeInsets phải dùng token spacing/component token hoặc EdgeInsets.zero thay cho số thô.
+      Giá trị động (biến từ viewInsets, LayoutBuilder constraints, responsive helpers) được phép.
     scopes:
       - flutter_app_source
     mode: file
     patterns:
       - '\bEdgeInsets\.all\s*\((?:[^()]|\([^()]*\))*?\b[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.all\s*\((?:[^()]|\([^()]*\))*?(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
       - '\bEdgeInsets\.symmetric\s*\((?:[^()]|\([^()]*\))*?\b(?:horizontal|vertical)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.symmetric\s*\((?:[^()]|\([^()]*\))*?\b(?:horizontal|vertical)\s*:\s*(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
       - '\bEdgeInsets\.only\s*\((?:[^()]|\([^()]*\))*?\b(?:left|top|right|bottom)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.only\s*\((?:[^()]|\([^()]*\))*?\b(?:left|top|right|bottom)\s*:\s*(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
       - '\bEdgeInsets\.fromLTRB\s*\((?:[^()]|\([^()]*\))*?\b[1-9]\d*(?:\.\d+)?\b'
-      - '\bEdgeInsets\.fromLTRB\s*\((?:[^()]|\([^()]*\))*?(?<![.\w])[A-Za-z_][A-Za-z0-9_]*\b(?!\s*\.)'
     tags:
       - memox
       - design
@@ -359,10 +356,11 @@ rules:
     enabled: true
     message: >-
       Raw `Duration(milliseconds: N)`, `Duration(seconds: N)`, or `Duration(minutes: N)`
-      literals must not appear outside motion/duration token files. Source all animation,
+      literals must not appear on presentation/app-shell surfaces. Source all animation,
       transition, and debounce durations from `AppMotion.*` or approved duration constants.
+      Domain/data durations (SRS intervals, timeouts, retention windows) are out of scope here.
     scopes:
-      - flutter_app_source
+      - ui_surfaces
     patterns:
       - 'Duration\s*\(\s*(?:milliseconds|seconds|minutes)\s*:\s*[0-9]'
     tags:

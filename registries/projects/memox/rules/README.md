@@ -39,7 +39,8 @@ Muốn biết một rule nằm ở file nào: nhìn segment `<domain>` trong ID 
 | `memox-hooks-rules.yaml` | `hooks` | Hooks chỉ ở presentation, custom hook prefix `useMx`, dùng shared hooks |
 | `memox-ui-async-guard-rules.yaml` | `ui_async_guard` | Race-guard async trong State: `if (!mounted) return;` đứng riêng, `_snapshot` record |
 | `memox-action-density-rules.yaml` | `action_density` | Mật độ action trên card/list/dashboard: không button large/full-width |
-| `memox-study-rules.yaml` | `study` | Ranh giới domain feature Study (Guess sampling ở GuessOptionBuilder) |
+| `memox-study-rules.yaml` | `study` | Ranh giới domain feature Study (Guess sampling, SRS interval/box logic ở một nguồn duy nhất) |
+| `memox-dependencies-rules.yaml` | `dependencies` | Quản trị pubspec.yaml: cấm path/git dep, cấm version `any` |
 | `memox-testing-rules.yaml` | `testing` | Vệ sinh test: giới hạn dòng, `skip` phải có lý do |
 
 ## Cấu trúc một rule
@@ -89,6 +90,31 @@ Muốn biết một rule nằm ở file nào: nhìn segment `<domain>` trong ID 
 
 6. Khi đổi/xóa ID: grep cả repo app MemoX (doc comment trong `lib/**`, `docs/**`) —
    nhiều file Dart tham chiếu rule ID trong Dart-doc để giải thích vì sao wrapper tồn tại.
+
+## Chính sách severity
+
+- `error`: chặn gate. Chỉ dùng khi codebase hiện tại **đã sạch** với rule đó và quy ước là bắt buộc.
+- `warning`: nợ hiện hữu hoặc heuristic mới chưa kiểm chứng. Mỗi warning-rule nên ghi rõ trong
+  `message` điều kiện để promote lên error (vd. `memox.i18n.no_hardcoded_strings_shared`,
+  `memox.dependencies.no_any_version`).
+
+## Quy ước có chủ đích (opinionated — không phải Flutter mặc định)
+
+Một số rule **cố ý lệch khỏi pattern Flutter chuẩn**; dev mới cần biết trước để không bất ngờ:
+
+- `memox.hooks.text_controller_requires_mx_hook`: pattern `TextEditingController` trong `State` +
+  `dispose()` (chuẩn Flutter) bị cấm trong presentation — MemoX chọn flutter_hooks với hook `useMx*`.
+- `memox.coding.no_else`: cấm `else` — bắt buộc early-return/switch expression.
+- `memox.state_management.use_app_async_builder`: cấm render `AsyncValue.when` trực tiếp trên UI feature.
+- `memox.ui_async_guard.*`: bắt buộc style guard 2 dòng (`if (!mounted) return;` + so sánh `_snapshot`).
+
+## Giới hạn đã biết của engine
+
+- Rule regex dùng **bounded window** (vd. `{0,1600}`) như `memox.screen_shell.use_mx_scaffold_family`,
+  `memox.state_management.command_no_repository_ref_watch`: code dài vượt cửa sổ match sẽ **trượt
+  im lặng** (miss, không false-positive). Đừng coi "guard pass" là bằng chứng tuyệt đối với các rule này.
+- Rule "required pattern" (vd. `memox.observability.error_pipeline_wired`) hoạt động bằng negative
+  lookahead trên toàn file — chỉ áp dụng được cho file cụ thể đã biết trước.
 
 ## Override / tắt rule
 

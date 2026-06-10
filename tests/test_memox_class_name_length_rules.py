@@ -39,7 +39,7 @@ def test_flutter_class_name_length_flags_names_outside_range(
     tmp_path: Path,
 ) -> None:
     bad = """
-    class ShortName extends StatelessWidget {
+    class Util extends StatelessWidget {
       @override
       Widget build(BuildContext context) => const SizedBox();
     }

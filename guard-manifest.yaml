@@ -77,4 +77,5 @@ rule_sets:
       - registries/projects/memox/rules/memox-ui-async-guard-rules.yaml
       - registries/projects/memox/rules/memox-action-density-rules.yaml
       - registries/projects/memox/rules/memox-study-rules.yaml
+      - registries/projects/memox/rules/memox-dependencies-rules.yaml
       - registries/projects/memox/rules/memox-testing-rules.yaml

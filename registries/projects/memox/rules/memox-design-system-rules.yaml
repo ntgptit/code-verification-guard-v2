@@ -209,7 +209,7 @@ rules:
     severity: error
     enabled: true
     message: Avoid raw Flutter Material higher-level controls in feature code, such as checkboxes, radios, sliders, menus,
-      tiles, tabs, navigation widgets, steppers, and date/time pickers; prefer shared Mx primitives.
+      tiles, tabs, navigation widgets, and steppers; prefer shared Mx primitives (e.g. MxListTile, MxSettingsTile).
     scopes:
       - features
     patterns:
@@ -234,6 +234,20 @@ rules:
       - \bTabBarView\s*\(
       - \bTabPageSelector\s*\(
       - \bStepper\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_date_time_pickers
+    type: regex
+    severity: warning
+    enabled: true
+    message: Raw Material date/time pickers in feature code bypass the MemoX Design System. No Mx wrapper exists for these
+      yet — if a feature genuinely needs one, report the design-system gap and get the wrapper approved instead of silencing
+      this warning.
+    scopes:
+      - features
+    patterns:
       - \bshowDatePicker\s*\(
       - \bshowDateRangePicker\s*\(
       - \bshowTimePicker\s*\(
@@ -243,6 +257,8 @@ rules:
       - memox
       - design-system
       - design_system
+    fix:
+      hint: Report the missing Mx date/time picker wrapper as a design-system gap; do not hand-roll picker styling in features.
   - id: memox.design_system.no_raw_snackbar
     type: regex
     severity: error
@@ -334,11 +350,11 @@ rules:
     severity: error
     enabled: true
     message: App source must not use `Colors.*` directly. Read colors from the active `ColorScheme`, a custom theme extension,
-      or a shared semantic accessor instead.
+      or a shared semantic accessor instead. `Colors.transparent` is theme-neutral and allowed.
     scopes:
       - non_legacy_app_source
     patterns:
-      - \bColors\.
+      - \bColors\.(?!transparent\b)
     tags:
       - memox
       - design-system
@@ -492,3 +508,22 @@ rules:
       - design-system
     fix:
       hint: Replace raw Card usage with MxCard or a more specific shared surface.
+  - id: memox.design_system.no_deprecated_flutter_api
+    type: regex
+    severity: error
+    enabled: true
+    message: Deprecated Flutter APIs must not be (re)introduced - `WillPopScope` is replaced by `PopScope`,
+      `textScaleFactor` by `TextScaler`, and `MaterialState*` by `WidgetState*`. Deprecated APIs block Flutter upgrades
+      and behave inconsistently across SDK versions.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bWillPopScope\s*\(
+      - \.textScaleFactor\b
+      - \bMaterialState\w*\b
+    tags:
+      - memox
+      - design-system
+      - deprecation
+    fix:
+      hint: Use PopScope, MediaQuery.textScalerOf(context) / TextScaler, and WidgetStateProperty instead.

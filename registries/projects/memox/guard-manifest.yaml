@@ -37,4 +37,5 @@ rules:
   - rules/memox-ui-async-guard-rules.yaml
   - rules/memox-action-density-rules.yaml
   - rules/memox-study-rules.yaml
+  - rules/memox-dependencies-rules.yaml
   - rules/memox-testing-rules.yaml

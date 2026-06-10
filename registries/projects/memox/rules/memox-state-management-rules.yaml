@@ -171,11 +171,11 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: MemoX must not use AsyncValue.when directly. Use AppAsyncBuilder.
+    message: Feature and app-shell UI must not render `AsyncValue` with `.when(...)` directly; wrap async rendering with
+      `AppAsyncBuilder`. Scope is limited to UI surfaces so freezed-union `.when(...)` in domain/data/test code stays usable.
     scopes:
-      - flutter_source
-    exclude:
-      - lib/presentation/shared/**
+      - feature_ui
+      - app_ui
     patterns:
       - \.when\s*\(
     tags:

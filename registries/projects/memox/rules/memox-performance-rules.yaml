@@ -142,3 +142,21 @@ rules:
       - memox
       - ui
       - performance
+  - id: memox.performance.timer_subscription_requires_cancel
+    type: regex
+    severity: warning
+    enabled: true
+    message: Widget files that create a `Timer` / `Timer.periodic` or subscribe with `.listen(...)` must also cancel the
+      timer/subscription (no `.cancel(...)` call found in this file). Uncancelled timers and stream subscriptions keep
+      running after dispose and leak work across navigation.
+    scopes:
+      - widget_ui_files
+    mode: file
+    patterns:
+      - (?s)\A(?=[\s\S]*(?:\bTimer(?:\.periodic)?\s*\(|(?<!ref)\.listen\s*\())(?![\s\S]*\.cancel\s*\()[\s\S]*\Z
+    tags:
+      - memox
+      - performance
+      - lifecycle
+    fix:
+      hint: Store the Timer/StreamSubscription and call cancel() in dispose() (or use ref.onDispose in providers).

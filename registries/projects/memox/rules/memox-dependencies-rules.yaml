@@ -1,0 +1,45 @@
+# MemoX guard rules — domain: dependencies
+# pubspec.yaml governance: no path/git dependencies, no unpinned `any` versions.
+# Backs the CLAUDE.md hard rule that pubspec changes require explicit approval.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-dependencies
+  name: MemoX Dependency Rules
+  description: pubspec.yaml governance — no path/git dependencies, no unpinned versions.
+  owner: code-verification-guard
+rules:
+  - id: memox.dependencies.no_path_git_deps
+    type: regex
+    severity: error
+    enabled: true
+    message: pubspec.yaml must not use `path:` or `git:` dependency sources. Local-path and git dependencies are not
+      reproducible across machines/CI and bypass pub.dev version resolution.
+    include:
+      - pubspec.yaml
+    patterns:
+      - '^\s{4,}(?:path|git)\s*:'
+    tags:
+      - memox
+      - dependencies
+    fix:
+      hint: Depend on a published pub.dev version instead, or get explicit approval and document the exception.
+  - id: memox.dependencies.no_any_version
+    type: regex
+    severity: warning
+    enabled: true
+    message: 'pubspec.yaml dependencies must pin a version range (e.g. `^1.2.3`), not `any`. Unpinned versions make builds
+      non-reproducible and let breaking upgrades land silently. (Known debt: `riverpod: any` — pin it in an approved
+      dependency task, then promote this rule to error.)'
+    include:
+      - pubspec.yaml
+    patterns:
+      - '^\s{2,}[a-z0-9_]+\s*:\s*any\s*$'
+    tags:
+      - memox
+      - dependencies
+    fix:
+      hint: Replace `any` with a caret range matching the currently resolved version from pubspec.lock.

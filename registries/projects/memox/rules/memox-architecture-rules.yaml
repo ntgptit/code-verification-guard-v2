@@ -350,3 +350,59 @@ rules:
       - drift
     fix:
       hint: Move the SQL into a Drift DAO method or a `.drift` query file. Reference the DAO through the repository abstraction.
+  - id: memox.architecture.data_no_presentation_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The data layer must not import the presentation or app layer. Dependencies point inward — data implements domain
+      interfaces and must stay UI-agnostic.
+    include:
+      - lib/data/**/*.dart
+    patterns:
+      - package:memox/presentation/
+      - package:memox/app/
+      - (?:\.\./)+presentation/
+      - (?:\.\./)+app/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Move shared contracts into the domain layer and let presentation depend on them instead.
+  - id: memox.architecture.domain_no_platform_io
+    type: regex
+    severity: error
+    enabled: true
+    message: The domain layer must stay pure Dart and must not perform platform IO directly; file and platform access belongs
+      behind repository interfaces implemented in the data layer.
+    scopes:
+      - domain_files
+    patterns:
+      - import\s+'dart:io
+      - import\s+'dart:html
+      - import\s+'dart:ffi
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Define a repository/service interface in domain and implement the IO in lib/data or lib/core.
+  - id: memox.architecture.drive_sync_isolated
+    type: regex
+    severity: error
+    enabled: true
+    message: Google Drive / Google auth APIs may only be imported inside the sync data layer (`lib/data/sync/**`) and its
+      DI wiring. Keeping the sync SDK isolated lets account-sync evolve without leaking vendor types across the app.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/data/sync/**
+      - lib/app/di/**
+    patterns:
+      - import\s+'package:googleapis
+      - import\s+'package:googleapis_auth
+      - import\s+'package:google_sign_in
+    tags:
+      - memox
+      - architecture
+      - account-sync
+    fix:
+      hint: Wrap the Google SDK behind a sync repository/datasource in lib/data/sync and expose a domain interface.

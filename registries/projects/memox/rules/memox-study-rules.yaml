@@ -33,3 +33,25 @@ rules:
       - study
       - guess
       - architecture
+  - id: memox.study.srs_logic_single_source
+    type: regex
+    severity: error
+    enabled: true
+    message: SRS box-transition and interval logic (`intervalForBox`, `boxAfterFinalization`) must stay in the study repository
+      implementation (`lib/data/repositories/study_repo_impl*.dart`). Copies of this logic elsewhere will drift from
+      `docs/business/srs/srs-review.md` and the SRS transition tests.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/data/repositories/study_repo_impl.dart
+      - lib/data/repositories/study_repo_impl_study_session.dart
+    patterns:
+      - \b_?intervalForBox\b
+      - \b_?boxAfterFinalization\b
+    tags:
+      - memox
+      - study
+      - srs
+      - architecture
+    fix:
+      hint: Call the study repository through its domain interface instead of re-implementing SRS interval/box math.

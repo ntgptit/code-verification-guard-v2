@@ -69,3 +69,21 @@ rules:
       - debug
     fix:
       hint: Replace with AppLogger.debug(...) / AppLogger.info(...) / AppLogger.error(...). Import 'package:memox/core/logging/app_logger.dart'.
+  - id: memox.observability.error_pipeline_wired
+    type: regex
+    severity: error
+    enabled: true
+    message: App bootstrap must keep the centralized error pipeline wired - both `FlutterError.onError` and `runZonedGuarded`
+      are required so uncaught errors reach the logging/monitoring boundary. This file no longer contains both.
+    include:
+      - lib/app/bootstrap/app_bootstrap.dart
+    mode: file
+    patterns:
+      - (?s)\A(?![\s\S]*FlutterError\.onError)[\s\S]*\Z
+      - (?s)\A(?![\s\S]*runZonedGuarded)[\s\S]*\Z
+    tags:
+      - memox
+      - observability
+      - error-handling
+    fix:
+      hint: Restore the FlutterError.onError handler and the runZonedGuarded wrapper in app_bootstrap.dart.

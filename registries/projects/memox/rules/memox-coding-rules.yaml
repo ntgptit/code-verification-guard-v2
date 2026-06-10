@@ -104,36 +104,37 @@ rules:
     type: regex
     severity: warning
     enabled: true
-    message: Flutter class names must be between 10 and 35 characters.
+    message: Flutter class names must be between 5 and 35 characters.
     scopes:
       - app_and_presentation_source
     patterns:
-      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!Mx[A-Za-z0-9_]*\b)[A-Za-z_][A-Za-z0-9_]{0,8}\b
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!Mx[A-Za-z0-9_]*\b)[A-Za-z_][A-Za-z0-9_]{0,3}\b
       - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!Mx[A-Za-z0-9_]*\b)[A-Za-z_][A-Za-z0-9_]{35,}\b
     tags:
       - memox
       - coding
       - naming
     fix:
-      hint: Keep the class name between 10 and 35 characters.
+      hint: Keep the class name between 5 and 35 characters.
   - id: memox.coding.local_variable_name_length
     type: regex
     severity: warning
     enabled: true
-    message: Local variable names must be between 3 and 18 characters.
+    message: Local variable names must be between 2 and 18 characters (single-letter names are reserved for trivial loop
+      indices).
     scopes:
       - app_and_presentation_source
     patterns:
-      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|:))
+      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_]\b(?=\s*(?:=|;|:))
       - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{18,}\b(?=\s*(?:=|;|:))
-      - (?m)^\s{4,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|:))
+      - (?m)^\s{4,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_]\b(?=\s*(?:=|;|:))
       - (?m)^\s{4,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{18,}\b(?=\s*(?:=|;|:))
     tags:
       - memox
       - coding
       - naming
     fix:
-      hint: Keep the local variable name between 3 and 18 characters.
+      hint: Keep the local variable name between 2 and 18 characters.
   - id: memox.coding.model_state_field_name_length
     type: regex
     mode: file
@@ -206,16 +207,17 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: 'App source must route runtime string trimming, case normalization, matching, and sorting through `StringUtils`
-      instead of calling core string normalization methods directly. Centralizing this keeps search, comparison, and answer
-      matching semantics consistent across app layers.
+    message: 'Domain and presentation code must route runtime string trimming, case normalization, matching, and sorting
+      through `StringUtils` instead of calling core string normalization methods directly. Centralizing this keeps search,
+      comparison, and answer matching semantics consistent. Infrastructure code (core/data) may use core string methods for
+      non-user-data work such as file extensions or internal keys.
 
       '
     include:
-      - lib/**/*.dart
+      - lib/domain/**/*.dart
+      - lib/presentation/**/*.dart
     exclude:
       - lib/core/utils/string_utils.dart
-      - lib/data/datasources/local/tables/*.dart
     patterns:
       - \.trim\s*\(
       - \.toLowerCase\s*\(
@@ -285,3 +287,24 @@ rules:
       - ui
       - architecture
       - maintainability
+  - id: memox.coding.no_ignore_without_reason
+    type: regex
+    severity: warning
+    enabled: true
+    message: '`// ignore:` / `// ignore_for_file:` must carry a justification (`-- reason: ...` on the same line). Analyzer
+      suppressions without a reason silently erode every other convention; the guard escape hatches (`guard:*-reviewed`)
+      already follow this pattern.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+    patterns:
+      - '//\s*ignore(?:_for_file)?:(?![^\n]*--\s*reason:\s*\S)'
+    tags:
+      - memox
+      - coding
+      - maintainability
+    fix:
+      hint: 'Append `-- reason: <why this suppression is safe>` or fix the underlying diagnostic instead of ignoring it.'

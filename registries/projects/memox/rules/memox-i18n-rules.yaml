@@ -29,6 +29,28 @@ rules:
     tags:
       - memox
       - i18n
+  - id: memox.i18n.no_hardcoded_strings_shared
+    type: regex
+    severity: warning
+    enabled: true
+    message: Shared presentation widgets (dialogs, sheets, feedback) must not hardcode user-facing copy either; accept the
+      string via constructor parameters or read it from `AppLocalizations`. Severity is warning until the existing shared
+      copy is migrated to l10n, then this should be promoted to error.
+    include:
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - Text\(\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - Text\(\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+      - (?:\btext|\blabel|\bhint|\btooltip|\btitle|\bsubtitle|\bmessage)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - (?:\btext|\blabel|\bhint|\btooltip|\btitle|\bsubtitle|\bmessage)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+    tags:
+      - memox
+      - i18n
+    fix:
+      hint: Pass the copy in from the calling feature (which reads context.l10n) or add an l10n key and read it here.
   - id: memox.i18n.no_inline_locale_pair_strings
     type: regex
     severity: error
