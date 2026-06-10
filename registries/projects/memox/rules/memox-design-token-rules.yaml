@@ -302,42 +302,6 @@ rules:
     fix:
       hint: 'Use spacing/component tokens or EdgeInsets.zero instead of raw EdgeInsets values.'
 
-  - id: design.no_spacing_token_for_non_spacing_property
-    type: regex
-    severity: error
-    enabled: false
-    message: >-
-      Fallback category for spacing-token misuse. Prefer the specific spacing-token rules above.
-    scopes:
-      - flutter_app_source
-    patterns: []
-    tags:
-      - memox
-      - design
-      - design-system
-      - spacing
-    fix:
-      hint: 'Use the specific spacing-token rule for the affected property.'
-
-  - id: design.require_divider_token
-    type: regex
-    severity: error
-    enabled: true
-    message: >-
-      Divider(height/thickness) phải dùng DividerTokens.* hoặc common widget MxDivider.
-    scopes:
-      - feature_ui
-    patterns:
-      - '(?s)\bDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\b(?:height|thickness)\s*:\s*[1-9]\d*(?:\.\d+)?'
-      - '(?s)\bVerticalDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\((?:(?!\)).)*\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
-    tags:
-      - memox
-      - design
-      - design-system
-      - divider
-    fix:
-      hint: 'Replace raw Divider dimensions with DividerTokens.* or a shared MxDivider widget.'
-
   - id: design.no_raw_radius_value
     type: regex
     severity: error

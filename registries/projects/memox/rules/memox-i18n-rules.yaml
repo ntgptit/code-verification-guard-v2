@@ -1,0 +1,57 @@
+version: 1
+metadata:
+  id: memox-i18n
+  name: MemoX Localization Rules
+  description: No hardcoded user-facing strings; route all copy through generated l10n resources.
+  owner: code-verification-guard
+rules:
+  - id: memox.no_hardcoded_string
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid user-facing hardcoded strings in feature render, app layout, and shell code. (Inline `vi:` / `en:` locale
+      pair strings are covered by `memox.no_inline_locale_pair_strings`.)
+    scopes:
+      - feature_ui
+      - app_ui
+    patterns:
+      - Text\(\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - Text\(\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+      - (?:text|label|hint|tooltip|title|subtitle|message)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - (?:text|label|hint|tooltip|title|subtitle|message)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+    tags:
+      - memox
+      - i18n
+  - id: memox.no_inline_locale_pair_strings
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid inline `vi:` / `en:` locale pair strings in UI code; move user-facing copy into generated l10n resources.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - \b(?:vi|en)\s*:\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
+      - \b(?:vi|en)\s*:\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"
+    tags:
+      - memox
+      - i18n
+  - id: l10n.no_hardcoded_user_text
+    type: regex
+    severity: error
+    enabled: true
+    message: Hardcoded user-visible text in `hintText`, `helperText`, `labelText`, `errorText`, `placeholderText`, or `semanticsLabel`
+      named parameters must not appear in UI code. Use `AppLocalizations` (via `context.l10n`) for all user-facing strings
+      so the app stays translatable and copy-editable from a single source. Complements `memox.no_hardcoded_string` which
+      covers `Text(...)` and common widget labels.
+    scopes:
+      - feature_ui
+    patterns:
+      - (?:hintText|helperText|labelText|errorText|placeholderText|semanticsLabel)\s*:\s*'(?:[^']*[A-Za-z\u00C0-\u1EF9][^']*)'
+      - (?:hintText|helperText|labelText|errorText|placeholderText|semanticsLabel)\s*:\s*"(?:[^"]*[A-Za-z\u00C0-\u1EF9][^"]*)"
+    tags:
+      - memox
+      - i18n
+      - l10n
+    fix:
+      hint: Replace the string literal with `context.l10n.yourKey` from the generated AppLocalizations. Add the key to app_en.arb
+        and app_vi.arb first.

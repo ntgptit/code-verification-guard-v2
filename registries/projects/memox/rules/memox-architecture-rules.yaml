@@ -2,9 +2,61 @@ version: 1
 metadata:
   id: memox-architecture
   name: MemoX Architecture Rules
-  description: Project-specific architecture rules for MemoX, including rules ported from the legacy guard policy.
+  description: Layering, dependency-direction, DI wiring, and data-boundary rules for MemoX.
   owner: code-verification-guard
 rules:
+  - id: memox.transaction_outside_data_layer
+    type: regex
+    severity: error
+    enabled: true
+    message: Database transactions must stay in the data or database layer; do not call `transaction(...)` from UI, app providers,
+      presentation notifiers, services, or use cases.
+    scopes:
+      - non_data_layer_source
+    patterns:
+      - \btransaction\s*\(
+    tags:
+      - memox
+      - architecture
+  - id: memox.widget_repository_provider_access
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not read or watch repository providers directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - ref\.(?:read|watch)\s*\(\s*\w*RepositoryProvider(?:\b|\s*[.)])
+    tags:
+      - memox
+      - architecture
+  - id: memox.widget_database_layer_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not import DAO or database files directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - ^import\s+'package:memox/core/database/[^']+\.dart';
+      - ^import\s+'package:memox/data/dao/[^']+\.dart';
+      - ^import\s+'(?:\.\./)+[^']*/(?:dao|database)/[^']+\.dart';
+    tags:
+      - memox
+      - architecture
+  - id: memox.widget_database_query_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not query Drift or call DAO objects directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - \b(?:_?database|db|appDatabase)\s*\.\s*(?:select|into|customSelect|customSelectStream)\s*\(
+      - \b(?:_?[A-Za-z0-9]*Dao)\s*\.\s*[A-Za-z_][A-Za-z0-9_]*\s*\(
+    tags:
+      - memox
+      - architecture
   - id: memox.domain_no_flutter_import
     type: forbidden_import
     severity: error
@@ -101,19 +153,6 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.study_session_no_deep_relative_imports
-    type: regex
-    severity: error
-    enabled: true
-    message: Study session widgets may use relative imports only inside the local widget subtree; cross-layer and cross-feature
-      imports must use `package:memox/...`.
-    scopes:
-      - study_session_widget_files
-    patterns:
-      - ^import\s+'(?:\.\./){3,}[^']+';
-    tags:
-      - memox
-      - architecture
   - id: memox.study_session_widgets_no_progress_formula
     type: regex
     severity: error
@@ -125,19 +164,6 @@ rules:
     patterns:
       - \boverallStudyProgress\s*\(
       - \blocalCorrectGradeCount\s*\(
-    tags:
-      - memox
-      - architecture
-  - id: memox.presentation_async_action_controllers_use_runner
-    type: regex
-    severity: error
-    enabled: true
-    message: Presentation action controllers should route action failure state through the shared async action runner instead
-      of hand-writing AsyncError boilerplate.
-    scopes:
-      - presentation_async_action_controller_files
-    patterns:
-      - state\s*=\s*AsyncError<void>\s*\(
     tags:
       - memox
       - architecture
@@ -196,43 +222,14 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.app_router_no_feature_screen_imports
-    type: regex
-    severity: error
-    enabled: true
-    message: '`app_router.dart` must compose feature route registries instead of importing feature screens or widgets directly.'
-    include:
-      - lib/app/router/app_router.dart
-    patterns:
-      - import\s+'(?:\.\./)+presentation/features/[^']+/(?:screens|widgets)/
-      - import\s+'package:memox/presentation/features/[^/]+/(?:screens|widgets)/
-    tags:
-      - memox
-      - architecture
   - id: memox.ui_direct_dependency_creation
     type: regex
     severity: error
     enabled: true
-    message: Widget and app layout files must not instantiate infrastructure dependencies directly; wire them through provider
-      injection.
+    message: Widget, app layout, notifier, and viewmodel files must not instantiate infrastructure dependencies directly;
+      wire them through provider injection.
     scopes:
       - widget_ui_files
-    patterns:
-      - \bDio\s*\(
-      - \b(?:http\.)?Client\s*\(
-      - \b[A-Z]\w*RepositoryImpl\s*\(
-      - \b[A-Z]\w*Database\s*\(
-      - SharedPreferences\.getInstance\s*\(
-    tags:
-      - memox
-      - architecture
-  - id: memox.notifier_direct_dependency_creation
-    type: regex
-    severity: error
-    enabled: true
-    message: Feature notifier and viewmodel files must not instantiate infrastructure dependencies directly; read injected
-      dependencies from providers instead.
-    scopes:
       - viewmodel_files
     patterns:
       - \bDio\s*\(
@@ -271,54 +268,6 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.feature_theme_token_imports
-    type: regex
-    severity: error
-    enabled: true
-    message: Feature-layer source must not import raw theme source files such as `app_colors.dart` or `app_typography.dart`;
-      consume UI values through theme/context accessors or shared widgets instead.
-    scopes:
-      - features
-    patterns:
-      - import\s+'package:memox/core/theme/tokens/app_colors\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_typography\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_spacing\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_radius\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_elevation\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_motion\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_opacity\.dart'
-      - import\s+'package:memox/core/theme/responsive/app_breakpoints\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_icon_sizes\.dart'
-    tags:
-      - memox
-      - architecture
-      - design_system
-  - id: memox.features_no_direct_text_theme
-    type: regex
-    severity: error
-    enabled: true
-    message: 'Feature code must not choose Material text-theme roles directly. Route semantic typography through `MxText(role:
-      ...)` so the same UI intent resolves to the same scale across screens.'
-    scopes:
-      - features
-    patterns:
-      - Theme\.of\(context\)\.textTheme\.
-      - \.textTheme\.(?:display|headline|title|body|label)
-    tags:
-      - memox
-      - architecture
-      - design_system
-  - id: memox.screen_file_naming
-    type: file_name
-    severity: error
-    enabled: true
-    message: Files inside feature `screens/` folders must use the `_screen.dart` or `_page.dart` suffix.
-    scopes:
-      - screens
-    pattern: ^[a-z0-9_]+_(?:screen|page)\.dart$
-    tags:
-      - memox
-      - architecture
   - id: memox.di_provider_export_wrappers
     type: regex
     severity: error
@@ -331,204 +280,33 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.theme_file_no_riverpod
-    type: regex
-    severity: error
-    enabled: true
-    message: '`lib/core/theme/app_theme.dart` should contain theme definitions only, not Riverpod providers or notifier classes.'
-    scopes:
-      - theme_file
-    patterns:
-      - '@riverpod'
-      - '@Riverpod'
-      - class\s+\w+\s+extends\s+_\$\w+
-    tags:
-      - memox
-      - architecture
-  - id: memox.no_theme_export_wrappers
-    type: regex
-    severity: error
-    enabled: true
-    message: '`lib/core/theme/**` should not use export-wrapper files; import the real theme source file directly.'
-    scopes:
-      - theme_sources
-    patterns:
-      - ^export\s+
-    tags:
-      - memox
-      - architecture
-  - id: memox.shared_widget_file_naming
-    type: file_name
-    severity: error
-    enabled: true
-    message: Widget-bearing shared files must use the `mx_*.dart` naming contract.
-    scopes:
-      - shared_widget_dirs
-    pattern: ^mx_[a-z0-9_]+\.dart$
-    tags:
-      - memox
-      - architecture
-  - id: memox.shared_widget_public_type_prefix
-    type: regex
-    severity: error
-    enabled: true
-    message: Public types in widget-bearing shared files must use the `Mx*` prefix.
-    scopes:
-      - shared_widget_dirs
-    patterns:
-      - ^\s*(?:abstract\s+final\s+class|abstract\s+class|class)\s+(?!Mx|_)[A-Z]\w*
-      - ^\s*enum\s+(?!Mx|_)[A-Z]\w*
-      - ^\s*typedef\s+(?!Mx|_)[A-Z]\w*
-    tags:
-      - memox
-      - architecture
-  - id: memox.shared_widget_no_app_wiring
-    type: regex
-    severity: error
-    enabled: true
-    message: Shared widgets must remain provider-free and app-wiring-free.
-    scopes:
-      - shared_widget_dirs
-    patterns:
-      - import\s+'package:flutter_riverpod/flutter_riverpod\.dart';
-      - \bConsumerWidget\b
-      - \bConsumerStatefulWidget\b
-      - \bConsumerState\b
-      - \bWidgetRef\b
-      - import\s+'package:memox/app/
-      - import\s+'package:memox/app/router/
-      - import\s+'package:memox/domain/
-      - import\s+'package:memox/presentation/features/
-      - import\s+'package:go_router/go_router\.dart';
-    tags:
-      - memox
-      - architecture
-  - id: memox.shared_widget_no_public_mx_text_role_api
-    type: regex
-    severity: error
-    enabled: true
-    message: Shared components should own typography semantics internally instead of exposing arbitrary `MxTextRole` parameters.
-    scopes:
-      - shared_widget_component_api_files
-    patterns:
-      - \bMxTextRole\??\s+[A-Za-z_][A-Za-z0-9_]*
-    tags:
-      - memox
-      - architecture
-      - design_system
-  - id: memox.app_bar_header_requires_toolbar_icon_buttons
-    type: regex
-    severity: error
-    enabled: true
-    message: App bar and feature header icon actions must use `MxIconButton.toolbar(...)` so normal Back/More actions stay
-      visually quiet.
-    scopes:
-      - app_bar_header_files
-    patterns:
-      - \bMxIconButton\s*\(
-    tags:
-      - memox
-      - architecture
-      - design_system
-  - id: memox.app_bar_header_no_framed_buttons
-    type: regex
-    severity: error
-    enabled: true
-    message: App bar and feature header actions should not use framed button surfaces unless the state is explicitly selected,
-      active, or destructive.
-    scopes:
-      - app_bar_header_framed_button_files
-    patterns:
-      - \bMxPrimaryButton\s*\(
-      - \bMxSecondaryButton\s*\(
-      - \bMxIconButton\.(?:filled|filledTonal|outlined)\s*\(
-    tags:
-      - memox
-      - architecture
-      - design_system
-  - id: memox.no_raw_ink_surface
-    type: regex
-    severity: error
-    enabled: true
-    message: Interactive UI surfaces must route hover, focus, and pressed overlays through a shared shaped tap primitive instead
-      of hand-rolled `InkWell`, `InkResponse`, or tap-only `GestureDetector` usage.
-    scopes:
-      - ui
-    exclude:
-      - lib/presentation/shared/widgets/mx_tappable.dart
-    patterns:
-      - \bInkWell\s*\(
-      - \bInkResponse\s*\(
-      - '(?s)GestureDetector\s*\((?:(?!\)).)*?\bonTap\s*:'
-    mode: file
-    tags:
-      - memox
-      - architecture
-      - design_system
-  - id: memox.ink_must_have_shape
-    type: regex
-    severity: error
-    enabled: true
-    message: If a shared widget keeps a raw `InkWell`, it must pass `customBorder:` or `borderRadius:` so the interaction
-      overlay matches the visual shape.
-    scopes:
-      - shared_widget_dirs
-    patterns:
-      - (?s)InkWell\s*\((?:(?!customBorder\s*:|borderRadius\s*:).)*?\)
-    mode: file
-    tags:
-      - memox
-      - architecture
-      - design_system
-  - id: memox.shared_layout_magic_numbers
-    type: regex
-    severity: error
-    enabled: true
-    message: Shared layout contracts must not embed raw numeric width caps or variant-specific layout numbers inline. Define
-      a named constant or route the value through `ResponsiveRules`/a preset instead.
-    scopes:
-      - shared_layout_files
-    patterns:
-      - =>\s*\d+(?:\.\d+)?\b
-      - '\?\s*\d+(?:\.\d+)?\s*:'
-      - \?\s*null\s*:\s*\d+(?:\.\d+)?\b
-    tags:
-      - memox
-      - architecture
-
   - id: memox.drift_database_must_run_off_main_isolate
     type: regex
     severity: error
     enabled: true
-    message: >-
-      `AppDatabase` must keep its `QueryExecutor` off the main isolate on native
-      platforms and configured explicitly for web. Use the `driftDatabase(...)`
-      factory from `drift_flutter` with `native: DriftNativeOptions(...)` and,
-      when web is supported, `web: DriftWebOptions(...)`; alternatively use
-      `NativeDatabase.createInBackground(...)` for native-only code. Constructing
-      `NativeDatabase(...)` synchronously runs every query on the UI isolate and
-      blocks frames during large reads/writes.
+    message: '`AppDatabase` must keep its `QueryExecutor` off the main isolate on native platforms and configured explicitly
+      for web. Use the `driftDatabase(...)` factory from `drift_flutter` with `native: DriftNativeOptions(...)` and, when
+      web is supported, `web: DriftWebOptions(...)`; alternatively use `NativeDatabase.createInBackground(...)` for native-only
+      code. Constructing `NativeDatabase(...)` synchronously runs every query on the UI isolate and blocks frames during large
+      reads/writes.'
     include:
       - lib/data/datasources/local/**/*.dart
     exclude:
-      - "**/*.g.dart"
+      - '**/*.g.dart'
     patterns:
-      - '\bNativeDatabase\s*\('
+      - \bNativeDatabase\s*\(
     tags:
       - memox
       - architecture
       - performance
       - drift
-
   - id: architecture.no_ui_import_data_layer_directly
     type: forbidden_import
     severity: error
     enabled: true
-    message: >-
-      Presentation and feature UI files must not import Drift, raw DAOs, or
-      datasource implementation packages directly. Access persistence through
-      provider/use-case/repository abstractions so the data layer stays swappable
-      and domain boundaries remain enforced.
+    message: Presentation and feature UI files must not import Drift, raw DAOs, or datasource implementation packages directly.
+      Access persistence through provider/use-case/repository abstractions so the data layer stays swappable and domain boundaries
+      remain enforced.
     include:
       - lib/presentation/**/*.dart
       - lib/app/**/*.dart
@@ -547,20 +325,18 @@ rules:
       - architecture
       - drift
     fix:
-      hint: Route database access through a use case or repository interface injected via Riverpod. Never import Drift or DAO classes directly in presentation code.
-
+      hint: Route database access through a use case or repository interface injected via Riverpod. Never import Drift or
+        DAO classes directly in presentation code.
   - id: drift.no_raw_sql_in_ui_or_viewmodel
     type: regex
     severity: error
     enabled: true
-    message: >-
-      Raw SQL query strings (`SELECT`, `INSERT INTO`, `UPDATE … SET`, `DELETE FROM`)
-      must not appear outside the database/DAO/query layer. UI and viewmodel code must
-      never embed SQL; move queries into Drift table definitions or DAO custom queries.
+    message: Raw SQL query strings (`SELECT`, `INSERT INTO`, `UPDATE … SET`, `DELETE FROM`) must not appear outside the database/DAO/query
+      layer. UI and viewmodel code must never embed SQL; move queries into Drift table definitions or DAO custom queries.
     scopes:
       - non_data_layer_source
     patterns:
-      - "['\"]\\s*(?:SELECT|INSERT\\s+INTO|UPDATE\\s+\\w|DELETE\\s+FROM|CREATE\\s+TABLE|DROP\\s+TABLE)"
+      - '[''"]\s*(?:SELECT|INSERT\s+INTO|UPDATE\s+\w|DELETE\s+FROM|CREATE\s+TABLE|DROP\s+TABLE)'
     tags:
       - memox
       - architecture

@@ -1,0 +1,137 @@
+version: 1
+metadata:
+  id: memox-performance
+  name: MemoX Performance Rules
+  description: 'Rendering and loading performance: refetch flicker, list building, layout passes, image caching.'
+  owner: code-verification-guard
+rules:
+  - id: memox.async_refetch_blanks_screen
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Screen-level widgets must not blank the whole UI every time a watched provider refetches because of search,
+      sort, or revision-driven query changes. Do not use `AsyncValue.when(loading: () => MxLoadingState...)` directly on these
+      screen surfaces. Preserve previous data during refetch and reserve `MxLoadingState` for first-load only.
+
+      '
+    scopes:
+      - screen_like_files
+    patterns:
+      - loading:\s*\(\)\s*=>\s*const\s+MxLoadingState
+      - loading:\s*\(\)\s*=>\s*MxLoadingState\(
+    tags:
+      - memox
+      - coding
+      - performance
+  - id: memox.retained_async_state_requires_skeleton
+    type: regex
+    severity: warning
+    enabled: true
+    message: 'Push-from-list detail screens that use `MxRetainedAsyncState` must supply a `skeletonBuilder` for the first
+      load. Falling back to `MxLoadingState` on these screens creates a high-contrast flash on the first route frame.
+
+      '
+    include:
+      - lib/presentation/features/folders/screens/folder_detail_screen.dart
+      - lib/presentation/features/decks/screens/deck_detail_screen.dart
+      - lib/presentation/features/flashcards/screens/flashcard_list_screen.dart
+    patterns:
+      - (?s)MxRetainedAsyncState<[^>]+>\((?:(?!skeletonBuilder).)*?\)
+    mode: file
+    tags:
+      - memox
+      - coding
+      - performance
+  - id: memox.image_network_requires_cache
+    type: regex
+    severity: warning
+    enabled: true
+    message: Raw `Image.network(...)` / `NetworkImage(...)` re-downloads the bytes on every rebuild and on scroll. Route remote
+      images through a cached image primitive (e.g. `cached_network_image`) or wrap with `precacheImage`. Add this exception
+      via a file-level exclude only after the wrapper exists.
+    include:
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \bImage\.network\s*\(
+      - \bNetworkImage\s*\(
+    tags:
+      - memox
+      - ui
+      - performance
+      - images
+  - id: memox.intrinsic_layout_requires_review
+    type: regex
+    severity: warning
+    enabled: true
+    message: IntrinsicHeight / IntrinsicWidth can force extra layout passes and show up as frame jank on dense Flutter surfaces.
+      Prefer fixed constraints, LayoutBuilder, shared layout primitives, or a reviewed exception when the intrinsic measurement
+      is intentionally bounded.
+    include:
+      - lib/main.dart
+      - lib/app/app.dart
+      - lib/presentation/features/**/*.dart
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \bIntrinsic(?:Height|Width)\s*\(
+    tags:
+      - memox
+      - ui
+      - performance
+      - layout
+  - id: memox.scrollable_shrinkwrap_requires_review
+    type: regex
+    severity: warning
+    enabled: true
+    message: '`shrinkWrap: true` on scrollables asks Flutter to measure children instead of using the viewport constraint.
+      Prefer bounded layout, slivers, or builder-based composition; keep shrinkWrap only for small, reviewed surfaces.'
+    include:
+      - lib/main.dart
+      - lib/app/app.dart
+      - lib/presentation/features/**/*.dart
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \bshrinkWrap\s*:\s*true\b
+    tags:
+      - memox
+      - ui
+      - performance
+      - layout
+  - id: memox.long_collection_uses_builder
+    type: regex
+    severity: warning
+    enabled: true
+    message: Long or data-driven lists and grids should use `ListView.builder` or `GridView.builder` instead of eagerly building
+      children from loops or maps.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?s)\b(?:ListView|GridView)\s*\((?:(?!\.builder\s*\().){0,1200}?\bchildren\s*:\s*(?:<[^>]+>)?\s*\[?\s*(?:for\s*\(|\w+\.map\s*\()
+    mode: file
+    tags:
+      - memox
+      - ui
+      - performance
+  - id: memox.heavy_collection_work_in_build
+    type: regex
+    severity: warning
+    enabled: true
+    message: Widget build methods should not do heavy sort/filter/grouping work directly. Move derived collections to a provider/viewmodel,
+      memoized helper, or precomputed state.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?s)Widget\s+build\s*\(\s*BuildContext\s+context\s*\)\s*(?:=>|\{)(?:(?!\n\s*\}\n).){0,1600}?\.(?:sort|where|groupBy)\s*\(
+    mode: file
+    tags:
+      - memox
+      - ui
+      - performance

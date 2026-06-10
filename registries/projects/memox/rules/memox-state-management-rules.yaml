@@ -1,20 +1,190 @@
 version: 1
-
 metadata:
   id: memox-state-management
   name: MemoX State Management Rules
-  description: Project-specific state management rules for MemoX.
+  description: Riverpod provider/notifier lifecycle, purity, and usage rules for MemoX.
   owner: code-verification-guard
-
 rules:
+  - id: memox.feature_query_provider_keep_alive
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Feature read-model query providers that return `Future<...State>`, `Future<...ReadModel>`, `Future<...Query>`,
+      or the stream equivalents must opt into a deliberate lifecycle with `@Riverpod(keepAlive: true)` or an explicit `ref.keepAlive()`
+      strategy. Plain `@riverpod` autoDispose on these providers causes push/pop refetch flicker on screen mount.
+
+      '
+    include:
+      - lib/presentation/features/**/viewmodels/*_viewmodel.dart
+    patterns:
+      - '@riverpod\s*(?:\r?\n)+Future<\w+(?:ReadModel|State|Query)>'
+      - '@riverpod\s*(?:\r?\n)+Stream<\w+(?:ReadModel|State|Query)>'
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - coding
+      - performance
+  - id: memox.legacy_state_notifier
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not use `StateNotifier` in non-legacy app source; new state should use `Notifier` or `AsyncNotifier`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bStateNotifier\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+    fix:
+      hint: Use Riverpod 3 annotation syntax with generated notifiers instead.
+  - id: memox.change_notifier_provider_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not import or use `ChangeNotifierProvider`; it is a migration bridge and is not allowed in this codebase.
+    scopes:
+      - all
+    patterns:
+      - \bChangeNotifierProvider\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_notifier_provider_creation
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not create `StateNotifierProvider` in non-legacy app source; new state should use generated `Notifier` or
+      `AsyncNotifier`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bStateNotifierProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.manual_provider_constructor_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: App source should use Riverpod code generation instead of manual provider constructors.
+    scopes:
+      - all
+    patterns:
+      - \bProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+      - \bStateProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+      - \bFutureProvider\b
+      - \bStreamProvider\b
+      - \bNotifierProvider\b
+      - \bAsyncNotifierProvider\b
+      - \bStreamNotifierProvider\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.provider_ui_ref_types
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not depend on UI-bound types such as BuildContext or WidgetRef.
+    scopes:
+      - provider_files
+    patterns:
+      - \bBuildContext\b
+      - \bWidgetRef\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.provider_invalidate_self
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not use `invalidateSelf()`; explicit retry or invalidation boundaries are required.
+    scopes:
+      - provider_files
+    patterns:
+      - \binvalidateSelf\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.provider_ui_side_effects
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not perform UI side effects directly.
+    scopes:
+      - provider_files
+    patterns:
+      - \bSnackBar\s*\(
+      - \bshowDialog\s*\(
+      - \bshowModalBottomSheet\s*\(
+      - \bScaffoldMessenger\.
+      - \bNavigator\.
+      - \bcontext\.go\s*\(
+      - \bcontext\.push\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.widget_callback_ref_watch_usage
+    type: regex
+    severity: error
+    enabled: true
+    message: UI callbacks must not call `ref.watch(...)`; callbacks should use `ref.read(...)` for one-shot imperative work.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?s)\bon[A-Z][A-Za-z0-9_]*\b\s*:\s*(?:\([^)]*\)\s*=>\s*ref\.watch\(|\([^)]*\)\s*\{.{0,240}?ref\.watch\()
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.widget_direct_stream_watch
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not subscribe to direct `.watch()` streams; stream data should be normalized behind a provider
+      and the widget should only use `ref.watch(...)`.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?<!ref)\.watch\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.no_async_value_when
+    type: regex
+    severity: error
+    enabled: true
+    message: MemoX must not use AsyncValue.when directly. Use AppAsyncBuilder.
+    scopes:
+      - flutter_source
+    exclude:
+      - lib/presentation/shared/**
+    patterns:
+      - \.when\s*\(
+    tags:
+      - memox
+      - state-management
+      - ui
+      - state
+    fix:
+      hint: Wrap AsyncValue rendering with AppAsyncBuilder.
   - id: memox.infrastructure_provider_keep_alive_required
     type: regex
     severity: warning
     enabled: true
-    message: >-
-      Infrastructure providers for DB, repository, client, service, DAO, store, gateway, codec, runner, strategy,
-      or auth resources should use `@Riverpod(keepAlive: true)` so expensive app-wide dependencies are not disposed on
-      navigation churn. Screen/search/input state may remain autoDispose.
+    message: 'Infrastructure providers for DB, repository, client, service, DAO, store, gateway, codec, runner, strategy,
+      or auth resources should use `@Riverpod(keepAlive: true)` so expensive app-wide dependencies are not disposed on navigation
+      churn. Screen/search/input state may remain autoDispose.'
     include:
       - lib/app/di/**/*.dart
       - lib/app/router/**/*.dart
@@ -22,30 +192,28 @@ rules:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - '(?s)@riverpod\s*(?![\s\S]{0,200}\b\w*UseCase(?:>|[\s\r\n]+\w+\s*\())(?:\r?\n\s*)+(?:Future<[^>]*(?:Database|Repository|Client|Service|Dao|Store|Gateway|Codec|Runner|Strategy|Auth|Dio)[^>]*>|(?:[A-Z]\w*(?:Database|Repository|Client|Service|Dao|Store|Gateway|Codec|Runner|Strategy|Auth)|Dio))\s+\w+\s*\('
+      - (?s)@riverpod\s*(?![\s\S]{0,200}\b\w*UseCase(?:>|[\s\r\n]+\w+\s*\())(?:\r?\n\s*)+(?:Future<[^>]*(?:Database|Repository|Client|Service|Dao|Store|Gateway|Codec|Runner|Strategy|Auth|Dio)[^>]*>|(?:[A-Z]\w*(?:Database|Repository|Client|Service|Dao|Store|Gateway|Codec|Runner|Strategy|Auth)|Dio))\s+\w+\s*\(
     mode: file
     tags:
       - memox
       - state-management
       - riverpod
       - lifecycle
-
   - id: memox.provider_state_object_too_large
     type: regex
     severity: warning
     enabled: true
-    message: Provider state objects with more than 7 fields should be split into smaller read models or justified by a
-      clear cohesion boundary.
+    message: Provider state objects with more than 7 fields should be split into smaller read models or justified by a clear
+      cohesion boundary.
     scopes:
       - viewmodel_files
     patterns:
-      - '(?s)\b(?:final\s+)?class\s+\w*State\s*\{(?:(?!\n\}).)*?\b(?:final\s+[\w<>, ?]+\s+\w+\s*;\s*){8,}'
+      - (?s)\b(?:final\s+)?class\s+\w*State\s*\{(?:(?!\n\}).)*?\b(?:final\s+[\w<>, ?]+\s+\w+\s*;\s*){8,}
     mode: file
     tags:
       - memox
       - state-management
       - maintainability
-
   - id: memox.no_broad_provider_invalidation
     type: regex
     severity: error
@@ -55,61 +223,27 @@ rules:
     scopes:
       - provider_files
     patterns:
-      - '\bref\.invalidate\s*\(\s*(?:homeProvider|allProvider|libraryOverviewProvider|dashboardOverviewProvider|progressOverviewProvider)\b'
-      - '\bref\.invalidate\s*\(\s*[A-Za-z0-9_]*(?:All|Home|List|Overview)[A-Za-z0-9_]*Provider\s*\)'
+      - \bref\.invalidate\s*\(\s*(?:homeProvider|allProvider|libraryOverviewProvider|dashboardOverviewProvider|progressOverviewProvider)\b
+      - \bref\.invalidate\s*\(\s*[A-Za-z0-9_]*(?:All|Home|List|Overview)[A-Za-z0-9_]*Provider\s*\)
     tags:
       - memox
       - state-management
       - invalidation
-
   - id: memox.command_provider_repository_ref_read
     type: regex
     severity: error
     enabled: true
-    message: Command methods must not `ref.watch(...RepositoryProvider)`. Presentation commands should read injected
-      use-case providers for one-shot work; repository providers stay behind app DI and use-case boundaries.
+    message: Command methods must not `ref.watch(...RepositoryProvider)`. Presentation commands should read injected use-case
+      providers for one-shot work; repository providers stay behind app DI and use-case boundaries.
     scopes:
       - provider_files
     patterns:
-      - '(?s)\b(?:Future<[^>]*>|FutureOr<[^>]*>|void)\s+(?!build\b)\w+\s*\([^)]*\)\s*(?:async\s*)?\{(?:(?!\n\s*\}).){0,1600}?\bref\.watch\s*\(\s*\w+RepositoryProvider\b'
+      - (?s)\b(?:Future<[^>]*>|FutureOr<[^>]*>|void)\s+(?!build\b)\w+\s*\([^)]*\)\s*(?:async\s*)?\{(?:(?!\n\s*\}).){0,1600}?\bref\.watch\s*\(\s*\w+RepositoryProvider\b
     mode: file
     tags:
       - memox
       - state-management
       - riverpod
-
-  - id: memox.long_collection_uses_builder
-    type: regex
-    severity: warning
-    enabled: true
-    message: Long or data-driven lists and grids should use `ListView.builder` or `GridView.builder` instead of eagerly
-      building children from loops or maps.
-    scopes:
-      - widget_ui_files
-    patterns:
-      - '(?s)\b(?:ListView|GridView)\s*\((?:(?!\.builder\s*\().){0,1200}?\bchildren\s*:\s*(?:<[^>]+>)?\s*\[?\s*(?:for\s*\(|\w+\.map\s*\()'
-    mode: file
-    tags:
-      - memox
-      - ui
-      - performance
-
-  - id: memox.heavy_collection_work_in_build
-    type: regex
-    severity: warning
-    enabled: true
-    message: Widget build methods should not do heavy sort/filter/grouping work directly. Move derived collections to a
-      provider/viewmodel, memoized helper, or precomputed state.
-    scopes:
-      - widget_ui_files
-    patterns:
-      - '(?s)Widget\s+build\s*\(\s*BuildContext\s+context\s*\)\s*(?:=>|\{)(?:(?!\n\s*\}\n).){0,1600}?\.(?:sort|where|groupBy)\s*\('
-    mode: file
-    tags:
-      - memox
-      - ui
-      - performance
-
   - id: memox.screen_async_value_when_section_split
     type: regex
     severity: warning
@@ -119,23 +253,21 @@ rules:
     scopes:
       - screen_like_files
     patterns:
-      - '(?s)\bref\.watch\s*\([^)]+\)(?:(?!class\s).){0,1200}?\.when\s*\('
-      - '(?s)\bAsyncValue<[^>]+>\s+\w+\s*;(?:(?!class\s).){0,1200}?\b\w+\.when\s*\('
+      - (?s)\bref\.watch\s*\([^)]+\)(?:(?!class\s).){0,1200}?\.when\s*\(
+      - (?s)\bAsyncValue<[^>]+>\s+\w+\s*;(?:(?!class\s).){0,1200}?\b\w+\.when\s*\(
     mode: file
     tags:
       - memox
+      - state-management
       - ui
       - async
-
   - id: memox.presentation_raw_future_stream_builder
     type: regex
     severity: warning
     enabled: true
-    message: >-
-      Presentation widgets should route async rendering through Riverpod
-      providers and shared async surfaces instead of raw FutureBuilder /
-      StreamBuilder. Raw builders couple fetch lifecycles to widget rebuilds and
-      make retained loading/error handling harder to keep consistent.
+    message: Presentation widgets should route async rendering through Riverpod providers and shared async surfaces instead
+      of raw FutureBuilder / StreamBuilder. Raw builders couple fetch lifecycles to widget rebuilds and make retained loading/error
+      handling harder to keep consistent.
     include:
       - lib/main.dart
       - lib/app/app.dart
@@ -145,113 +277,34 @@ rules:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - '\b(?:FutureBuilder|StreamBuilder)(?:<[^>]+>)?\s*\('
+      - \b(?:FutureBuilder|StreamBuilder)(?:<[^>]+>)?\s*\(
     tags:
       - memox
       - state-management
       - ui
       - performance
       - async
-
   - id: memox.watch_state_side_effect_requires_listen
     type: regex
     severity: warning
     enabled: true
-    message: UI side effects driven by provider state should use `ref.listen`; do not trigger dialog or snackbar effects
-      directly from state read with `ref.watch`.
+    message: UI side effects driven by provider state should use `ref.listen`; do not trigger dialog or snackbar effects directly
+      from state read with `ref.watch`.
     scopes:
       - widget_ui_files
     patterns:
-      - '(?s)\bref\.watch\s*\([^)]+\)(?:(?!ref\.listen).){0,1200}?\b(?:showDialog|SnackBar|ScaffoldMessenger\.of)\s*\('
+      - (?s)\bref\.watch\s*\([^)]+\)(?:(?!ref\.listen).){0,1200}?\b(?:showDialog|SnackBar|ScaffoldMessenger\.of)\s*\(
     mode: file
     tags:
       - memox
       - state-management
       - side-effects
-
-  - id: memox.template_screen_shell_no_ref_watch
-    type: regex
-    severity: warning
-    enabled: true
-    message: >-
-      Template-only screen shells that return `MxScaffold`, `MxListScaffold`, `MxFormScaffold`, or `MxStudyScaffold` should not
-      also watch providers in the same build body. Move provider watching into a section widget, or add
-      `// guard:allow-screen-watch -- reason: ...` when the screen shell must stay reactive.
-    scopes:
-      - screen_like_files
-    patterns:
-      - '(?s)Widget\s+build\s*\(\s*BuildContext\s+context\s*,\s*WidgetRef\s+ref\s*\)\s*\{(?![\s\S]{0,1600}guard:allow-screen-watch\s+--\s+reason:\s*\S)[\s\S]{0,1600}?\bref\.watch\s*\([^)]+\)[\s\S]{0,1600}?\breturn\s+(?:const\s+)?Mx(?:Scaffold|ListScaffold|FormScaffold|StudyScaffold)\s*\('
-    mode: file
-    tags:
-      - memox
-      - state-management
-      - ui-shell
-
-  - id: memox.screen_watch_escape_hatch_requires_reason
-    type: regex
-    severity: error
-    enabled: true
-    message: >-
-      `guard:allow-screen-watch` must include `-- reason: ...` so template-shell provider watches stay reviewed.
-    scopes:
-      - screen_like_files
-    patterns:
-      - 'guard:allow-screen-watch(?!\s+--\s+reason:\s*\S)'
-    tags:
-      - memox
-      - state-management
-      - ui-shell
-
-  - id: memox.action_error_extraction_via_helper
-    type: regex
-    severity: error
-    enabled: true
-    message: >-
-      Extract `AppFailure` from action `AsyncValue<void>` via `MxActionErrors.failureOf(...)`
-      from `lib/presentation/shared/viewmodels/mx_action_errors.dart`. Do not hand-roll
-      `.whenOrNull(error: (error, _) => error is AppFailure ? error : null)`.
-    include:
-      - lib/presentation/**/*.dart
-    exclude:
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
-      - lib/presentation/shared/viewmodels/mx_action_errors.dart
-    patterns:
-      - error\s+is\s+AppFailure\s*\?\s*error\s*:\s*null
-    tags:
-      - memox
-      - state-management
-      - error-handling
-
-  - id: memox.action_error_message_via_helper
-    type: regex
-    severity: error
-    enabled: true
-    message: >-
-      Map `AppFailure` to a user-facing string via `MxActionErrors.messageOf(...)`
-      from `lib/presentation/shared/viewmodels/mx_action_errors.dart`. Do not re-implement
-      the `failure.cause case final ValidationException` ladder per feature.
-    include:
-      - lib/presentation/**/*.dart
-    exclude:
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
-      - lib/presentation/shared/viewmodels/mx_action_errors.dart
-    patterns:
-      - failure\.cause\s+case\s+final\s+ValidationException
-    tags:
-      - memox
-      - state-management
-      - error-handling
-
   - id: memox.async_draft_current_value_via_helper
     type: regex
     severity: error
     enabled: true
-    message: >-
-      Read the current draft from an `AsyncValue<T>` via the `MxAsyncDraft.currentValue`
-      extension from `lib/presentation/shared/viewmodels/mx_async_draft.dart`. Do not
-      inline the `AsyncData(:final value) => value, _ => null` switch in viewmodels.
+    message: Read the current draft from an `AsyncValue<T>` via the `MxAsyncDraft.currentValue` extension from `lib/presentation/shared/viewmodels/mx_async_draft.dart`.
+      Do not inline the `AsyncData(:final value) => value, _ => null` switch in viewmodels.
     include:
       - lib/presentation/**/*.dart
     exclude:

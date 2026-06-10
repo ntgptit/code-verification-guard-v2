@@ -58,12 +58,23 @@ rule_sets:
       - scopes/flutter-scopes.yaml
       - scopes/memox-scopes.yaml
     registries:
-      - registries/projects/memox/rules/memox-global-rules.yaml
-      - registries/projects/memox/rules/memox-coding-rules.yaml
-      - registries/projects/memox/rules/memox-normalized-rules.yaml
       - registries/projects/memox/rules/memox-architecture-rules.yaml
-      - registries/projects/memox/rules/memox-ui-rules.yaml
+      - registries/projects/memox/rules/memox-coding-rules.yaml
+      - registries/projects/memox/rules/memox-dart-convention-rules.yaml
       - registries/projects/memox/rules/memox-state-management-rules.yaml
+      - registries/projects/memox/rules/memox-error-handling-rules.yaml
+      - registries/projects/memox/rules/memox-observability-rules.yaml
+      - registries/projects/memox/rules/memox-i18n-rules.yaml
+      - registries/projects/memox/rules/memox-design-system-rules.yaml
+      - registries/projects/memox/rules/memox-design-token-rules.yaml
+      - registries/projects/memox/rules/memox-screen-shell-rules.yaml
+      - registries/projects/memox/rules/memox-responsive-layout-rules.yaml
+      - registries/projects/memox/rules/memox-performance-rules.yaml
+      - registries/projects/memox/rules/memox-routing-rules.yaml
+      - registries/projects/memox/rules/memox-shared-widget-rules.yaml
+      - registries/projects/memox/rules/memox-shared-widget-doc-rules.yaml
       - registries/projects/memox/rules/memox-hook-rules.yaml
       - registries/projects/memox/rules/memox-ui-async-guard-rules.yaml
-      - registries/projects/memox/rules/memox-shared-widget-doc-rules.yaml
+      - registries/projects/memox/rules/memox-action-density-rules.yaml
+      - registries/projects/memox/rules/memox-guess-sampling-rules.yaml
+      - registries/projects/memox/rules/memox-testing-rules.yaml

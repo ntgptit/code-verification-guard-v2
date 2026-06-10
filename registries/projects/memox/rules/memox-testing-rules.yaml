@@ -1,0 +1,50 @@
+version: 1
+metadata:
+  id: memox-testing
+  name: MemoX Testing Rules
+  description: Test hygiene rules for MemoX test suites.
+  owner: code-verification-guard
+rules:
+  - id: memox.test_file_lines
+    type: max_lines
+    severity: warning
+    enabled: true
+    message: Test file is too large. Consider splitting by feature event boundary, Decision Table section, or reusable fixture
+      boundary.
+    include:
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    max_lines: 1600
+    count_mode: logical
+    tags:
+      - memox
+      - coding
+      - tests
+      - decision-table
+    fix:
+      hint: Split large tests by event boundary or Decision Table case group while keeping row names aligned with the markdown
+        Decision Table.
+  - id: test.no_skip_without_reason
+    type: regex
+    severity: error
+    enabled: true
+    message: '`skip: true` in a test or group must not be used without a documented reason. A skipped test with no context
+      silently hides regressions. Use `skip: ''reason: ...''` (a non-empty string) so reviewers understand why the test is
+      disabled and when it can be re-enabled.'
+    include:
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \bskip\s*:\s*true\b
+    tags:
+      - memox
+      - coding
+      - tests
+    fix:
+      hint: 'Change `skip: true` to `skip: ''reason: <explanation>''` or remove the skip and fix the test.'

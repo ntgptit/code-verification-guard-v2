@@ -1,0 +1,64 @@
+version: 1
+metadata:
+  id: memox-observability
+  name: MemoX Observability Rules
+  description: 'Logging and monitoring rules: AppLogger routing, Sentry boundaries, and sensitive log payloads.'
+  owner: code-verification-guard
+rules:
+  - id: memox.raw_monitoring_call
+    type: regex
+    severity: error
+    enabled: true
+    message: App source must not call Sentry APIs directly; monitoring should flow through the repo's centralized logging
+      or monitoring utility.
+    scopes:
+      - app_source_except_logger
+    patterns:
+      - \bSentryFlutter\.init\s*\(
+      - \bSentry\.captureException\s*\(
+      - \bSentry\.captureMessage\s*\(
+      - \bSentry\.configureScope\s*\(
+    tags:
+      - memox
+      - observability
+      - architecture
+  - id: memox.sensitive_log_payload
+    type: regex
+    severity: error
+    enabled: true
+    message: Logging calls must not interpolate sensitive values such as tokens, passwords, secrets, or session identifiers.
+    scopes:
+      - app_source_except_logger
+    patterns:
+      - (?:AppLogger\.(?:debug|info|warning|error|fatal)|debugPrint|print|developer\.log)\s*\([^\n]*(?:token|password|secret|cookie|session|credential|api[
+        _-]?key)[^\n:=]{0,32}[:=]
+      - (?:AppLogger\.(?:debug|info|warning|error|fatal)|debugPrint|print|developer\.log)\s*\([^\n]*[Bb]earer\s+[A-Za-z0-9\-._~+/=]+
+    tags:
+      - memox
+      - observability
+      - architecture
+  - id: dart.no_debug_print_in_lib
+    type: regex
+    severity: error
+    enabled: true
+    message: '`print(...)`, `debugPrint(...)`, and `developer.log(...)` must not be used in `lib/`. Route all runtime logging
+      through the approved logger wrapper (`AppLogger`) so output can be controlled per build configuration.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/core/logging/app_logger.dart
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+    patterns:
+      - \bprint\s*\(
+      - \bdebugPrint\s*\(
+      - \bdeveloper\.log\s*\(
+    tags:
+      - memox
+      - observability
+      - dart
+      - logging
+      - debug
+    fix:
+      hint: Replace with AppLogger.debug(...) / AppLogger.info(...) / AppLogger.error(...). Import 'package:memox/core/logging/app_logger.dart'.

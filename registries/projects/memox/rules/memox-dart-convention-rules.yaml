@@ -1,23 +1,17 @@
 version: 1
-
 metadata:
   id: memox-dart-convention
   name: MemoX Dart Convention Rules
-  description: >-
-    Dart-level conventions for MemoX: package imports, no debug output in lib/,
-    and snake_case file naming for feature code.
+  description: 'Dart-level conventions for MemoX: package imports and snake_case file naming.'
   owner: code-verification-guard
-
 rules:
   - id: dart.no_relative_import_from_lib
     type: regex
     severity: error
     enabled: true
-    message: >-
-      Relative imports that climb two or more directory levels (`../../`) are forbidden
-      inside `lib/`. Cross-feature and cross-layer references must use
-      `package:memox/...` imports so the dependency direction stays explicit and
-      refactoring a folder does not silently break imports elsewhere.
+    message: Relative imports that climb two or more directory levels (`../../`) are forbidden inside `lib/`. Cross-feature
+      and cross-layer references must use `package:memox/...` imports so the dependency direction stays explicit and refactoring
+      a folder does not silently break imports elsewhere.
     include:
       - lib/**/*.dart
     exclude:
@@ -25,7 +19,7 @@ rules:
       - '**/*.freezed.dart'
       - lib/l10n/generated/**
     patterns:
-      - "^import\\s+'(?:\\.\\./){2,}[^']+';"
+      - ^import\s+'(?:\.\./){2,}[^']+';
     tags:
       - memox
       - dart
@@ -33,49 +27,19 @@ rules:
       - imports
     fix:
       hint: Convert the relative import to a package import — `import 'package:memox/path/to/file.dart';`.
-
-  - id: dart.no_debug_print_in_lib
-    type: regex
-    severity: error
-    enabled: true
-    message: >-
-      `print(...)`, `debugPrint(...)`, and `developer.log(...)` must not be used in
-      `lib/`. Route all runtime logging through the approved logger wrapper
-      (`AppLogger`) so output can be controlled per build configuration.
-    include:
-      - lib/**/*.dart
-    exclude:
-      - lib/core/logging/app_logger.dart
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
-      - lib/l10n/generated/**
-    patterns:
-      - '\bprint\s*\('
-      - '\bdebugPrint\s*\('
-      - '\bdeveloper\.log\s*\('
-    tags:
-      - memox
-      - dart
-      - logging
-      - debug
-    fix:
-      hint: Replace with AppLogger.debug(...) / AppLogger.info(...) / AppLogger.error(...). Import 'package:memox/core/logging/app_logger.dart'.
-
   - id: dart.file_name_must_be_snake_case
     type: file_name
     severity: error
     enabled: true
-    message: >-
-      Dart file names inside `lib/` must use snake_case
-      (`lower_case_with_underscores.dart`). Mixed-case or hyphenated names break
-      import consistency and tooling conventions.
+    message: Dart file names inside `lib/` must use snake_case (`lower_case_with_underscores.dart`). Mixed-case or hyphenated
+      names break import consistency and tooling conventions.
     include:
       - lib/**/*.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
       - lib/l10n/generated/**
-    pattern: "^[a-z][a-z0-9_]*\\.dart$"
+    pattern: ^[a-z][a-z0-9_]*\.dart$
     tags:
       - memox
       - dart

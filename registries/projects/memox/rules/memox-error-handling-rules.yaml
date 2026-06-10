@@ -1,0 +1,191 @@
+version: 1
+metadata:
+  id: memox-error-handling
+  name: MemoX Error Handling Rules
+  description: Failure mapping, exception surfacing, and error-state rules for MemoX.
+  owner: code-verification-guard
+rules:
+  - id: memox.ui_error_stringify
+    type: regex
+    severity: error
+    enabled: true
+    message: UI and app layout surfaces should not stringify raw errors directly.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - error\.toString\(\)
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.ui_low_level_exception_surface
+    type: regex
+    severity: error
+    enabled: true
+    message: UI and app layout surfaces must not depend on low-level network or database exception types.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - \bSqliteException\b
+      - \bDriftWrappedException\b
+      - \bDioException\b
+      - \bSocketException\b
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.provider_low_level_exception_surface
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not depend on low-level database or network exception types.
+    scopes:
+      - provider_files
+    patterns:
+      - \bSqliteException\b
+      - \bDriftWrappedException\b
+      - \bDioException\b
+      - \bSocketException\b
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.provider_async_error_wrapper
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not wrap errors with raw `AsyncError`; map them to `AppFailure`.
+    scopes:
+      - provider_files
+    patterns:
+      - throw\s+AsyncError\s*\(
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.provider_raw_async_error_state
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not assign raw caught errors into AsyncValue.error; map them to AppFailure first.
+    scopes:
+      - provider_files
+    patterns:
+      - AsyncValue\.error\s*\(\s*error\b
+      - AsyncValue\.error\s*\(\s*e\b
+      - AsyncValue\.error\s*\(\s*exception\b
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.provider_raw_string_error_state
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not publish raw string error states.
+    scopes:
+      - provider_files
+    patterns:
+      - AsyncValue\.error\s*\(\s*'[^']+'
+      - AsyncValue\.error\s*\(\s*"[^"]+"
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.provider_no_unnamed_catch
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not use unnamed catch bindings such as `catch (_)`, because they hide the real failure
+      source.
+    scopes:
+      - provider_files
+    patterns:
+      - \bcatch\s*\(_\)
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.no_empty_catch_block
+    type: regex
+    severity: error
+    enabled: true
+    message: Empty `catch (...) {}` silently swallows errors and hides bugs. Either log + rethrow, map to an `AppFailure`,
+      or extract the swallowing into a named helper that documents the intentional discard.
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - catch\s*\([^)]*\)\s*\{\s*\}
+    tags:
+      - memox
+      - error-handling
+  - id: memox.no_throw_raw_exception
+    type: regex
+    severity: error
+    enabled: true
+    message: '`throw Exception(...)` is the generic catch-all and carries no semantic type. For business failures throw `AppFailure(...)`;
+      for true programmer errors use a typed `StateError` / `ArgumentError` / `UnsupportedError`.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - throw\s+Exception\s*\(
+    tags:
+      - memox
+      - error-handling
+  - id: memox.presentation_async_action_controllers_use_runner
+    type: regex
+    severity: error
+    enabled: true
+    message: Presentation action controllers should route action failure state through the shared async action runner instead
+      of hand-writing AsyncError boilerplate.
+    scopes:
+      - presentation_async_action_controller_files
+    patterns:
+      - state\s*=\s*AsyncError<void>\s*\(
+    tags:
+      - memox
+      - error-handling
+      - architecture
+  - id: memox.action_error_extraction_via_helper
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Extract `AppFailure` from action `AsyncValue<void>` via `MxActionErrors.failureOf(...)` from `lib/presentation/shared/viewmodels/mx_action_errors.dart`.
+      Do not hand-roll `.whenOrNull(error: (error, _) => error is AppFailure ? error : null)`.'
+    include:
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/presentation/shared/viewmodels/mx_action_errors.dart
+    patterns:
+      - error\s+is\s+AppFailure\s*\?\s*error\s*:\s*null
+    tags:
+      - memox
+      - state-management
+      - error-handling
+  - id: memox.action_error_message_via_helper
+    type: regex
+    severity: error
+    enabled: true
+    message: Map `AppFailure` to a user-facing string via `MxActionErrors.messageOf(...)` from `lib/presentation/shared/viewmodels/mx_action_errors.dart`.
+      Do not re-implement the `failure.cause case final ValidationException` ladder per feature.
+    include:
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/presentation/shared/viewmodels/mx_action_errors.dart
+    patterns:
+      - failure\.cause\s+case\s+final\s+ValidationException
+    tags:
+      - memox
+      - state-management
+      - error-handling

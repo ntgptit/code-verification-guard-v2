@@ -607,6 +607,9 @@ def test_spacing_gap_sizedbox_with_token_is_allowed(tmp_path: Path) -> None:
 
 
 def test_raw_divider_dimensions_are_forbidden(tmp_path: Path) -> None:
+    # Raw Divider usage in feature code (any constructor call, including raw
+    # height/thickness values) is covered by memox.divider_usage; the former
+    # design.require_divider_token rule was merged into it.
     bad = """
     class SampleScreen extends StatelessWidget {
       @override
@@ -634,13 +637,13 @@ def test_raw_divider_dimensions_are_forbidden(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.require_divider_token",
+        "memox.divider_usage",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_divider_token",
+        "memox.divider_usage",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
