@@ -87,3 +87,28 @@ rules:
       - error-handling
     fix:
       hint: Restore the FlutterError.onError handler and the runZonedGuarded wrapper in app_bootstrap.dart.
+  - id: memox.observability.error_zone_ownership
+    type: regex
+    severity: error
+    enabled: true
+    message: Global error handlers (`FlutterError.onError`, `PlatformDispatcher.instance.onError`, `ErrorWidget.builder`)
+      and `runZonedGuarded` may only be wired inside `lib/app/bootstrap/**`. Reassigning them elsewhere silently hijacks
+      or forks the centralized error pipeline, so uncaught errors stop reaching the logging/monitoring boundary.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/app/bootstrap/**
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - FlutterError\.onError\s*=
+      - PlatformDispatcher\.instance\.onError\s*=
+      - ErrorWidget\.builder\s*=
+      - \brunZonedGuarded\s*\(
+    tags:
+      - memox
+      - observability
+      - error-handling
+      - architecture
+    fix:
+      hint: Hook into the existing pipeline in lib/app/bootstrap/app_bootstrap.dart instead of installing a local handler.

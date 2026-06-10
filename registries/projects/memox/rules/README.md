@@ -25,7 +25,7 @@ Muốn biết một rule nằm ở file nào: nhìn segment `<domain>` trong ID 
 | `memox-coding-rules.yaml` | `coding` | Naming (file/class/biến/CRUD member), style (`no_else`), maintainability (part-of, TODO ticket) |
 | `memox-dart-convention-rules.yaml` | `dart_convention` | Convention Dart: package import, snake_case file name |
 | `memox-state-management-rules.yaml` | `state_management` | Riverpod v3: generated providers, keepAlive lifecycle, provider purity, watch/read/listen |
-| `memox-error-handling-rules.yaml` | `error_handling` | AppFailure mapping, exception surfacing, catch hygiene, MxActionErrors helpers |
+| `memox-error-handling-rules.yaml` | `error_handling` | AppFailure mapping tại data boundary, cấm low-level exception ở domain/UI/provider, catch hygiene (empty catch, `catchError`, `async void`, bắt `Error`), MxActionErrors helpers |
 | `memox-observability-rules.yaml` | `observability` | AppLogger routing, cấm gọi Sentry trực tiếp, cấm log dữ liệu nhạy cảm |
 | `memox-i18n-rules.yaml` | `i18n` | Cấm hardcode chuỗi hiển thị; mọi copy đi qua `context.l10n` / ARB |
 | `memox-design-system-rules.yaml` | `design_system` | Dùng Mx component thay raw Material widget; màu/typography qua theme |

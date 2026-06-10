@@ -1,6 +1,7 @@
 # MemoX guard rules — domain: error_handling
-# Failure taxonomy enforcement: map errors to AppFailure, no low-level exception types on
-# UI/provider surfaces, no swallowed catches, shared MxActionErrors helpers.
+# Failure taxonomy enforcement: map errors to AppFailure at the data boundary, no low-level
+# exception types on domain/UI/provider surfaces, no swallowed catches (empty catch, catchError,
+# async void, catching Error subtypes), shared MxActionErrors helpers.
 #
 # Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
 # Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
@@ -29,7 +30,7 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: UI and app layout surfaces must not depend on low-level network or database exception types.
+    message: UI and app layout surfaces must not depend on low-level network, database, or platform exception types.
     scopes:
       - ui_surfaces
     patterns:
@@ -37,6 +38,7 @@ rules:
       - \bDriftWrappedException\b
       - \bDioException\b
       - \bSocketException\b
+      - \bPlatformException\b
     tags:
       - memox
       - error-handling
@@ -45,7 +47,7 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: Provider-owned files must not depend on low-level database or network exception types.
+    message: Provider-owned files must not depend on low-level database, network, or platform exception types.
     scopes:
       - provider_files
     patterns:
@@ -53,6 +55,7 @@ rules:
       - \bDriftWrappedException\b
       - \bDioException\b
       - \bSocketException\b
+      - \bPlatformException\b
     tags:
       - memox
       - error-handling
@@ -196,3 +199,83 @@ rules:
       - memox
       - state-management
       - error-handling
+  - id: memox.error_handling.domain_no_low_level_exceptions
+    type: regex
+    severity: error
+    enabled: true
+    message: The domain layer (entities, use cases, repository contracts) must not reference low-level database, network,
+      or platform exception types. Exceptions are mapped to `AppFailure` at the data-layer boundary; domain only knows the
+      Failure taxonomy from `docs/contracts/error-contract.md`.
+    scopes:
+      - domain_files
+    patterns:
+      - \bSqliteException\b
+      - \bDriftWrappedException\b
+      - \bDioException\b
+      - \bSocketException\b
+      - \bPlatformException\b
+    tags:
+      - memox
+      - error-handling
+      - architecture
+    fix:
+      hint: Map the exception to an AppFailure inside the repository implementation and let domain consume the failure type.
+  - id: memox.error_handling.no_catching_error_types
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Do not catch Dart `Error` subtypes (`Error`, `StateError`, `ArgumentError`, `TypeError`, `RangeError`, `AssertionError`,
+      `UnsupportedError`). Errors signal programmer bugs and must crash loudly in development so the bug gets fixed; catching
+      them converts a defect into silent misbehavior.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - on\s+(?:Error|AssertionError|TypeError|StateError|ArgumentError|RangeError|UnsupportedError)\b\s+catch
+    tags:
+      - memox
+      - error-handling
+    fix:
+      hint: Fix the precondition that throws the Error instead of catching it; catch only Exception subtypes.
+  - id: memox.error_handling.no_future_catch_error
+    type: regex
+    severity: error
+    enabled: true
+    message: '`Future.catchError(...)` takes an untyped `Function` handler, silently swallows mismatched error types, and
+      bypasses the AppFailure mapping flow. Use `await` with `try`/`catch` and route the failure through the repository/AppFailure
+      boundary.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \.catchError\s*\(
+    tags:
+      - memox
+      - error-handling
+    fix:
+      hint: Replace .catchError with await + try/catch and map the exception to AppFailure.
+  - id: memox.error_handling.no_async_void_methods
+    type: regex
+    severity: error
+    enabled: true
+    message: '`void` methods marked `async` are fire-and-forget: exceptions escape to the zone instead of the caller, so
+      failures cannot be awaited, mapped to AppFailure, or surfaced in UI state. Declare `Future<void>` and let the caller
+      decide to await or explicitly schedule it.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+    patterns:
+      - (?m)^\s*void\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*async\s*\{
+    tags:
+      - memox
+      - error-handling
+      - lifecycle
+    fix:
+      hint: Change the return type to Future<void>; callers that intentionally fire-and-forget should use unawaited(...).
