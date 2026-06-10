@@ -1,3 +1,9 @@
+# MemoX guard rules — domain: dart_convention
+# Dart-level conventions: package imports over deep relative imports, snake_case file names.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-dart-convention
@@ -5,7 +11,7 @@ metadata:
   description: 'Dart-level conventions for MemoX: package imports and snake_case file naming.'
   owner: code-verification-guard
 rules:
-  - id: dart.no_relative_import_from_lib
+  - id: memox.dart_convention.no_deep_relative_imports
     type: regex
     severity: error
     enabled: true
@@ -27,7 +33,7 @@ rules:
       - imports
     fix:
       hint: Convert the relative import to a package import — `import 'package:memox/path/to/file.dart';`.
-  - id: dart.file_name_must_be_snake_case
+  - id: memox.dart_convention.file_name_snake_case
     type: file_name
     severity: error
     enabled: true

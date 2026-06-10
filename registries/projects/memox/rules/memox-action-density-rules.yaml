@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: action_density
+# Action hierarchy/density contract (docs/ui-ux/action-hierarchy-contract.md): card/list/dashboard
+# actions stay compact — no large or full-width buttons on those surfaces.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 
 metadata:
@@ -23,7 +30,7 @@ metadata:
   owner: code-verification-guard
 
 rules:
-  - id: memox.no_large_button_in_card_surface
+  - id: memox.action_density.no_large_button_in_card_surface
     type: regex
     severity: warning
     enabled: true
@@ -42,7 +49,7 @@ rules:
     fix:
       hint: "Replace with MxActionButton(intent: MxActionIntent.cardPrimary, ...)."
 
-  - id: memox.no_full_width_button_in_card_surface
+  - id: memox.action_density.no_full_width_button_in_card_surface
     type: regex
     severity: warning
     enabled: true

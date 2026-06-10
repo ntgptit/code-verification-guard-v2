@@ -303,16 +303,16 @@ def test_memox_rule_set_loads_ported_project_rules():
         for rule in rules
     }
 
-    assert "memox.no_else" in rules_by_id
-    assert "memox.provider_file_naming" in rules_by_id
-    assert "memox.legacy_state_notifier" in rules_by_id
-    assert "memox.domain_no_flutter_import" in rules_by_id
-    assert "memox.presentation_no_dart_io_imports" in rules_by_id
-    assert "flutter.shared_widget.dart_doc.required" in rules_by_id
-    assert rules_by_id["flutter.shared_widget.dart_doc.expected_contracts_required"][
+    assert "memox.coding.no_else" in rules_by_id
+    assert "memox.coding.provider_file_naming" in rules_by_id
+    assert "memox.state_management.no_state_notifier" in rules_by_id
+    assert "memox.architecture.domain_no_flutter_import" in rules_by_id
+    assert "memox.architecture.presentation_no_dart_io_imports" in rules_by_id
+    assert "memox.shared_widget_doc.required" in rules_by_id
+    assert rules_by_id["memox.shared_widget_doc.expected_contracts_required"][
         ConfigKeys.ENABLED
     ] is False
-    assert "lib/**/*.dart" in rules_by_id["memox.no_else"][ConfigKeys.INCLUDE]
+    assert "lib/**/*.dart" in rules_by_id["memox.coding.no_else"][ConfigKeys.INCLUDE]
 
 
 def write_ruleset_fixture(tool_root: Path, ruleset_name: str = "memox") -> None:

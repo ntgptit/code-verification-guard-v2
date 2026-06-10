@@ -5,17 +5,17 @@ overrides:
     - common.no_large_source_file
   severity: {}
   rule_options:
-    memox.provider_file_naming:
+    memox.coding.provider_file_naming:
       exclude:
         - '**/*.g.dart'
         - '**/*.freezed.dart'
-    memox.app_string_normalization_uses_string_utils:
+    memox.coding.string_normalization_via_string_utils:
       exclude:
         - '**/*.g.dart'
         - '**/*.freezed.dart'
         - lib/core/utils/string_utils.dart
         - lib/data/datasources/local/tables/*.dart
-    memox.flutter_boolean_name_length:
+    memox.coding.boolean_name_length:
       exclude:
         - lib/presentation/shared/hooks/mx_search_controller_hooks.dart
     common.no_placeholder_implementation:

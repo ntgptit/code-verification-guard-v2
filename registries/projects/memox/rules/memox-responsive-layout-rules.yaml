@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: responsive_layout
+# Responsive ownership: screen-size reads stay in root layouts/shell; child widgets derive
+# layout from constraints/ResponsiveRules, never from MediaQuery or local breakpoints.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-responsive-layout
@@ -5,7 +12,7 @@ metadata:
   description: 'Responsive ownership: MediaQuery usage, child-widget sizing, and shared responsive contracts.'
   owner: code-verification-guard
 rules:
-  - id: memox.ui_font_size_media_query_scaling
+  - id: memox.responsive_layout.no_media_query_font_scaling
     type: regex
     severity: error
     enabled: true
@@ -23,7 +30,7 @@ rules:
       - memox
       - responsive-layout
       - design_system
-  - id: memox.child_widget_media_query_layout
+  - id: memox.responsive_layout.child_no_media_query_size
     type: regex
     severity: warning
     enabled: true
@@ -38,7 +45,7 @@ rules:
       - memox
       - responsive-layout
       - architecture
-  - id: memox.child_widget_screen_width_layout
+  - id: memox.responsive_layout.child_no_screen_width_layout
     type: regex
     severity: error
     enabled: true
@@ -53,7 +60,7 @@ rules:
       - memox
       - responsive-layout
       - architecture
-  - id: memox.child_widget_local_responsive_constants
+  - id: memox.responsive_layout.child_no_local_responsive_constants
     type: regex
     severity: warning
     enabled: true
@@ -67,7 +74,7 @@ rules:
       - memox
       - responsive-layout
       - architecture
-  - id: memox.child_widget_screen_type_direct_usage
+  - id: memox.responsive_layout.child_no_direct_screen_type
     type: regex
     severity: warning
     enabled: true
@@ -83,7 +90,7 @@ rules:
       - memox
       - responsive-layout
       - architecture
-  - id: memox.shared_layout_magic_numbers
+  - id: memox.responsive_layout.shared_layout_no_magic_numbers
     type: regex
     severity: error
     enabled: true

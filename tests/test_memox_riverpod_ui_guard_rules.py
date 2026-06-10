@@ -52,8 +52,8 @@ def test_existing_callback_ref_watch_rule_flags_ui_callbacks(tmp_path: Path) -> 
     """
     good = bad.replace("ref.watch", "ref.read")
 
-    assert _violations("memox.widget_callback_ref_watch_usage", tmp_path, bad)
-    assert not _violations("memox.widget_callback_ref_watch_usage", tmp_path, good)
+    assert _violations("memox.state_management.no_ref_watch_in_callbacks", tmp_path, bad)
+    assert not _violations("memox.state_management.no_ref_watch_in_callbacks", tmp_path, good)
 
 
 def test_feature_screens_must_not_return_raw_scaffold(tmp_path: Path) -> None:
@@ -74,8 +74,8 @@ def test_feature_screens_must_not_return_raw_scaffold(tmp_path: Path) -> None:
     }
     """
 
-    assert _violations("memox.screen_scaffold", tmp_path, bad)
-    assert not _violations("memox.screen_scaffold", tmp_path, good)
+    assert _violations("memox.screen_shell.no_raw_scaffold", tmp_path, bad)
+    assert not _violations("memox.screen_shell.no_raw_scaffold", tmp_path, good)
 
 
 def test_feature_screens_should_use_mx_screen_shell_when_returning_top_shell(
@@ -98,9 +98,9 @@ def test_feature_screens_should_use_mx_screen_shell_when_returning_top_shell(
     }
     """
 
-    assert _violations("memox.feature_screen_uses_mx_screen_shell", tmp_path, bad)
+    assert _violations("memox.screen_shell.use_mx_scaffold_family", tmp_path, bad)
     assert not _violations(
-        "memox.feature_screen_uses_mx_screen_shell",
+        "memox.screen_shell.use_mx_scaffold_family",
         tmp_path,
         good,
     )
@@ -128,8 +128,8 @@ def test_widget_repository_provider_access_is_forbidden_in_screens(
     }
     """
 
-    assert _violations("memox.widget_repository_provider_access", tmp_path, bad)
-    assert not _violations("memox.widget_repository_provider_access", tmp_path, good)
+    assert _violations("memox.architecture.widget_no_repository_provider_access", tmp_path, bad)
+    assert not _violations("memox.architecture.widget_no_repository_provider_access", tmp_path, good)
 
 
 def test_infrastructure_provider_keep_alive_rule_flags_plain_riverpod(
@@ -144,8 +144,8 @@ def test_infrastructure_provider_keep_alive_rule_flags_plain_riverpod(
     Future<DeckRepository> deckRepository(Ref ref) async => DeckRepositoryImpl();
     """
 
-    assert _violations("memox.infrastructure_provider_keep_alive_required", tmp_path, bad)
-    assert not _violations("memox.infrastructure_provider_keep_alive_required", tmp_path, good)
+    assert _violations("memox.state_management.infrastructure_provider_keep_alive", tmp_path, bad)
+    assert not _violations("memox.state_management.infrastructure_provider_keep_alive", tmp_path, good)
 
 
 def test_infrastructure_provider_keep_alive_rule_ignores_use_cases(
@@ -164,7 +164,7 @@ def test_infrastructure_provider_keep_alive_rule_ignores_use_cases(
     """
 
     assert not _violations(
-        "memox.infrastructure_provider_keep_alive_required",
+        "memox.state_management.infrastructure_provider_keep_alive",
         tmp_path,
         source,
     )
@@ -193,8 +193,8 @@ def test_large_provider_state_object_rule_flags_many_fields(tmp_path: Path) -> N
     }
     """
 
-    assert _violations("memox.provider_state_object_too_large", tmp_path, bad)
-    assert not _violations("memox.provider_state_object_too_large", tmp_path, good)
+    assert _violations("memox.state_management.provider_state_max_fields", tmp_path, bad)
+    assert not _violations("memox.state_management.provider_state_max_fields", tmp_path, good)
 
 
 def test_broad_provider_invalidation_rule_allows_family_refresh(
@@ -211,8 +211,8 @@ def test_broad_provider_invalidation_rule_allows_family_refresh(
     }
     """
 
-    assert _violations("memox.no_broad_provider_invalidation", tmp_path, bad)
-    assert not _violations("memox.no_broad_provider_invalidation", tmp_path, good)
+    assert _violations("memox.state_management.no_broad_provider_invalidation", tmp_path, bad)
+    assert not _violations("memox.state_management.no_broad_provider_invalidation", tmp_path, good)
 
 
 def test_command_provider_repository_access_prefers_read(tmp_path: Path) -> None:
@@ -229,8 +229,8 @@ def test_command_provider_repository_access_prefers_read(tmp_path: Path) -> None
     }
     """
 
-    assert _violations("memox.command_provider_repository_ref_read", tmp_path, bad)
-    assert not _violations("memox.command_provider_repository_ref_read", tmp_path, good)
+    assert _violations("memox.state_management.command_no_repository_ref_watch", tmp_path, bad)
+    assert not _violations("memox.state_management.command_no_repository_ref_watch", tmp_path, good)
 
 
 def test_command_provider_repository_rule_allows_reactive_build(
@@ -243,7 +243,7 @@ def test_command_provider_repository_rule_allows_reactive_build(
     }
     """
 
-    assert not _violations("memox.command_provider_repository_ref_read", tmp_path, source)
+    assert not _violations("memox.state_management.command_no_repository_ref_watch", tmp_path, source)
 
 
 def test_data_driven_lists_should_use_builder(tmp_path: Path) -> None:
@@ -261,8 +261,8 @@ def test_data_driven_lists_should_use_builder(tmp_path: Path) -> None:
     }
     """
 
-    assert _violations("memox.long_collection_uses_builder", tmp_path, bad)
-    assert not _violations("memox.long_collection_uses_builder", tmp_path, good)
+    assert _violations("memox.performance.long_lists_use_builder", tmp_path, bad)
+    assert not _violations("memox.performance.long_lists_use_builder", tmp_path, good)
 
 
 def test_heavy_collection_work_in_build_is_flagged(tmp_path: Path) -> None:
@@ -278,8 +278,8 @@ def test_heavy_collection_work_in_build_is_flagged(tmp_path: Path) -> None:
     }
     """
 
-    assert _violations("memox.heavy_collection_work_in_build", tmp_path, bad)
-    assert not _violations("memox.heavy_collection_work_in_build", tmp_path, good)
+    assert _violations("memox.performance.no_heavy_collection_work_in_build", tmp_path, bad)
+    assert not _violations("memox.performance.no_heavy_collection_work_in_build", tmp_path, good)
 
 
 def test_screen_async_value_when_rule_flags_inline_screen_branching(
@@ -300,8 +300,8 @@ def test_screen_async_value_when_rule_flags_inline_screen_branching(
     }
     """
 
-    assert _violations("memox.screen_async_value_when_section_split", tmp_path, bad)
-    assert not _violations("memox.screen_async_value_when_section_split", tmp_path, good)
+    assert _violations("memox.state_management.screen_async_when_section_split", tmp_path, bad)
+    assert not _violations("memox.state_management.screen_async_when_section_split", tmp_path, good)
 
 
 def test_screen_part_of_screen_library_is_forbidden(tmp_path: Path) -> None:
@@ -328,9 +328,9 @@ def test_screen_part_of_screen_library_is_forbidden(tmp_path: Path) -> None:
     }
     """
 
-    assert _violations("memox.screen_part_of_forbidden", tmp_path, bad)
-    assert not _violations("memox.screen_part_of_forbidden", tmp_path, good)
-    assert not _violations("memox.screen_part_of_forbidden", tmp_path, widget_part)
+    assert _violations("memox.coding.no_screen_part_of_split", tmp_path, bad)
+    assert not _violations("memox.coding.no_screen_part_of_split", tmp_path, good)
+    assert not _violations("memox.coding.no_screen_part_of_split", tmp_path, widget_part)
 
 
 def test_intrinsic_layout_requires_review(tmp_path: Path) -> None:
@@ -345,8 +345,8 @@ def test_intrinsic_layout_requires_review(tmp_path: Path) -> None:
     }
     """
 
-    assert _violations("memox.intrinsic_layout_requires_review", tmp_path, bad)
-    assert not _violations("memox.intrinsic_layout_requires_review", tmp_path, good)
+    assert _violations("memox.performance.intrinsic_layout_requires_review", tmp_path, bad)
+    assert not _violations("memox.performance.intrinsic_layout_requires_review", tmp_path, good)
 
 
 def test_scrollable_shrinkwrap_requires_review(tmp_path: Path) -> None:
@@ -368,8 +368,8 @@ def test_scrollable_shrinkwrap_requires_review(tmp_path: Path) -> None:
     }
     """
 
-    assert _violations("memox.scrollable_shrinkwrap_requires_review", tmp_path, bad)
-    assert not _violations("memox.scrollable_shrinkwrap_requires_review", tmp_path, good)
+    assert _violations("memox.performance.shrinkwrap_requires_review", tmp_path, bad)
+    assert not _violations("memox.performance.shrinkwrap_requires_review", tmp_path, good)
 
 
 def test_raw_future_stream_builders_should_use_async_surfaces(
@@ -389,9 +389,9 @@ def test_raw_future_stream_builders_should_use_async_surfaces(
     }
     """
 
-    assert _violations("memox.presentation_raw_future_stream_builder", tmp_path, bad)
+    assert _violations("memox.state_management.no_raw_future_stream_builder", tmp_path, bad)
     assert not _violations(
-        "memox.presentation_raw_future_stream_builder",
+        "memox.state_management.no_raw_future_stream_builder",
         tmp_path,
         good,
     )
@@ -418,8 +418,8 @@ def test_watch_driven_side_effects_should_use_ref_listen(tmp_path: Path) -> None
     }
     """
 
-    assert _violations("memox.watch_state_side_effect_requires_listen", tmp_path, bad)
-    assert not _violations("memox.watch_state_side_effect_requires_listen", tmp_path, good)
+    assert _violations("memox.state_management.side_effects_use_ref_listen", tmp_path, bad)
+    assert not _violations("memox.state_management.side_effects_use_ref_listen", tmp_path, good)
 
 
 def test_template_screen_shell_ref_watch_is_staged_to_mx_templates(
@@ -452,14 +452,14 @@ def test_template_screen_shell_ref_watch_is_staged_to_mx_templates(
     """
     base_scaffold = bad.replace("MxListScaffold", "MxScaffold")
 
-    assert _violations("memox.template_screen_shell_no_ref_watch", tmp_path, bad)
+    assert _violations("memox.screen_shell.template_shell_no_ref_watch", tmp_path, bad)
     assert not _violations(
-        "memox.template_screen_shell_no_ref_watch",
+        "memox.screen_shell.template_shell_no_ref_watch",
         tmp_path,
         good,
     )
     assert _violations(
-        "memox.template_screen_shell_no_ref_watch",
+        "memox.screen_shell.template_shell_no_ref_watch",
         tmp_path,
         base_scaffold,
     )
@@ -483,7 +483,7 @@ def test_section_widgets_may_watch_provider_state(tmp_path: Path) -> None:
     }
     """
 
-    assert not _violations("memox.template_screen_shell_no_ref_watch", tmp_path, source)
+    assert not _violations("memox.screen_shell.template_shell_no_ref_watch", tmp_path, source)
 
 
 def test_template_screen_shell_ref_watch_escape_hatch_requires_reason(
@@ -502,17 +502,17 @@ def test_template_screen_shell_ref_watch_escape_hatch_requires_reason(
     missing_reason = allowed.replace(" -- reason: route-owned permission state.", "")
 
     assert not _violations(
-        "memox.template_screen_shell_no_ref_watch",
+        "memox.screen_shell.template_shell_no_ref_watch",
         tmp_path,
         allowed,
     )
     assert _violations(
-        "memox.screen_watch_escape_hatch_requires_reason",
+        "memox.screen_shell.watch_escape_hatch_requires_reason",
         tmp_path,
         missing_reason,
     )
     assert not _violations(
-        "memox.screen_watch_escape_hatch_requires_reason",
+        "memox.screen_shell.watch_escape_hatch_requires_reason",
         tmp_path,
         allowed,
     )
@@ -546,9 +546,9 @@ def test_feature_screen_raw_padding_radius_color_is_flagged(tmp_path: Path) -> N
     }
     """
 
-    assert _violations("memox.feature_screen_no_raw_padding_radius_color", tmp_path, bad)
+    assert _violations("memox.screen_shell.no_raw_padding_radius_color", tmp_path, bad)
     assert not _violations(
-        "memox.feature_screen_no_raw_padding_radius_color",
+        "memox.screen_shell.no_raw_padding_radius_color",
         tmp_path,
         good,
     )
@@ -568,7 +568,7 @@ def test_feature_screen_tokenized_edge_insets_are_allowed(tmp_path: Path) -> Non
     """
 
     assert not _violations(
-        "memox.feature_screen_no_raw_padding_radius_color",
+        "memox.screen_shell.no_raw_padding_radius_color",
         tmp_path,
         tokenized,
     )
@@ -596,9 +596,9 @@ def test_base_screen_raw_layout_values_require_review_marker(tmp_path: Path) -> 
     }
     """
 
-    assert _violations("memox.base_screen_no_hardcoded_layout_values", tmp_path, bad)
+    assert _violations("memox.screen_shell.base_template_no_hardcoded_layout_values", tmp_path, bad)
     assert not _violations(
-        "memox.base_screen_no_hardcoded_layout_values",
+        "memox.screen_shell.base_template_no_hardcoded_layout_values",
         tmp_path,
         good,
     )

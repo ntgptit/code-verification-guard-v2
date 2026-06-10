@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: performance
+# Rendering/loading performance: no refetch blanking, builder-based long lists, no heavy
+# collection work in build, cached network images, reviewed intrinsic/shrinkWrap layouts.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-performance
@@ -5,7 +12,7 @@ metadata:
   description: 'Rendering and loading performance: refetch flicker, list building, layout passes, image caching.'
   owner: code-verification-guard
 rules:
-  - id: memox.async_refetch_blanks_screen
+  - id: memox.performance.no_refetch_blank_screen
     type: regex
     severity: error
     enabled: true
@@ -23,7 +30,7 @@ rules:
       - memox
       - coding
       - performance
-  - id: memox.retained_async_state_requires_skeleton
+  - id: memox.performance.retained_async_state_requires_skeleton
     type: regex
     severity: warning
     enabled: true
@@ -42,7 +49,7 @@ rules:
       - memox
       - coding
       - performance
-  - id: memox.image_network_requires_cache
+  - id: memox.performance.network_image_requires_cache
     type: regex
     severity: warning
     enabled: true
@@ -62,7 +69,7 @@ rules:
       - ui
       - performance
       - images
-  - id: memox.intrinsic_layout_requires_review
+  - id: memox.performance.intrinsic_layout_requires_review
     type: regex
     severity: warning
     enabled: true
@@ -84,7 +91,7 @@ rules:
       - ui
       - performance
       - layout
-  - id: memox.scrollable_shrinkwrap_requires_review
+  - id: memox.performance.shrinkwrap_requires_review
     type: regex
     severity: warning
     enabled: true
@@ -105,7 +112,7 @@ rules:
       - ui
       - performance
       - layout
-  - id: memox.long_collection_uses_builder
+  - id: memox.performance.long_lists_use_builder
     type: regex
     severity: warning
     enabled: true
@@ -120,7 +127,7 @@ rules:
       - memox
       - ui
       - performance
-  - id: memox.heavy_collection_work_in_build
+  - id: memox.performance.no_heavy_collection_work_in_build
     type: regex
     severity: warning
     enabled: true

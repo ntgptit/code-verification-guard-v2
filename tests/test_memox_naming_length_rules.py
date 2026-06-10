@@ -57,13 +57,13 @@ def test_local_variable_name_length_flags_outside_range(tmp_path: Path) -> None:
     path = "lib/presentation/features/sample/sample_widget.dart"
 
     assert _violations(
-        "memox.flutter_local_variable_name_length",
+        "memox.coding.local_variable_name_length",
         tmp_path,
         path,
         bad,
     )
     assert not _violations(
-        "memox.flutter_local_variable_name_length",
+        "memox.coding.local_variable_name_length",
         tmp_path,
         path,
         good,
@@ -86,13 +86,13 @@ def test_model_state_field_name_length_flags_outside_range(tmp_path: Path) -> No
     path = "lib/presentation/features/sample/sample_state.dart"
 
     assert _violations(
-        "memox.flutter_model_state_field_name_length",
+        "memox.coding.model_state_field_name_length",
         tmp_path,
         path,
         bad,
     )
     assert not _violations(
-        "memox.flutter_model_state_field_name_length",
+        "memox.coding.model_state_field_name_length",
         tmp_path,
         path,
         good,
@@ -127,13 +127,13 @@ def test_boolean_name_length_flags_outside_range(tmp_path: Path) -> None:
     path = "lib/presentation/features/sample/sample_state.dart"
 
     assert _violations(
-        "memox.flutter_boolean_name_length",
+        "memox.coding.boolean_name_length",
         tmp_path,
         path,
         bad,
     )
     assert not _violations(
-        "memox.flutter_boolean_name_length",
+        "memox.coding.boolean_name_length",
         tmp_path,
         path,
         good,

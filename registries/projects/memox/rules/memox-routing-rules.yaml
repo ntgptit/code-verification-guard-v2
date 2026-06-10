@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: routing
+# Route contract: RoutePaths/RouteNames constants only, the shared BuildContext navigation
+# extension over raw GoRouter/Navigator APIs, and router composition via route registries.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-routing
@@ -6,7 +13,7 @@ metadata:
     composition.'
   owner: code-verification-guard
 rules:
-  - id: memox.shell_fab_no_route_state_coupling
+  - id: memox.routing.shell_fab_no_route_state_coupling
     type: regex
     severity: error
     enabled: true
@@ -24,7 +31,7 @@ rules:
       - routing
       - coding
       - architecture
-  - id: memox.common_navigation_extension_usage
+  - id: memox.routing.use_shared_navigation_extension
     type: regex
     severity: error
     enabled: true
@@ -42,7 +49,7 @@ rules:
       - memox
       - routing
       - architecture
-  - id: memox.raw_navigator_push_usage
+  - id: memox.routing.no_raw_navigator_push
     type: regex
     severity: error
     enabled: true
@@ -57,7 +64,7 @@ rules:
       - memox
       - routing
       - architecture
-  - id: memox.route_definition_outside_router
+  - id: memox.routing.no_route_definition_outside_router
     type: regex
     severity: error
     enabled: true
@@ -73,7 +80,7 @@ rules:
       - memox
       - routing
       - architecture
-  - id: memox.app_router_no_feature_screen_imports
+  - id: memox.routing.app_router_no_feature_screen_imports
     type: regex
     severity: error
     enabled: true
@@ -87,7 +94,7 @@ rules:
       - memox
       - routing
       - architecture
-  - id: routing.no_raw_route_path_string
+  - id: memox.routing.no_raw_route_path_string
     type: regex
     severity: error
     enabled: true
@@ -113,7 +120,7 @@ rules:
       - architecture
     fix:
       hint: Use RoutePaths.* constants or builder methods (e.g. RoutePaths.folderDetail(id)) instead of raw path strings.
-  - id: routing.no_raw_route_name_string
+  - id: memox.routing.no_raw_route_name_string
     type: regex
     severity: error
     enabled: true
@@ -139,7 +146,7 @@ rules:
       - architecture
     fix:
       hint: Replace the string literal with the matching RouteNames.* constant.
-  - id: routing.no_raw_route_param_key
+  - id: memox.routing.no_raw_route_param_key
     type: regex
     severity: error
     enabled: true

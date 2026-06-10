@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: architecture
+# Clean Architecture boundaries: dependency direction (domain ← data, presentation → domain),
+# DI wiring, and data-layer ownership (transactions, DAO/Drift access, raw SQL).
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-architecture
@@ -5,7 +12,7 @@ metadata:
   description: Layering, dependency-direction, DI wiring, and data-boundary rules for MemoX.
   owner: code-verification-guard
 rules:
-  - id: memox.transaction_outside_data_layer
+  - id: memox.architecture.no_transaction_outside_data_layer
     type: regex
     severity: error
     enabled: true
@@ -18,7 +25,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.widget_repository_provider_access
+  - id: memox.architecture.widget_no_repository_provider_access
     type: regex
     severity: error
     enabled: true
@@ -30,7 +37,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.widget_database_layer_import
+  - id: memox.architecture.widget_no_database_import
     type: regex
     severity: error
     enabled: true
@@ -44,7 +51,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.widget_database_query_usage
+  - id: memox.architecture.widget_no_database_query
     type: regex
     severity: error
     enabled: true
@@ -57,7 +64,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.domain_no_flutter_import
+  - id: memox.architecture.domain_no_flutter_import
     type: forbidden_import
     severity: error
     enabled: true
@@ -71,7 +78,7 @@ rules:
       - architecture
     fix:
       hint: Keep domain code framework-independent.
-  - id: memox.domain_no_data_import
+  - id: memox.architecture.domain_no_data_import
     type: forbidden_import
     severity: error
     enabled: true
@@ -86,7 +93,7 @@ rules:
       - architecture
     fix:
       hint: Depend on domain abstractions instead of data implementations.
-  - id: memox.domain_no_presentation_import
+  - id: memox.architecture.domain_no_presentation_import
     type: forbidden_import
     severity: error
     enabled: true
@@ -101,7 +108,7 @@ rules:
       - architecture
     fix:
       hint: Move shared contracts into the domain layer.
-  - id: memox.presentation_no_data_import
+  - id: memox.architecture.presentation_no_data_import
     type: forbidden_import
     severity: error
     enabled: true
@@ -116,7 +123,7 @@ rules:
       - architecture
     fix:
       hint: Access data through application services or use cases.
-  - id: memox.domain_no_flutter_foundation_import
+  - id: memox.architecture.domain_no_flutter_foundation_import
     type: regex
     severity: error
     enabled: true
@@ -128,7 +135,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.presentation_no_dart_io_imports
+  - id: memox.architecture.presentation_no_dart_io_imports
     type: regex
     severity: error
     enabled: true
@@ -141,7 +148,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.presentation_no_broad_dart_ui_imports
+  - id: memox.architecture.presentation_no_broad_dart_ui_imports
     type: regex
     severity: error
     enabled: true
@@ -153,7 +160,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.study_session_widgets_no_progress_formula
+  - id: memox.architecture.study_widgets_no_progress_formula
     type: regex
     severity: error
     enabled: true
@@ -167,7 +174,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.cross_feature_study_provider_imports
+  - id: memox.architecture.no_cross_feature_study_provider_imports
     type: regex
     severity: error
     enabled: true
@@ -183,7 +190,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.centralized_shared_preferences_provider
+  - id: memox.architecture.centralized_shared_preferences_provider
     type: regex
     severity: error
     enabled: true
@@ -198,7 +205,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.core_di_no_ui_imports
+  - id: memox.architecture.core_di_no_ui_imports
     type: regex
     severity: error
     enabled: true
@@ -210,7 +217,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.core_di_no_state_notifiers
+  - id: memox.architecture.core_di_no_state_notifiers
     type: regex
     severity: error
     enabled: true
@@ -222,7 +229,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.ui_direct_dependency_creation
+  - id: memox.architecture.no_direct_dependency_creation
     type: regex
     severity: error
     enabled: true
@@ -240,7 +247,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.feature_provider_direct_infrastructure_access
+  - id: memox.architecture.no_direct_infrastructure_access
     type: regex
     severity: error
     enabled: true
@@ -254,7 +261,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.tts_controller_uses_playback_policy
+  - id: memox.architecture.tts_controller_uses_playback_policy
     type: regex
     severity: error
     enabled: true
@@ -268,7 +275,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.di_provider_export_wrappers
+  - id: memox.architecture.di_no_export_wrappers
     type: regex
     severity: error
     enabled: true
@@ -280,7 +287,7 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.drift_database_must_run_off_main_isolate
+  - id: memox.architecture.drift_database_off_main_isolate
     type: regex
     severity: error
     enabled: true
@@ -300,7 +307,7 @@ rules:
       - architecture
       - performance
       - drift
-  - id: architecture.no_ui_import_data_layer_directly
+  - id: memox.architecture.no_ui_import_data_layer_directly
     type: forbidden_import
     severity: error
     enabled: true
@@ -327,7 +334,7 @@ rules:
     fix:
       hint: Route database access through a use case or repository interface injected via Riverpod. Never import Drift or
         DAO classes directly in presentation code.
-  - id: drift.no_raw_sql_in_ui_or_viewmodel
+  - id: memox.architecture.no_raw_sql_outside_data_layer
     type: regex
     severity: error
     enabled: true

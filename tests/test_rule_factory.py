@@ -21,7 +21,7 @@ def test_create_regex_rule():
 def test_create_dart_shared_widget_doc_rule():
     rule = RuleFactory().create(
         {
-            "id": "flutter.shared_widget.dart_doc.required",
+            "id": "memox.shared_widget_doc.required",
             "type": "dart_shared_widget_doc",
             "severity": "error",
             "enabled": True,

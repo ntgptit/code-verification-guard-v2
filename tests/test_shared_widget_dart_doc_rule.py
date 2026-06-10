@@ -24,26 +24,26 @@ SOURCE_PATH = (
 )
 
 RULE_CASES = [
-    ("flutter.shared_widget.dart_doc.required", "MxMissingDocButton"),
-    ("flutter.shared_widget.dart_doc.summary_required", "MxBrokenButton"),
-    ("flutter.shared_widget.dart_doc.purpose_required", "MxBrokenButton"),
-    ("flutter.shared_widget.dart_doc.use_when_required", "MxBrokenButton"),
-    ("flutter.shared_widget.dart_doc.category_required", "MxBrokenButton"),
-    ("flutter.shared_widget.dart_doc.category_allowed_value", "MxBrokenButton"),
-    ("flutter.shared_widget.dart_doc.public_api_required", "MxBrokenButton"),
-    ("flutter.shared_widget.dart_doc.states_required_when_state_field_exists", "MxBrokenButton"),
-    ("flutter.shared_widget.dart_doc.variants_required_when_variant_field_exists", "MxBrokenButton"),
+    ("memox.shared_widget_doc.required", "MxMissingDocButton"),
+    ("memox.shared_widget_doc.summary_required", "MxBrokenButton"),
+    ("memox.shared_widget_doc.purpose_required", "MxBrokenButton"),
+    ("memox.shared_widget_doc.use_when_required", "MxBrokenButton"),
+    ("memox.shared_widget_doc.category_required", "MxBrokenButton"),
+    ("memox.shared_widget_doc.category_allowed_value", "MxBrokenButton"),
+    ("memox.shared_widget_doc.public_api_required", "MxBrokenButton"),
+    ("memox.shared_widget_doc.states_required_when_state_field_exists", "MxBrokenButton"),
+    ("memox.shared_widget_doc.variants_required_when_variant_field_exists", "MxBrokenButton"),
 ]
 
 EXPECTED_SEVERITIES = {
-    "flutter.shared_widget.dart_doc.summary_required": "warning",
-    "flutter.shared_widget.dart_doc.purpose_required": "warning",
-    "flutter.shared_widget.dart_doc.use_when_required": "warning",
-    "flutter.shared_widget.dart_doc.do_not_use_when_required": "warning",
-    "flutter.shared_widget.dart_doc.category_required": "warning",
-    "flutter.shared_widget.dart_doc.public_api_required": "warning",
-    "flutter.shared_widget.dart_doc.states_required_when_state_field_exists": "warning",
-    "flutter.shared_widget.dart_doc.variants_required_when_variant_field_exists": "warning",
+    "memox.shared_widget_doc.summary_required": "warning",
+    "memox.shared_widget_doc.purpose_required": "warning",
+    "memox.shared_widget_doc.use_when_required": "warning",
+    "memox.shared_widget_doc.do_not_use_when_required": "warning",
+    "memox.shared_widget_doc.category_required": "warning",
+    "memox.shared_widget_doc.public_api_required": "warning",
+    "memox.shared_widget_doc.states_required_when_state_field_exists": "warning",
+    "memox.shared_widget_doc.variants_required_when_variant_field_exists": "warning",
 }
 
 
@@ -152,7 +152,7 @@ def test_do_not_use_when_required_applies_only_to_configured_categories(tmp_path
     """
 
     violations = _run_rule(
-        "flutter.shared_widget.dart_doc.do_not_use_when_required",
+        "memox.shared_widget_doc.do_not_use_when_required",
         tmp_path,
         source,
     )
@@ -185,7 +185,7 @@ def test_do_not_use_when_required_skips_unlisted_categories(tmp_path: Path) -> N
     """
 
     violations = _run_rule(
-        "flutter.shared_widget.dart_doc.do_not_use_when_required",
+        "memox.shared_widget_doc.do_not_use_when_required",
         tmp_path,
         source,
     )
@@ -225,7 +225,7 @@ def test_variant_field_names_still_trigger_variant_rule(
     """
 
     violations = _run_rule(
-        "flutter.shared_widget.dart_doc.variants_required_when_variant_field_exists",
+        "memox.shared_widget_doc.variants_required_when_variant_field_exists",
         tmp_path,
         source,
     )
@@ -261,7 +261,7 @@ def test_size_field_does_not_trigger_variant_rule(tmp_path: Path) -> None:
     """
 
     violations = _run_rule(
-        "flutter.shared_widget.dart_doc.variants_required_when_variant_field_exists",
+        "memox.shared_widget_doc.variants_required_when_variant_field_exists",
         tmp_path,
         source,
     )
@@ -273,7 +273,7 @@ def test_expected_contracts_required_does_not_run_when_disabled(tmp_path: Path) 
     source = _fixture_text("invalid.dart")
 
     violations = _run_disabled_rule(
-        "flutter.shared_widget.dart_doc.expected_contracts_required",
+        "memox.shared_widget_doc.expected_contracts_required",
         tmp_path,
         source,
     )

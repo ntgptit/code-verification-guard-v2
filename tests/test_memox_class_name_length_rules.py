@@ -59,19 +59,19 @@ def test_flutter_class_name_length_flags_names_outside_range(
     path = "lib/presentation/features/sample/sample_screen.dart"
 
     assert _violations(
-        "memox.flutter_class_name_max_length",
+        "memox.coding.class_name_length",
         tmp_path,
         path,
         bad,
     )
     assert _violations(
-        "memox.flutter_class_name_max_length",
+        "memox.coding.class_name_length",
         tmp_path,
         path,
         long_bad,
     )
     assert not _violations(
-        "memox.flutter_class_name_max_length",
+        "memox.coding.class_name_length",
         tmp_path,
         path,
         good,
@@ -88,7 +88,7 @@ def test_flutter_class_name_length_exempts_mx_prefix(tmp_path: Path) -> None:
     path = "lib/presentation/shared/widgets/mx_demo.dart"
 
     assert not _violations(
-        "memox.flutter_class_name_max_length",
+        "memox.coding.class_name_length",
         tmp_path,
         path,
         source,

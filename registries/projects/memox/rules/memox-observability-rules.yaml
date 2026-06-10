@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: observability
+# Logging/monitoring boundaries: AppLogger only (no print/debugPrint), no direct Sentry calls,
+# no sensitive values in log payloads.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-observability
@@ -5,7 +12,7 @@ metadata:
   description: 'Logging and monitoring rules: AppLogger routing, Sentry boundaries, and sensitive log payloads.'
   owner: code-verification-guard
 rules:
-  - id: memox.raw_monitoring_call
+  - id: memox.observability.no_direct_sentry_calls
     type: regex
     severity: error
     enabled: true
@@ -22,7 +29,7 @@ rules:
       - memox
       - observability
       - architecture
-  - id: memox.sensitive_log_payload
+  - id: memox.observability.no_sensitive_log_payload
     type: regex
     severity: error
     enabled: true
@@ -37,7 +44,7 @@ rules:
       - memox
       - observability
       - architecture
-  - id: dart.no_debug_print_in_lib
+  - id: memox.observability.no_debug_print
     type: regex
     severity: error
     enabled: true

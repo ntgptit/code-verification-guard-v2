@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: error_handling
+# Failure taxonomy enforcement: map errors to AppFailure, no low-level exception types on
+# UI/provider surfaces, no swallowed catches, shared MxActionErrors helpers.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-error-handling
@@ -5,7 +12,7 @@ metadata:
   description: Failure mapping, exception surfacing, and error-state rules for MemoX.
   owner: code-verification-guard
 rules:
-  - id: memox.ui_error_stringify
+  - id: memox.error_handling.no_ui_error_stringify
     type: regex
     severity: error
     enabled: true
@@ -18,7 +25,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.ui_low_level_exception_surface
+  - id: memox.error_handling.ui_no_low_level_exceptions
     type: regex
     severity: error
     enabled: true
@@ -34,7 +41,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.provider_low_level_exception_surface
+  - id: memox.error_handling.provider_no_low_level_exceptions
     type: regex
     severity: error
     enabled: true
@@ -50,7 +57,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.provider_async_error_wrapper
+  - id: memox.error_handling.provider_no_async_error_throw
     type: regex
     severity: error
     enabled: true
@@ -63,7 +70,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.provider_raw_async_error_state
+  - id: memox.error_handling.provider_no_raw_async_error_state
     type: regex
     severity: error
     enabled: true
@@ -78,7 +85,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.provider_raw_string_error_state
+  - id: memox.error_handling.provider_no_string_error_state
     type: regex
     severity: error
     enabled: true
@@ -92,7 +99,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.provider_no_unnamed_catch
+  - id: memox.error_handling.provider_no_unnamed_catch
     type: regex
     severity: error
     enabled: true
@@ -106,7 +113,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.no_empty_catch_block
+  - id: memox.error_handling.no_empty_catch_block
     type: regex
     severity: error
     enabled: true
@@ -123,7 +130,7 @@ rules:
     tags:
       - memox
       - error-handling
-  - id: memox.no_throw_raw_exception
+  - id: memox.error_handling.no_throw_raw_exception
     type: regex
     severity: error
     enabled: true
@@ -139,7 +146,7 @@ rules:
     tags:
       - memox
       - error-handling
-  - id: memox.presentation_async_action_controllers_use_runner
+  - id: memox.error_handling.action_controllers_use_runner
     type: regex
     severity: error
     enabled: true
@@ -153,7 +160,7 @@ rules:
       - memox
       - error-handling
       - architecture
-  - id: memox.action_error_extraction_via_helper
+  - id: memox.error_handling.action_error_extraction_via_helper
     type: regex
     severity: error
     enabled: true
@@ -171,7 +178,7 @@ rules:
       - memox
       - state-management
       - error-handling
-  - id: memox.action_error_message_via_helper
+  - id: memox.error_handling.action_error_message_via_helper
     type: regex
     severity: error
     enabled: true

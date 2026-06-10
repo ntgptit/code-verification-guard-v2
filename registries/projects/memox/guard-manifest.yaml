@@ -33,8 +33,8 @@ rules:
   - rules/memox-routing-rules.yaml
   - rules/memox-shared-widget-rules.yaml
   - rules/memox-shared-widget-doc-rules.yaml
-  - rules/memox-hook-rules.yaml
+  - rules/memox-hooks-rules.yaml
   - rules/memox-ui-async-guard-rules.yaml
   - rules/memox-action-density-rules.yaml
-  - rules/memox-guess-sampling-rules.yaml
+  - rules/memox-study-rules.yaml
   - rules/memox-testing-rules.yaml

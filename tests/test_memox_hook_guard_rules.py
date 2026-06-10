@@ -85,25 +85,25 @@ def test_hook_boundary_blocks_hooks_outside_presentation(tmp_path: Path) -> None
     """
 
     assert _violations(
-        "memox.hooks_presentation_only",
+        "memox.hooks.presentation_only",
         tmp_path,
         "lib/domain/sample.dart",
         domain_source,
     )
     assert _violations(
-        "memox.hooks_presentation_only",
+        "memox.hooks.presentation_only",
         tmp_path,
         "lib/data/sample.dart",
         data_source,
     )
     assert _violations(
-        "memox.hooks_presentation_only",
+        "memox.hooks.presentation_only",
         tmp_path,
         "lib/app/router/router.dart",
         router_source,
     )
     assert not _violations(
-        "memox.hooks_presentation_only",
+        "memox.hooks.presentation_only",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         presentation_source,
@@ -135,19 +135,19 @@ def test_shared_hook_declarations_must_use_mx_prefix(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "memox.shared_hook_custom_names_use_mx_prefix",
+        "memox.hooks.custom_hooks_use_mx_prefix",
         tmp_path,
         "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
         bad,
     )
     assert not _violations(
-        "memox.shared_hook_custom_names_use_mx_prefix",
+        "memox.hooks.custom_hooks_use_mx_prefix",
         tmp_path,
         "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
         good,
     )
     assert not _violations(
-        "memox.shared_hook_custom_names_use_mx_prefix",
+        "memox.hooks.custom_hooks_use_mx_prefix",
         tmp_path,
         "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
         safe_calls_only,
@@ -188,19 +188,19 @@ def test_search_field_rule_requires_shared_search_hook_for_owned_controller(
     """
 
     assert _violations(
-        "memox.mx_search_field_uses_shared_search_hook",
+        "memox.hooks.search_field_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         bad,
     )
     assert not _violations(
-        "memox.mx_search_field_uses_shared_search_hook",
+        "memox.hooks.search_field_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         good,
     )
     assert not _violations(
-        "memox.mx_search_field_uses_shared_search_hook",
+        "memox.hooks.search_field_uses_shared_hook",
         tmp_path,
         "lib/presentation/shared/widgets/inputs/mx_search_field.dart",
         shared_widget,
@@ -289,55 +289,55 @@ def test_text_editing_controller_rule_requires_use_mx_hook(
     """
 
     assert _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         bad_stateful,
     )
     assert _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         bad_hook,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         good_mx_text_value,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         good_mx_draft,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/features/flashcards/widgets/flashcard_editor_body.dart",
         controlled_widget,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/shared/contracts/mx_text_input_component.dart",
         contract_interface,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/features/sample/build_input.dart",
         constructor_parameter,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/shared/hooks/mx_text_controller_hooks.dart",
         shared_hook_impl,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/shared/widgets/inputs/mx_text_field.dart",
         shared_input_widget,
@@ -376,13 +376,13 @@ def test_submit_hook_rule_flags_manual_disabled_submit_state(
     )
 
     assert _violations(
-        "memox.text_submit_state_uses_shared_submit_hook",
+        "memox.hooks.submit_state_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         bad,
     )
     assert not _violations(
-        "memox.text_submit_state_uses_shared_submit_hook",
+        "memox.hooks.submit_state_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         good,
@@ -411,13 +411,13 @@ def test_focus_hook_rule_flags_manual_post_frame_focus(tmp_path: Path) -> None:
     )
 
     assert _violations(
-        "memox.post_frame_focus_uses_shared_focus_hook",
+        "memox.hooks.post_frame_focus_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         bad,
     )
     assert not _violations(
-        "memox.post_frame_focus_uses_shared_focus_hook",
+        "memox.hooks.post_frame_focus_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         good,
@@ -426,10 +426,10 @@ def test_focus_hook_rule_flags_manual_post_frame_focus(tmp_path: Path) -> None:
 
 def test_file_mode_hook_rules_use_anchored_lookahead_patterns() -> None:
     rule_ids = {
-        "memox.mx_search_field_uses_shared_search_hook",
-        "memox.text_editing_controller_requires_use_mx_hook",
-        "memox.text_submit_state_uses_shared_submit_hook",
-        "memox.post_frame_focus_uses_shared_focus_hook",
+        "memox.hooks.search_field_uses_shared_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
+        "memox.hooks.submit_state_uses_shared_hook",
+        "memox.hooks.post_frame_focus_uses_shared_hook",
     }
     configs = _rule_configs(rule_ids)
 
@@ -464,31 +464,31 @@ def test_generic_safety_cases_stay_compliant(tmp_path: Path) -> None:
     """
 
     assert not _violations(
-        "memox.hooks_presentation_only",
+        "memox.hooks.presentation_only",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         safe_screen,
     )
     assert not _violations(
-        "memox.mx_search_field_uses_shared_search_hook",
+        "memox.hooks.search_field_uses_shared_hook",
         tmp_path,
         "lib/presentation/shared/widgets/inputs/mx_search_field.dart",
         controlled_widget,
     )
     assert not _violations(
-        "memox.text_editing_controller_requires_use_mx_hook",
+        "memox.hooks.text_controller_requires_mx_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         safe_screen,
     )
     assert not _violations(
-        "memox.text_submit_state_uses_shared_submit_hook",
+        "memox.hooks.submit_state_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         safe_screen,
     )
     assert not _violations(
-        "memox.post_frame_focus_uses_shared_focus_hook",
+        "memox.hooks.post_frame_focus_uses_shared_hook",
         tmp_path,
         "lib/presentation/features/sample/sample_screen.dart",
         safe_screen,

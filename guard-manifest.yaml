@@ -73,8 +73,8 @@ rule_sets:
       - registries/projects/memox/rules/memox-routing-rules.yaml
       - registries/projects/memox/rules/memox-shared-widget-rules.yaml
       - registries/projects/memox/rules/memox-shared-widget-doc-rules.yaml
-      - registries/projects/memox/rules/memox-hook-rules.yaml
+      - registries/projects/memox/rules/memox-hooks-rules.yaml
       - registries/projects/memox/rules/memox-ui-async-guard-rules.yaml
       - registries/projects/memox/rules/memox-action-density-rules.yaml
-      - registries/projects/memox/rules/memox-guess-sampling-rules.yaml
+      - registries/projects/memox/rules/memox-study-rules.yaml
       - registries/projects/memox/rules/memox-testing-rules.yaml

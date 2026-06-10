@@ -45,8 +45,8 @@ def test_crud_screen_class_naming_flags_vague_screen_classes(tmp_path: Path) -> 
     good = bad.replace("DeckImportView", "DeckImportScreen")
     path = "lib/presentation/features/flashcards/screens/deck_import_screen.dart"
 
-    assert _violations("memox.crud_screen_class_naming", tmp_path, path, bad)
-    assert not _violations("memox.crud_screen_class_naming", tmp_path, path, good)
+    assert _violations("memox.coding.crud_screen_class_naming", tmp_path, path, bad)
+    assert not _violations("memox.coding.crud_screen_class_naming", tmp_path, path, good)
 
 
 def test_crud_screen_class_naming_allows_non_entity_overview_names(
@@ -60,7 +60,7 @@ def test_crud_screen_class_naming_allows_non_entity_overview_names(
     """
     path = "lib/presentation/features/folders/screens/library_overview_screen.dart"
 
-    assert not _violations("memox.crud_screen_class_naming", tmp_path, path, source)
+    assert not _violations("memox.coding.crud_screen_class_naming", tmp_path, path, source)
 
 
 def test_crud_viewmodel_controller_naming_flags_vague_controllers(
@@ -75,9 +75,9 @@ def test_crud_viewmodel_controller_naming_flags_vague_controllers(
     good = bad.replace("FlashcardManagerController", "FlashcardActionController")
     path = "lib/presentation/features/flashcards/viewmodels/flashcard_list_viewmodel.dart"
 
-    assert _violations("memox.crud_viewmodel_controller_naming", tmp_path, path, bad)
+    assert _violations("memox.coding.crud_controller_class_naming", tmp_path, path, bad)
     assert not _violations(
-        "memox.crud_viewmodel_controller_naming",
+        "memox.coding.crud_controller_class_naming",
         tmp_path,
         path,
         good,
@@ -97,13 +97,13 @@ def test_crud_command_method_names_must_include_entity(tmp_path: Path) -> None:
     path = "lib/presentation/features/folders/viewmodels/folder_detail_viewmodel.dart"
 
     assert _violations(
-        "memox.crud_command_method_names_include_entity",
+        "memox.coding.crud_command_method_naming",
         tmp_path,
         path,
         bad,
     )
     assert not _violations(
-        "memox.crud_command_method_names_include_entity",
+        "memox.coding.crud_command_method_naming",
         tmp_path,
         path,
         good,
@@ -123,13 +123,13 @@ def test_crud_command_method_names_flag_vague_save(tmp_path: Path) -> None:
     path = "lib/presentation/features/flashcards/viewmodels/flashcard_editor_viewmodel.dart"
 
     assert _violations(
-        "memox.crud_command_method_names_include_entity",
+        "memox.coding.crud_command_method_naming",
         tmp_path,
         path,
         bad,
     )
     assert not _violations(
-        "memox.crud_command_method_names_include_entity",
+        "memox.coding.crud_command_method_naming",
         tmp_path,
         path,
         good,

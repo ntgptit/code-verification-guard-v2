@@ -1,3 +1,9 @@
+# MemoX guard rules — domain: testing
+# Test hygiene: bounded test file size, no undocumented `skip: true`.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-testing
@@ -5,7 +11,7 @@ metadata:
   description: Test hygiene rules for MemoX test suites.
   owner: code-verification-guard
 rules:
-  - id: memox.test_file_lines
+  - id: memox.testing.max_test_file_lines
     type: max_lines
     severity: warning
     enabled: true
@@ -27,7 +33,7 @@ rules:
     fix:
       hint: Split large tests by event boundary or Decision Table case group while keeping row names aligned with the markdown
         Decision Table.
-  - id: test.no_skip_without_reason
+  - id: memox.testing.no_skip_without_reason
     type: regex
     severity: error
     enabled: true

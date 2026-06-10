@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: design_token
+# Token enforcement: raw color/spacing/radius/typography/duration literals are banned outside
+# token/theme definition files; each visual property must use its matching token family.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 
 metadata:
@@ -9,7 +16,7 @@ metadata:
   owner: code-verification-guard
 
 rules:
-  - id: design.no_raw_color_hex_outside_tokens
+  - id: memox.design_token.no_raw_color_hex_outside_tokens
     type: regex
     severity: error
     enabled: true
@@ -31,7 +38,7 @@ rules:
     fix:
       hint: Replace with a named color token (e.g. AppColors.*, scheme.primary) or a ColorScheme accessor from the MemoX Design System.
 
-  - id: design.no_raw_spacing_value
+  - id: memox.design_token.no_raw_spacing_value
     type: regex
     severity: error
     enabled: true
@@ -53,7 +60,7 @@ rules:
     fix:
       hint: "Replace the literal with MxSpace.*, MxGap(...), SpacingTokens.*, ComponentSpacingTokens.*, or an AppLayout spacing token. SizedBox(width: 0) and SizedBox.shrink() are allowed."
 
-  - id: design.no_token_arithmetic_in_ui
+  - id: memox.design_token.no_token_arithmetic_in_ui
     type: regex
     severity: error
     enabled: true
@@ -73,7 +80,7 @@ rules:
     fix:
       hint: 'Add a semantic token instead of computing token values directly in UI code.'
 
-  - id: design.require_icon_size_token
+  - id: memox.design_token.require_icon_size_token
     type: regex
     severity: error
     enabled: true
@@ -93,7 +100,7 @@ rules:
     fix:
       hint: 'Replace Icon(size: N) with IconSizeTokens.*, SizeTokens.icon*, or another named icon size token.'
 
-  - id: design.require_mx_icon_tile_size_token
+  - id: memox.design_token.require_mx_icon_tile_size_token
     type: regex
     severity: error
     enabled: true
@@ -113,7 +120,7 @@ rules:
     fix:
       hint: 'Replace MxIconTile(size: N) with ComponentSizeTokens.*, IconSizeTokens.*, or another named component size token.'
 
-  - id: design.require_visual_box_size_token
+  - id: memox.design_token.require_visual_box_size_token
     type: regex
     severity: error
     enabled: true
@@ -133,7 +140,7 @@ rules:
     fix:
       hint: 'Replace raw visual box sizes with ComponentSizeTokens.*, BorderTokens.*, IconSizeTokens.*, or another named size token.'
 
-  - id: design.no_spacing_token_for_icon_size
+  - id: memox.design_token.no_spacing_token_for_icon_size
     type: regex
     severity: error
     enabled: true
@@ -153,7 +160,7 @@ rules:
     fix:
       hint: 'Replace Icon(size: SpacingTokens.*) with IconSizeTokens.*, SizeTokens.icon*, or another component token.'
 
-  - id: design.no_spacing_token_for_component_size
+  - id: memox.design_token.no_spacing_token_for_component_size
     type: regex
     severity: error
     enabled: true
@@ -173,7 +180,7 @@ rules:
     fix:
       hint: 'Replace component sizes written with SpacingTokens.* with a named component size token.'
 
-  - id: design.no_spacing_token_for_border_width
+  - id: memox.design_token.no_spacing_token_for_border_width
     type: regex
     severity: error
     enabled: true
@@ -194,7 +201,7 @@ rules:
     fix:
       hint: 'Replace SpacingTokens.* border widths with BorderTokens.* or StrokeTokens.*.'
 
-  - id: design.no_spacing_token_for_divider_thickness
+  - id: memox.design_token.no_spacing_token_for_divider_thickness
     type: regex
     severity: error
     enabled: true
@@ -214,7 +221,7 @@ rules:
     fix:
       hint: 'Replace Divider(thickness: SpacingTokens.*) with DividerTokens.* or MxDivider.'
 
-  - id: design.no_spacing_token_for_shadow
+  - id: memox.design_token.no_spacing_token_for_shadow
     type: regex
     severity: error
     enabled: true
@@ -235,7 +242,7 @@ rules:
     fix:
       hint: 'Replace BoxShadow blurRadius/spreadRadius using SpacingTokens.* with ShadowTokens.* or ElevationTokens.*.'
 
-  - id: design.require_border_token
+  - id: memox.design_token.require_border_token
     type: regex
     severity: error
     enabled: true
@@ -255,7 +262,7 @@ rules:
     fix:
       hint: 'Replace Border.all(width: N) with BorderTokens.*, StrokeTokens.*, or another named border token.'
 
-  - id: design.require_shadow_token
+  - id: memox.design_token.require_shadow_token
     type: regex
     severity: error
     enabled: true
@@ -275,7 +282,7 @@ rules:
     fix:
       hint: 'Replace BoxShadow blurRadius/spreadRadius with ShadowTokens.*, ElevationTokens.*, or a named shadow token.'
 
-  - id: design.require_spacing_token_for_edge_insets
+  - id: memox.design_token.require_spacing_token_for_edge_insets
     type: regex
     severity: error
     enabled: true
@@ -302,7 +309,7 @@ rules:
     fix:
       hint: 'Use spacing/component tokens or EdgeInsets.zero instead of raw EdgeInsets values.'
 
-  - id: design.no_raw_radius_value
+  - id: memox.design_token.no_raw_radius_value
     type: regex
     severity: error
     enabled: true
@@ -323,7 +330,7 @@ rules:
     fix:
       hint: 'Replace the literal with AppRadius.*, RadiusTokens.*, or an equivalent named radius constant. BorderRadius.circular(0) is allowed.'
 
-  - id: design.no_raw_text_style_value
+  - id: memox.design_token.no_raw_text_style_value
     type: regex
     severity: error
     enabled: true
@@ -346,7 +353,7 @@ rules:
     fix:
       hint: 'Use MxText(role: ...) or AppTypography.* for typography instead of raw TextStyle in feature code.'
 
-  - id: design.no_raw_duration_value
+  - id: memox.design_token.no_raw_duration_value
     type: regex
     severity: error
     enabled: true

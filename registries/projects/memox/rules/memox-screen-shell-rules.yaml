@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: screen_shell
+# Screen template contract: MxScaffold family as the top-level shell, gutter from the shell
+# (not manual padding), reviewed layout literals, and watch-free template shells.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-screen-shell
@@ -6,7 +13,7 @@ metadata:
     reactivity.'
   owner: code-verification-guard
 rules:
-  - id: memox.feature_screen_no_manual_page_gutter
+  - id: memox.screen_shell.no_manual_page_gutter
     type: regex
     severity: error
     enabled: true
@@ -26,7 +33,7 @@ rules:
       - screen-shell
       - coding
       - architecture
-  - id: memox.feature_screen_uses_mx_screen_shell
+  - id: memox.screen_shell.use_mx_scaffold_family
     type: regex
     severity: warning
     enabled: true
@@ -43,7 +50,7 @@ rules:
       - coding
       - architecture
       - ui-shell
-  - id: memox.feature_screen_no_raw_padding_radius_color
+  - id: memox.screen_shell.no_raw_padding_radius_color
     type: regex
     severity: error
     enabled: true
@@ -65,7 +72,7 @@ rules:
       - coding
       - architecture
       - design_system
-  - id: memox.base_screen_no_hardcoded_layout_values
+  - id: memox.screen_shell.base_template_no_hardcoded_layout_values
     type: regex
     severity: warning
     enabled: true
@@ -89,7 +96,7 @@ rules:
       - coding
       - architecture
       - design_system
-  - id: memox.screen_scaffold
+  - id: memox.screen_shell.no_raw_scaffold
     type: regex
     severity: error
     enabled: true
@@ -102,7 +109,7 @@ rules:
       - memox
       - screen-shell
       - architecture
-  - id: memox.template_screen_shell_no_ref_watch
+  - id: memox.screen_shell.template_shell_no_ref_watch
     type: regex
     severity: warning
     enabled: true
@@ -119,7 +126,7 @@ rules:
       - screen-shell
       - state-management
       - ui-shell
-  - id: memox.screen_watch_escape_hatch_requires_reason
+  - id: memox.screen_shell.watch_escape_hatch_requires_reason
     type: regex
     severity: error
     enabled: true

@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: design_system
+# MemoX Design System usage: shared Mx components instead of raw Material widgets,
+# theme-driven colors/typography, no direct token-source imports in feature code.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-design-system
@@ -5,7 +12,7 @@ metadata:
   description: Shared Mx components over raw Material widgets; theme-driven colors and typography.
   owner: code-verification-guard
 rules:
-  - id: memox.mx_gap_horizontal_constructor_forbidden
+  - id: memox.design_system.no_mx_gap_h_constructor
     type: regex
     severity: error
     enabled: true
@@ -23,7 +30,7 @@ rules:
       - design-system
       - coding
       - architecture
-  - id: memox.feature_bottom_sheet_entrypoint
+  - id: memox.design_system.no_raw_modal_bottom_sheet
     type: regex
     severity: error
     enabled: true
@@ -36,7 +43,7 @@ rules:
       - memox
       - design-system
       - architecture
-  - id: memox.app_bar_usage
+  - id: memox.design_system.no_raw_app_bar
     type: regex
     severity: error
     enabled: true
@@ -49,7 +56,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.floating_action_button_usage
+  - id: memox.design_system.no_raw_fab
     type: regex
     severity: error
     enabled: true
@@ -62,7 +69,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.button_usage
+  - id: memox.design_system.no_raw_button
     type: regex
     severity: error
     enabled: true
@@ -78,7 +85,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.dialog_usage
+  - id: memox.design_system.no_raw_dialog
     type: regex
     severity: error
     enabled: true
@@ -94,7 +101,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.input_usage
+  - id: memox.design_system.no_raw_text_input
     type: regex
     severity: error
     enabled: true
@@ -110,7 +117,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.chip_usage
+  - id: memox.design_system.no_raw_chip
     type: regex
     severity: error
     enabled: true
@@ -127,7 +134,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.icon_button_usage
+  - id: memox.design_system.no_raw_icon_button
     type: regex
     severity: error
     enabled: true
@@ -140,7 +147,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.select_usage
+  - id: memox.design_system.no_raw_dropdown
     type: regex
     severity: error
     enabled: true
@@ -155,7 +162,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.progress_usage
+  - id: memox.design_system.no_raw_progress_indicator
     type: regex
     severity: error
     enabled: true
@@ -169,7 +176,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.divider_usage
+  - id: memox.design_system.no_raw_divider
     type: regex
     severity: error
     enabled: true
@@ -183,7 +190,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.switch_usage
+  - id: memox.design_system.no_raw_switch
     type: regex
     severity: error
     enabled: true
@@ -197,7 +204,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.misc_raw_material_usage
+  - id: memox.design_system.no_raw_misc_material_controls
     type: regex
     severity: error
     enabled: true
@@ -236,7 +243,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.snackbar_usage
+  - id: memox.design_system.no_raw_snackbar
     type: regex
     severity: error
     enabled: true
@@ -249,7 +256,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.popup_menu_button_child_forbidden
+  - id: memox.design_system.no_popup_menu_button_child
     type: regex
     severity: error
     enabled: true
@@ -264,7 +271,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.snackbar_messenger_usage
+  - id: memox.design_system.no_direct_scaffold_messenger
     type: regex
     severity: error
     enabled: true
@@ -277,7 +284,7 @@ rules:
       - memox
       - design-system
       - architecture
-  - id: memox.dialog_entrypoint_usage
+  - id: memox.design_system.no_direct_show_dialog
     type: regex
     severity: error
     enabled: true
@@ -290,7 +297,7 @@ rules:
       - memox
       - design-system
       - architecture
-  - id: memox.text_style
+  - id: memox.design_system.no_raw_text_style
     type: regex
     severity: error
     enabled: true
@@ -303,7 +310,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.ui_direct_color_typography_tokens
+  - id: memox.design_system.no_direct_color_typography_tokens
     type: regex
     severity: error
     enabled: true
@@ -322,7 +329,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.app_no_direct_material_colors
+  - id: memox.design_system.no_material_colors
     type: regex
     severity: error
     enabled: true
@@ -336,7 +343,7 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.presentation_deprecated_with_opacity
+  - id: memox.design_system.no_with_opacity
     type: regex
     severity: error
     enabled: true
@@ -350,13 +357,13 @@ rules:
       - memox
       - design-system
       - design_system
-  - id: memox.feature_theme_token_imports
+  - id: memox.design_system.no_theme_token_imports
     type: regex
     severity: error
     enabled: true
     message: Feature-layer source must not import raw theme source files such as `app_spacing.dart` or `app_radius.dart`;
       consume UI values through theme/context accessors or shared widgets instead. (`app_colors.dart` / `app_typography.dart`
-      imports are covered by `memox.ui_direct_color_typography_tokens` on the wider `ui` scope.)
+      imports are covered by `memox.design_system.no_direct_color_typography_tokens` on the wider `ui` scope.)
     scopes:
       - features
     patterns:
@@ -372,7 +379,7 @@ rules:
       - design-system
       - architecture
       - design_system
-  - id: memox.features_no_direct_text_theme
+  - id: memox.design_system.no_direct_text_theme
     type: regex
     severity: error
     enabled: true
@@ -388,7 +395,7 @@ rules:
       - design-system
       - architecture
       - design_system
-  - id: memox.theme_file_no_riverpod
+  - id: memox.design_system.theme_file_no_riverpod
     type: regex
     severity: error
     enabled: true
@@ -403,7 +410,7 @@ rules:
       - memox
       - design-system
       - architecture
-  - id: memox.no_theme_export_wrappers
+  - id: memox.design_system.no_theme_export_wrappers
     type: regex
     severity: error
     enabled: true
@@ -416,7 +423,7 @@ rules:
       - memox
       - design-system
       - architecture
-  - id: memox.app_bar_header_requires_toolbar_icon_buttons
+  - id: memox.design_system.header_actions_use_toolbar_icon_buttons
     type: regex
     severity: error
     enabled: true
@@ -431,7 +438,7 @@ rules:
       - design-system
       - architecture
       - design_system
-  - id: memox.app_bar_header_no_framed_buttons
+  - id: memox.design_system.header_no_framed_buttons
     type: regex
     severity: error
     enabled: true
@@ -448,7 +455,7 @@ rules:
       - design-system
       - architecture
       - design_system
-  - id: memox.no_raw_ink_surface
+  - id: memox.design_system.no_raw_ink_surface
     type: regex
     severity: error
     enabled: true
@@ -468,7 +475,7 @@ rules:
       - design-system
       - architecture
       - design_system
-  - id: memox.no_raw_card
+  - id: memox.design_system.no_raw_card
     type: regex
     severity: error
     enabled: true

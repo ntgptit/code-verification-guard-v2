@@ -19,7 +19,7 @@ def test_console_reporter_prints_class_name_and_fix_hint() -> None:
     reporter.print(
         [
             Violation(
-                rule_id="flutter.shared_widget.dart_doc.required",
+                rule_id="memox.shared_widget_doc.required",
                 severity="error",
                 message="Shared widget docs are missing.",
                 file_path=Path("lib/presentation/shared/widgets/mx_button.dart"),
@@ -40,7 +40,7 @@ def test_json_reporter_includes_class_name_and_suggested_fix(capsys) -> None:
     JsonReporter().print(
         [
             Violation(
-                rule_id="flutter.shared_widget.dart_doc.required",
+                rule_id="memox.shared_widget_doc.required",
                 severity="error",
                 message="Shared widget docs are missing.",
                 file_path=Path("lib/presentation/shared/widgets/mx_button.dart"),

@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: coding
+# Naming conventions (files, classes, variables, CRUD members), style (no else),
+# and maintainability hygiene (part-of splits, TODO traceability).
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-coding
@@ -5,7 +12,7 @@ metadata:
   description: Naming, style, and maintainability conventions for MemoX source code.
   owner: code-verification-guard
 rules:
-  - id: memox.no_else
+  - id: memox.coding.no_else
     type: regex
     severity: error
     enabled: true
@@ -20,7 +27,7 @@ rules:
       - style
     fix:
       hint: Refactor control flow to return early and flatten nesting.
-  - id: memox.provider_file_naming
+  - id: memox.coding.provider_file_naming
     type: file_name
     severity: error
     enabled: true
@@ -35,7 +42,7 @@ rules:
       - memox
       - coding
       - style
-  - id: memox.crud_screen_class_naming
+  - id: memox.coding.crud_screen_class_naming
     type: regex
     severity: error
     enabled: true
@@ -55,7 +62,7 @@ rules:
       - architecture
       - naming
       - crud
-  - id: memox.crud_viewmodel_controller_naming
+  - id: memox.coding.crud_controller_class_naming
     type: regex
     severity: error
     enabled: true
@@ -74,7 +81,7 @@ rules:
       - architecture
       - naming
       - crud
-  - id: memox.crud_command_method_names_include_entity
+  - id: memox.coding.crud_command_method_naming
     type: regex
     severity: error
     enabled: true
@@ -93,7 +100,7 @@ rules:
       - architecture
       - naming
       - crud
-  - id: memox.flutter_class_name_max_length
+  - id: memox.coding.class_name_length
     type: regex
     severity: warning
     enabled: true
@@ -109,7 +116,7 @@ rules:
       - naming
     fix:
       hint: Keep the class name between 10 and 35 characters.
-  - id: memox.flutter_local_variable_name_length
+  - id: memox.coding.local_variable_name_length
     type: regex
     severity: warning
     enabled: true
@@ -127,7 +134,7 @@ rules:
       - naming
     fix:
       hint: Keep the local variable name between 3 and 18 characters.
-  - id: memox.flutter_model_state_field_name_length
+  - id: memox.coding.model_state_field_name_length
     type: regex
     mode: file
     severity: warning
@@ -146,7 +153,7 @@ rules:
       - naming
     fix:
       hint: Keep the field name between 3 and 22 characters.
-  - id: memox.flutter_boolean_name_length
+  - id: memox.coding.boolean_name_length
     type: regex
     severity: warning
     enabled: true
@@ -168,7 +175,7 @@ rules:
       - naming
     fix:
       hint: Keep the boolean name between 5 and 25 characters.
-  - id: memox.guard_centralized_constants
+  - id: memox.coding.guard_centralized_constants
     type: regex
     severity: error
     enabled: true
@@ -195,7 +202,7 @@ rules:
       - memox
       - coding
       - architecture
-  - id: memox.app_string_normalization_uses_string_utils
+  - id: memox.coding.string_normalization_via_string_utils
     type: regex
     severity: error
     enabled: true
@@ -217,7 +224,7 @@ rules:
       - memox
       - coding
       - architecture
-  - id: comment.no_stale_todo_without_ticket
+  - id: memox.coding.no_stale_todo_without_ticket
     type: regex
     severity: warning
     enabled: true
@@ -234,7 +241,7 @@ rules:
       - maintainability
     fix:
       hint: 'Add a ticket reference (MEMOX-123 / #123) or `-- reason: <why>` on the same line.'
-  - id: memox.screen_part_of_forbidden
+  - id: memox.coding.no_screen_part_of_split
     type: regex
     severity: error
     enabled: true
@@ -248,7 +255,7 @@ rules:
       - coding
       - architecture
       - maintainability
-  - id: memox.screen_file_naming
+  - id: memox.coding.screen_file_naming
     type: file_name
     severity: error
     enabled: true
@@ -260,7 +267,7 @@ rules:
       - memox
       - coding
       - architecture
-  - id: memox.flashcard_editor_widgets_no_part_of
+  - id: memox.coding.flashcard_editor_no_part_of
     type: regex
     severity: error
     enabled: true

@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: ui_async_guard
+# Async race-guard contract for State/ConsumerState: standalone `if (!mounted) return;` guards,
+# `_snapshot` record comparisons instead of ad-hoc helpers, no `mounted` outside the UI layer.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 
 metadata:
@@ -26,7 +33,7 @@ rules:
   # Reason: devs invent names like _isCurrentRequest / _isAlive / _canContinue,
   # which regex cannot bind. Force a `_snapshot` record literal compared inline.
   # ---------------------------------------------------------------------------
-  - id: memox.widget_no_ad_hoc_async_guard
+  - id: memox.ui_async_guard.no_ad_hoc_race_helpers
     type: regex
     severity: error
     enabled: true
@@ -55,7 +62,7 @@ rules:
   #   if (mounted && X)
   # without requiring the entire `if (...)` to fit in a `[^)]*` window.
   # ---------------------------------------------------------------------------
-  - id: memox.widget_no_compound_mounted_check
+  - id: memox.ui_async_guard.no_compound_mounted_check
     type: regex
     severity: error
     enabled: true
@@ -88,7 +95,7 @@ rules:
   # matching identifiers like a domain model named `mounted` (very unlikely but
   # not impossible).
   # ---------------------------------------------------------------------------
-  - id: memox.notifier_no_mounted_leak
+  - id: memox.ui_async_guard.no_mounted_outside_ui
     type: regex
     severity: error
     enabled: true
@@ -123,7 +130,7 @@ rules:
   # Does NOT match (2+ fields, intended use):
   #   final _snapshot = (entryType: widget.entryType, entryRefId: widget.entryRefId);
   # ---------------------------------------------------------------------------
-  - id: memox.widget_snapshot_requires_multiple_fields
+  - id: memox.ui_async_guard.snapshot_requires_multiple_fields
     type: regex
     severity: error
     enabled: true

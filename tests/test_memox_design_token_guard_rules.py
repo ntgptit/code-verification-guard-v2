@@ -70,19 +70,19 @@ def test_token_arithmetic_is_forbidden_in_feature_ui(tmp_path: Path) -> None:
     }
     """
     assert _violations(
-        "design.no_token_arithmetic_in_ui",
+        "memox.design_token.no_token_arithmetic_in_ui",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_token_arithmetic_in_ui",
+        "memox.design_token.no_token_arithmetic_in_ui",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_token_arithmetic_in_ui",
+        "memox.design_token.no_token_arithmetic_in_ui",
         tmp_path,
         token_file,
         relative_path="lib/core/theme/tokens/sample_spacing_tokens.dart",
@@ -127,13 +127,13 @@ def test_edge_insets_must_use_spacing_tokens_or_zero(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.require_spacing_token_for_edge_insets",
+        "memox.design_token.require_spacing_token_for_edge_insets",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_spacing_token_for_edge_insets",
+        "memox.design_token.require_spacing_token_for_edge_insets",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
@@ -160,7 +160,7 @@ def test_icon_size_must_use_icon_tokens_and_not_cross_match(
     """
 
     violations = _violations(
-        "design.require_icon_size_token",
+        "memox.design_token.require_icon_size_token",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
@@ -204,31 +204,31 @@ def test_mx_icon_tile_size_must_use_component_tokens(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.require_mx_icon_tile_size_token",
+        "memox.design_token.require_mx_icon_tile_size_token",
         tmp_path,
         bad_multiline,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
     assert _violations(
-        "design.require_mx_icon_tile_size_token",
+        "memox.design_token.require_mx_icon_tile_size_token",
         tmp_path,
         bad_inline,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
     assert not _violations(
-        "design.require_mx_icon_tile_size_token",
+        "memox.design_token.require_mx_icon_tile_size_token",
         tmp_path,
         good,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
     assert _violations(
-        "design.no_token_arithmetic_in_ui",
+        "memox.design_token.no_token_arithmetic_in_ui",
         tmp_path,
         arithmetic_fail,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
     assert _violations(
-        "design.no_spacing_token_for_component_size",
+        "memox.design_token.no_spacing_token_for_component_size",
         tmp_path,
         spacing_fail,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
@@ -270,19 +270,19 @@ def test_visual_box_size_must_use_component_tokens(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.require_visual_box_size_token",
+        "memox.design_token.require_visual_box_size_token",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_visual_box_size_token",
+        "memox.design_token.require_visual_box_size_token",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_visual_box_size_token",
+        "memox.design_token.require_visual_box_size_token",
         tmp_path,
         gap_layout,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
@@ -304,19 +304,19 @@ def test_icon_size_spacing_token_is_forbidden(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.no_spacing_token_for_icon_size",
+        "memox.design_token.no_spacing_token_for_icon_size",
         tmp_path,
         bad_multiline,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
     assert _violations(
-        "design.no_spacing_token_for_icon_size",
+        "memox.design_token.no_spacing_token_for_icon_size",
         tmp_path,
         bad_inline,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_icon_size",
+        "memox.design_token.no_spacing_token_for_icon_size",
         tmp_path,
         good,
         relative_path="lib/presentation/shared/dialogs/mx_folder_delete_dialog.dart",
@@ -392,43 +392,43 @@ def test_border_width_spacing_token_is_forbidden(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.no_spacing_token_for_border_width",
+        "memox.design_token.no_spacing_token_for_border_width",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_border_width",
+        "memox.design_token.no_spacing_token_for_border_width",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert _violations(
-        "design.require_border_token",
+        "memox.design_token.require_border_token",
         tmp_path,
         bad_side,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_border_width",
+        "memox.design_token.no_spacing_token_for_border_width",
         tmp_path,
         color_only,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_border_width",
+        "memox.design_token.no_spacing_token_for_border_width",
         tmp_path,
         side_color_only,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_border_token",
+        "memox.design_token.require_border_token",
         tmp_path,
         color_only,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_border_token",
+        "memox.design_token.require_border_token",
         tmp_path,
         side_color_only,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
@@ -462,13 +462,13 @@ def test_divider_thickness_spacing_token_is_forbidden(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.no_spacing_token_for_divider_thickness",
+        "memox.design_token.no_spacing_token_for_divider_thickness",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_divider_thickness",
+        "memox.design_token.no_spacing_token_for_divider_thickness",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
@@ -523,19 +523,19 @@ def test_shadow_token_is_required_inside_box_shadow(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "design.require_shadow_token",
+        "memox.design_token.require_shadow_token",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_shadow_token",
+        "memox.design_token.require_shadow_token",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_shadow_token",
+        "memox.design_token.require_shadow_token",
         tmp_path,
         global_shadow,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
@@ -557,49 +557,49 @@ def test_spacing_gap_sizedbox_with_token_is_allowed(tmp_path: Path) -> None:
     """
 
     assert not _violations(
-        "design.require_icon_size_token",
+        "memox.design_token.require_icon_size_token",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_mx_icon_tile_size_token",
+        "memox.design_token.require_mx_icon_tile_size_token",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.require_visual_box_size_token",
+        "memox.design_token.require_visual_box_size_token",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_icon_size",
+        "memox.design_token.no_spacing_token_for_icon_size",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_component_size",
+        "memox.design_token.no_spacing_token_for_component_size",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_border_width",
+        "memox.design_token.no_spacing_token_for_border_width",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_divider_thickness",
+        "memox.design_token.no_spacing_token_for_divider_thickness",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "design.no_spacing_token_for_shadow",
+        "memox.design_token.no_spacing_token_for_shadow",
         tmp_path,
         source,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
@@ -608,7 +608,7 @@ def test_spacing_gap_sizedbox_with_token_is_allowed(tmp_path: Path) -> None:
 
 def test_raw_divider_dimensions_are_forbidden(tmp_path: Path) -> None:
     # Raw Divider usage in feature code (any constructor call, including raw
-    # height/thickness values) is covered by memox.divider_usage; the former
+    # height/thickness values) is covered by memox.design_system.no_raw_divider; the former
     # design.require_divider_token rule was merged into it.
     bad = """
     class SampleScreen extends StatelessWidget {
@@ -637,13 +637,13 @@ def test_raw_divider_dimensions_are_forbidden(tmp_path: Path) -> None:
     """
 
     assert _violations(
-        "memox.divider_usage",
+        "memox.design_system.no_raw_divider",
         tmp_path,
         bad,
         relative_path="lib/presentation/features/sample/sample_screen.dart",
     )
     assert not _violations(
-        "memox.divider_usage",
+        "memox.design_system.no_raw_divider",
         tmp_path,
         good,
         relative_path="lib/presentation/features/sample/sample_screen.dart",

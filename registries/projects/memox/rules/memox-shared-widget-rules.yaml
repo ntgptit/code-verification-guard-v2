@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: shared_widget
+# Shared widget (Mx*) contract: mx_* file names, Mx* public types, provider/app-wiring-free
+# internals, bounded build methods, and shaped ink overlays.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-shared-widget
@@ -5,7 +12,7 @@ metadata:
   description: 'Shared widget (Mx*) contract: naming, purity, API shape, build size, and interaction overlays.'
   owner: code-verification-guard
 rules:
-  - id: memox.shared_widget_file_naming
+  - id: memox.shared_widget.file_naming_mx_prefix
     type: file_name
     severity: error
     enabled: true
@@ -17,7 +24,7 @@ rules:
       - memox
       - shared-widget
       - architecture
-  - id: memox.shared_widget_public_type_prefix
+  - id: memox.shared_widget.public_type_mx_prefix
     type: regex
     severity: error
     enabled: true
@@ -32,7 +39,7 @@ rules:
       - memox
       - shared-widget
       - architecture
-  - id: memox.shared_widget_no_app_wiring
+  - id: memox.shared_widget.no_app_wiring
     type: regex
     severity: error
     enabled: true
@@ -54,7 +61,7 @@ rules:
       - memox
       - shared-widget
       - architecture
-  - id: memox.shared_widget_no_public_mx_text_role_api
+  - id: memox.shared_widget.no_public_mx_text_role_api
     type: regex
     severity: error
     enabled: true
@@ -68,7 +75,7 @@ rules:
       - shared-widget
       - architecture
       - design_system
-  - id: memox.ink_must_have_shape
+  - id: memox.shared_widget.ink_must_have_shape
     type: regex
     severity: error
     enabled: true
@@ -84,7 +91,7 @@ rules:
       - shared-widget
       - architecture
       - design_system
-  - id: memox.shared_widget_build_lines
+  - id: memox.shared_widget.build_method_max_lines
     type: max_build_lines
     severity: warning
     enabled: true

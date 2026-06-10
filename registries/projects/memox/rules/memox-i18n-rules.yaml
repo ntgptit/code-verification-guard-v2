@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: i18n
+# Localization: no hardcoded user-facing strings in UI code; all copy flows through
+# generated AppLocalizations (context.l10n) backed by ARB resources.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 metadata:
   id: memox-i18n
@@ -5,12 +12,12 @@ metadata:
   description: No hardcoded user-facing strings; route all copy through generated l10n resources.
   owner: code-verification-guard
 rules:
-  - id: memox.no_hardcoded_string
+  - id: memox.i18n.no_hardcoded_strings
     type: regex
     severity: error
     enabled: true
     message: Avoid user-facing hardcoded strings in feature render, app layout, and shell code. (Inline `vi:` / `en:` locale
-      pair strings are covered by `memox.no_inline_locale_pair_strings`.)
+      pair strings are covered by `memox.i18n.no_inline_locale_pair_strings`.)
     scopes:
       - feature_ui
       - app_ui
@@ -22,7 +29,7 @@ rules:
     tags:
       - memox
       - i18n
-  - id: memox.no_inline_locale_pair_strings
+  - id: memox.i18n.no_inline_locale_pair_strings
     type: regex
     severity: error
     enabled: true
@@ -35,13 +42,13 @@ rules:
     tags:
       - memox
       - i18n
-  - id: l10n.no_hardcoded_user_text
+  - id: memox.i18n.no_hardcoded_input_decoration_text
     type: regex
     severity: error
     enabled: true
     message: Hardcoded user-visible text in `hintText`, `helperText`, `labelText`, `errorText`, `placeholderText`, or `semanticsLabel`
       named parameters must not appear in UI code. Use `AppLocalizations` (via `context.l10n`) for all user-facing strings
-      so the app stays translatable and copy-editable from a single source. Complements `memox.no_hardcoded_string` which
+      so the app stays translatable and copy-editable from a single source. Complements `memox.i18n.no_hardcoded_strings` which
       covers `Text(...)` and common widget labels.
     scopes:
       - feature_ui

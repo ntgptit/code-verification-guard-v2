@@ -1,3 +1,10 @@
+# MemoX guard rules — domain: hooks
+# Flutter hooks contract: hooks live in presentation only, custom hooks use the useMx prefix,
+# and text/search/submit/focus wiring goes through the shared useMx* hooks.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
 version: 1
 
 metadata:
@@ -7,7 +14,7 @@ metadata:
   owner: code-verification-guard
 
 rules:
-  - id: memox.shared_hook_custom_names_use_mx_prefix
+  - id: memox.hooks.custom_hooks_use_mx_prefix
     type: regex
     mode: line
     severity: error
@@ -29,7 +36,7 @@ rules:
     fix:
       hint: Rename the custom shared hook to useMx<FeatureName>... and keep built-in hook calls unchanged.
 
-  - id: memox.hooks_presentation_only
+  - id: memox.hooks.presentation_only
     type: regex
     mode: line
     severity: error
@@ -57,7 +64,7 @@ rules:
     fix:
       hint: Move hook usage into presentation widgets or replace it with a non-hook abstraction outside lib/presentation/**.
 
-  - id: memox.mx_search_field_uses_shared_search_hook
+  - id: memox.hooks.search_field_uses_shared_hook
     type: regex
     mode: file
     severity: error
@@ -80,7 +87,7 @@ rules:
     fix:
       hint: Replace local search controller wiring with useMxSearchController so clear/query sync stays centralized.
 
-  - id: memox.text_editing_controller_requires_use_mx_hook
+  - id: memox.hooks.text_controller_requires_mx_hook
     type: regex
     mode: file
     severity: error
@@ -105,7 +112,7 @@ rules:
     fix:
       hint: Move TextEditingController ownership into a useMx... hook or use an existing MemoX hook such as useMxTextValue, useMxTextSubmitState, or useMxSearchController instead.
 
-  - id: memox.text_submit_state_uses_shared_submit_hook
+  - id: memox.hooks.submit_state_uses_shared_hook
     type: regex
     mode: file
     severity: warning
@@ -127,7 +134,7 @@ rules:
     fix:
       hint: Derive submit enabled state with useMxTextSubmitState so hook-based forms stay consistent.
 
-  - id: memox.post_frame_focus_uses_shared_focus_hook
+  - id: memox.hooks.post_frame_focus_uses_shared_hook
     type: regex
     mode: file
     severity: warning
