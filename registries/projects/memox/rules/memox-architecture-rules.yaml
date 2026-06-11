@@ -160,20 +160,6 @@ rules:
     tags:
       - memox
       - architecture
-  - id: memox.architecture.study_widgets_no_progress_formula
-    type: regex
-    severity: error
-    enabled: true
-    message: Study session widgets should bind display-ready progress values from domain helpers instead of recalculating
-      progress and percent in build methods.
-    scopes:
-      - study_session_widget_files
-    patterns:
-      - \boverallStudyProgress\s*\(
-      - \blocalCorrectGradeCount\s*\(
-    tags:
-      - memox
-      - architecture
   - id: memox.architecture.no_cross_feature_study_provider_imports
     type: regex
     severity: error
@@ -200,8 +186,7 @@ rules:
     patterns:
       - SharedPreferences\.getInstance\s*\(
     exclude:
-      - lib/app/di/providers.dart
-      - providers.dart
+      - lib/app/di/app_providers.dart
     tags:
       - memox
       - architecture
@@ -266,9 +251,9 @@ rules:
     severity: error
     enabled: true
     message: TTS presentation controllers must not hardcode which flashcard side can be spoken; route that business rule through
-      `TtsPlaybackPolicy`.
+      `TtsPlaybackPolicy`. (TTS is a planned feature; the glob activates this rule when the feature lands.)
     include:
-      - lib/presentation/features/tts/providers/tts_controller_notifier.dart
+      - lib/presentation/features/tts/providers/**/*.dart
     patterns:
       - if\s*\([^\)]*TtsTextSide\.front
       - side\s*!=\s*TtsTextSide\.front

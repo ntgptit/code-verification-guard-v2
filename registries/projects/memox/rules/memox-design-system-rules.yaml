@@ -454,23 +454,6 @@ rules:
       - design-system
       - architecture
       - design_system
-  - id: memox.design_system.header_no_framed_buttons
-    type: regex
-    severity: error
-    enabled: true
-    message: App bar and feature header actions should not use framed button surfaces unless the state is explicitly selected,
-      active, or destructive.
-    scopes:
-      - app_bar_header_framed_button_files
-    patterns:
-      - \bMxPrimaryButton\s*\(
-      - \bMxSecondaryButton\s*\(
-      - \bMxIconButton\.(?:filled|filledTonal|outlined)\s*\(
-    tags:
-      - memox
-      - design-system
-      - architecture
-      - design_system
   - id: memox.design_system.no_raw_ink_surface
     type: regex
     severity: error

@@ -174,7 +174,7 @@ rules:
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
-      - lib/presentation/shared/viewmodels/mx_action_errors.dart
+      - '**/mx_action_errors.dart'
     patterns:
       - error\s+is\s+AppFailure\s*\?\s*error\s*:\s*null
     tags:
@@ -192,7 +192,7 @@ rules:
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
-      - lib/presentation/shared/viewmodels/mx_action_errors.dart
+      - '**/mx_action_errors.dart'
     patterns:
       - failure\.cause\s+case\s+final\s+ValidationException
     tags:

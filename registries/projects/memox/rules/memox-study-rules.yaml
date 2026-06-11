@@ -21,8 +21,10 @@ rules:
     message: >-
       study_session_notifier.dart must not own Guess decoy sampling. Keep
       Random/shuffle/take option sampling in the domain GuessOptionBuilder.
+      (Guess mode is a planned feature; the glob activates this rule when the
+      notifier lands.)
     include:
-      - lib/presentation/features/study/providers/study_session_notifier.dart
+      - lib/presentation/features/study/**/study_session_notifier.dart
     patterns:
       - "import\\s+'dart:math'"
       - "\\bRandom\\s*\\("

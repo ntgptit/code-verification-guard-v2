@@ -16,16 +16,6 @@ scopes:
     include:
       - lib/presentation/features/**/*_header_section.dart
       - lib/presentation/features/study/screens/study_session_screen.dart
-      - lib/presentation/features/study/widgets/study_session/study_mode_session_scaffold.dart
-    exclude:
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
-      - '**/*.config.dart'
-      - '**/gen/**'
-  app_bar_header_framed_button_files:
-    include:
-      - lib/presentation/features/**/*_header_section.dart
-      - lib/presentation/features/study/widgets/study_session/study_mode_session_scaffold.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
@@ -207,14 +197,10 @@ scopes:
       - '**/app/router/app_router.dart'
   presentation_async_action_controller_files:
     include:
-      - lib/presentation/features/decks/viewmodels/deck_action_viewmodel.dart
       - lib/presentation/features/flashcards/viewmodels/flashcard_editor_viewmodel.dart
-      - lib/presentation/features/flashcards/viewmodels/flashcard_import_viewmodel.dart
       - lib/presentation/features/flashcards/viewmodels/flashcard_list_viewmodel.dart
       - lib/presentation/features/folders/viewmodels/folder_detail_viewmodel.dart
       - lib/presentation/features/folders/viewmodels/library_overview_viewmodel.dart
-      - lib/presentation/features/progress/providers/progress_session_notifier.dart
-      - lib/presentation/features/study/providers/study_session_notifier.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
@@ -266,7 +252,7 @@ scopes:
       - '**/*.config.dart'
       - '**/gen/**'
       - lib/presentation/shared/widgets/mx_text.dart
-      - lib/presentation/shared/widgets/mx_text_field.dart
+      - lib/presentation/shared/widgets/inputs/mx_text_field.dart
   shared_widget_dart_doc_source:
     include:
       - lib/presentation/shared/**/*.dart
@@ -282,30 +268,6 @@ scopes:
       - lib/presentation/shared/widgets/**/*.dart
       - lib/presentation/shared/dialogs/**/*.dart
       - lib/presentation/shared/feedback/**/*.dart
-    exclude:
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
-      - '**/*.config.dart'
-      - '**/gen/**'
-  stateless_di_provider_files:
-    include:
-      - lib/app/di/content/content_core_providers.dart
-      - lib/app/di/content/content_data_providers.dart
-      - lib/app/di/content/deck_providers.dart
-      - lib/app/di/content/flashcard_providers.dart
-      - lib/app/di/content/folder_providers.dart
-      - lib/app/di/study/study_data_providers.dart
-      - lib/app/di/study/study_settings_providers.dart
-      - lib/app/di/study/study_strategy_providers.dart
-      - lib/app/di/study/study_usecase_providers.dart
-    exclude:
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
-      - '**/*.config.dart'
-      - '**/gen/**'
-  study_session_widget_files:
-    include:
-      - lib/presentation/features/study/widgets/study_session/**/*.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'

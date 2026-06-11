@@ -158,11 +158,13 @@ rules:
     severity: error
     enabled: true
     message: Widget files must not subscribe to direct `.watch()` streams; stream data should be normalized behind a provider
-      and the widget should only use `ref.watch(...)`.
+      and the widget should only use `ref.watch(...)`. (File mode so formatter-wrapped `ref\n.watch(...)` chains are not
+      false-flagged.)
     scopes:
       - widget_ui_files
+    mode: file
     patterns:
-      - (?<!ref)\.watch\s*\(
+      - \b(?!ref\b)[a-zA-Z_][a-zA-Z0-9_]*\s*\.\s*watch\s*\(
     tags:
       - memox
       - state-management
@@ -317,7 +319,7 @@ rules:
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
-      - lib/presentation/shared/viewmodels/mx_async_draft.dart
+      - '**/mx_async_draft.dart'
     patterns:
       - AsyncData\(\s*:\s*final\s+value\s*\)\s*=>\s*value\s*,\s*_\s*=>\s*null
     tags:

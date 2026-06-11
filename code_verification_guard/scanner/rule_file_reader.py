@@ -54,14 +54,15 @@ class RuleFileReader:
 
     def read_rule_file(self, file_path: Path) -> RuleFile:
         """Read a text file as a rule target."""
-        resolved_path = file_path.resolve()
-
-        if resolved_path in self._rule_file_cache:
-            return self._rule_file_cache[resolved_path]
+        # Target paths all come from one FileScanner walk, so they are already
+        # canonical; resolving here would cost one filesystem syscall per call
+        # even on cache hits.
+        if file_path in self._rule_file_cache:
+            return self._rule_file_cache[file_path]
 
         content = self.read_text(file_path)
         rule_file = RuleFile(path=file_path, lines=content.splitlines(), content=content)
-        self._rule_file_cache[resolved_path] = rule_file
+        self._rule_file_cache[file_path] = rule_file
         return rule_file
 
     def read_text(self, file_path: Path) -> str:
