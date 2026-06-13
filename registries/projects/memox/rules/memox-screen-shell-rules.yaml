@@ -33,6 +33,38 @@ rules:
       - screen-shell
       - coding
       - architecture
+  - id: memox.screen_shell.no_redundant_content_shell
+    type: regex
+    severity: error
+    enabled: true
+    message: 'MxScaffold/MxListScaffold/MxFormScaffold/MxStudyScaffold already wrap the body in `MxContentShell` (the page
+      gutter + max-width cap). Feature screens/widgets must NOT wrap their content in another `MxContentShell` — it double-gutters
+      and misaligns the screen against the rest of the app. Let the shell own the horizontal gutter; add only vertical spacing
+      in the body. If a screen uses `MxScaffold(useShell: false)` or genuinely needs a nested width cap, add `// guard:allow-content-shell
+      -- reason: ...` on the same line or the line immediately after.'
+    scopes:
+      - feature_ui
+    patterns:
+      - (?s)\bMxContentShell\s*\((?![^\n]*guard:allow-content-shell\s+--\s+reason:\s*\S)(?![^\n]*\n[^\n]*guard:allow-content-shell\s+--\s+reason:\s*\S)
+    mode: file
+    tags:
+      - memox
+      - screen-shell
+      - design_system
+      - ui-shell
+  - id: memox.screen_shell.content_shell_escape_hatch_requires_reason
+    type: regex
+    severity: error
+    enabled: true
+    message: '`guard:allow-content-shell` must include `-- reason: ...` so the nested-shell exception stays reviewed.'
+    scopes:
+      - feature_ui
+    patterns:
+      - guard:allow-content-shell(?!\s+--\s+reason:\s*\S)
+    tags:
+      - memox
+      - screen-shell
+      - ui-shell
   - id: memox.screen_shell.use_mx_scaffold_family
     type: regex
     severity: warning
