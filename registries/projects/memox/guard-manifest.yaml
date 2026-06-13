@@ -21,6 +21,7 @@ rules:
   - rules/memox-architecture-rules.yaml
   - rules/memox-coding-rules.yaml
   - rules/memox-dart-convention-rules.yaml
+  - rules/memox-layer-naming-rules.yaml
   - rules/memox-state-management-rules.yaml
   - rules/memox-error-handling-rules.yaml
   - rules/memox-observability-rules.yaml

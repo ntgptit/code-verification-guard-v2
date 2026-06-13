@@ -1,0 +1,247 @@
+# MemoX guard rules — domain: layer_naming
+# Per-folder / per-layer file-name and class-name control. Each Clean-Architecture
+# layer owns a file suffix and a matching public-class suffix; this file binds those
+# conventions to the folder where the layer lives so a misnamed file or class is
+# rejected at the gate instead of drifting.
+#
+# Scope split (deliberate, no overlap with sibling files):
+#   - snake_case for ALL lib/ files ......... memox.dart_convention.file_name_snake_case
+#   - screens/  file + entity class ......... memox.coding.screen_file_naming / .crud_screen_class_naming
+#   - viewmodels/ + providers/ + di file .... memox.coding.provider_file_naming / .crud_controller_class_naming
+#   - shared/ Mx* file + Mx* public type .... memox.shared_widget.file_naming_mx_prefix / .public_type_mx_prefix
+#   - THIS FILE: usecases, domain repositories, daos, mappers, migrations, routes,
+#                and data repository implementations.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). These rules use inline include/exclude on purpose so a new
+# layer scope does not have to be kept in sync across both scope files. See README.md.
+version: 1
+metadata:
+  id: memox-layer-naming
+  name: MemoX Layer Naming Rules
+  description: Per-folder file-name and public-class-name suffix control for each Clean Architecture layer.
+  owner: code-verification-guard
+rules:
+  # ── domain/usecases ────────────────────────────────────────────────────────
+  - id: memox.layer_naming.usecase_file_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: Files in `lib/domain/usecases/**` must use the `_usecase.dart` suffix (or `_usecases.dart` for a file that
+      intentionally groups several use cases). The suffix advertises the layer and keeps the file name aligned with the
+      `UseCase` class it owns.
+    include:
+      - lib/domain/usecases/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: ^[a-z0-9_]+_usecases?\.dart$
+    tags:
+      - memox
+      - layer-naming
+      - naming
+    fix:
+      hint: Rename to `<verb>_<entity>_usecase.dart` (single use case) or `<feature>_usecases.dart` (grouped).
+  - id: memox.layer_naming.usecase_class_suffix
+    type: regex
+    severity: error
+    enabled: true
+    message: Public classes declared in `lib/domain/usecases/**` must use the `UseCase` suffix (e.g. `CreateDeckUseCase`).
+      Result/param types belong in `lib/domain/models/**`, not in the use-case file.
+    include:
+      - lib/domain/usecases/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!_)(?!\w*UseCase\b)[A-Z]\w*
+    tags:
+      - memox
+      - layer-naming
+      - naming
+    fix:
+      hint: Rename the class to end with `UseCase`, or move a non-use-case type to `lib/domain/models/**`.
+
+  # ── domain/repositories (interfaces) ────────────────────────────────────────
+  - id: memox.layer_naming.repository_interface_file_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: Repository interface files in `lib/domain/repositories/**` must use the `_repository.dart` suffix.
+    include:
+      - lib/domain/repositories/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: ^[a-z0-9_]+_repository\.dart$
+    tags:
+      - memox
+      - layer-naming
+      - naming
+    fix:
+      hint: Rename to `<entity>_repository.dart`.
+  - id: memox.layer_naming.repository_interface_class_suffix
+    type: regex
+    severity: error
+    enabled: true
+    message: Public types declared in `lib/domain/repositories/**` must use the `Repository` suffix and should be declared
+      `abstract interface class <Entity>Repository`.
+    include:
+      - lib/domain/repositories/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!_)(?!\w*Repository\b)[A-Z]\w*
+    tags:
+      - memox
+      - layer-naming
+      - naming
+    fix:
+      hint: Rename the interface to end with `Repository`.
+
+  # ── data/datasources/local/daos ─────────────────────────────────────────────
+  - id: memox.layer_naming.dao_file_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: Drift DAO files in `lib/data/datasources/local/daos/**` must use the `_dao.dart` suffix.
+    include:
+      - lib/data/datasources/local/daos/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: ^[a-z0-9_]+_dao\.dart$
+    tags:
+      - memox
+      - layer-naming
+      - naming
+      - drift
+    fix:
+      hint: Rename to `<entity>_dao.dart`.
+  - id: memox.layer_naming.dao_class_suffix
+    type: regex
+    severity: error
+    enabled: true
+    message: Public classes in DAO files must carry `Dao` in the name (`FlashcardDao`, `FlashcardDaoManager`). A class that
+      does not mention `Dao` does not belong in `lib/data/datasources/local/daos/**`.
+    include:
+      - lib/data/datasources/local/daos/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!_)(?!\w*Dao)[A-Z]\w*
+    tags:
+      - memox
+      - layer-naming
+      - naming
+      - drift
+    fix:
+      hint: Rename the class so it contains `Dao`, or move a non-DAO type out of the daos folder.
+
+  # ── data/mappers ────────────────────────────────────────────────────────────
+  - id: memox.layer_naming.mapper_file_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: Entity-row mapper files in `lib/data/mappers/**` must use the `_mapper.dart` suffix.
+    include:
+      - lib/data/mappers/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: ^[a-z0-9_]+_mapper\.dart$
+    tags:
+      - memox
+      - layer-naming
+      - naming
+    fix:
+      hint: Rename to `<entity>_mapper.dart`.
+  - id: memox.layer_naming.mapper_class_suffix
+    type: regex
+    severity: error
+    enabled: true
+    message: Public classes in `lib/data/mappers/**` must use the `Mapper` suffix and should be declared
+      `abstract final class <Entity>Mapper`.
+    include:
+      - lib/data/mappers/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!_)(?!\w*Mapper\b)[A-Z]\w*
+    tags:
+      - memox
+      - layer-naming
+      - naming
+    fix:
+      hint: Rename the class to end with `Mapper`.
+
+  # ── data/datasources/local/migrations ───────────────────────────────────────
+  - id: memox.layer_naming.migration_file_prefix
+    type: file_name
+    severity: error
+    enabled: true
+    message: Migration step files in `lib/data/datasources/local/migrations/**` must be named `v<N>_<description>.dart`
+      (e.g. `v8_add_flashcard_pos_and_flag.dart`) so the schema-version order is unambiguous.
+    include:
+      - lib/data/datasources/local/migrations/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: ^v[0-9]+_[a-z0-9_]+\.dart$
+    tags:
+      - memox
+      - layer-naming
+      - naming
+      - drift
+    fix:
+      hint: Rename the file to `v<schemaVersion>_<snake_case_description>.dart`.
+
+  # ── presentation/features/<feature>/routes ──────────────────────────────────
+  - id: memox.layer_naming.route_file_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: Feature route-definition files in `lib/presentation/features/*/routes/**` must use the `_routes.dart` suffix.
+    include:
+      - lib/presentation/features/*/routes/*.dart
+      - lib/presentation/features/*/routes/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: ^[a-z0-9_]+_routes\.dart$
+    tags:
+      - memox
+      - layer-naming
+      - naming
+      - routing
+    fix:
+      hint: Rename to `<feature>_routes.dart`.
+
+  # ── data/repositories (implementations) ─────────────────────────────────────
+  # Existing impl names are mixed (`_repository_impl`, `_repo_impl`, split helpers,
+  # `study_repo_record_answer`), so this stays a warning: it only requires the file to
+  # mention `repo`. Promote to error once every impl file is renamed to the canonical
+  # `<entity>_repository_impl.dart` (and `flashcard_export_writer.dart` is relocated).
+  - id: memox.layer_naming.repository_impl_file_token
+    type: file_name
+    severity: warning
+    enabled: true
+    message: Repository implementation files in `lib/data/repositories/**` should make their layer obvious by including
+      `repo` in the file name (canonical form `<entity>_repository_impl.dart`). Non-repository helpers do not belong here.
+    include:
+      - lib/data/repositories/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/data/repositories/flashcard_export_writer.dart
+    pattern: ^[a-z0-9_]*repo[a-z0-9_]*\.dart$
+    tags:
+      - memox
+      - layer-naming
+      - naming
+    fix:
+      hint: Rename to `<entity>_repository_impl.dart`, or move a non-repository helper to a more appropriate folder.
