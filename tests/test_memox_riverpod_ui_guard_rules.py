@@ -246,6 +246,21 @@ def test_command_provider_repository_rule_allows_reactive_build(
     assert not _violations("memox.state_management.command_no_repository_ref_watch", tmp_path, source)
 
 
+def test_query_provider_keep_alive_review_rule_is_a_warning_and_matches_read_models(
+    tmp_path: Path,
+) -> None:
+    bad = """
+    @riverpod
+    Future<DashboardState> dashboard(Ref ref) async {
+      return DashboardState();
+    }
+    """
+    rule = _rule_config("memox.state_management.query_provider_keep_alive_review")
+
+    assert rule["severity"] == "warning"
+    assert _violations("memox.state_management.query_provider_keep_alive_review", tmp_path, bad)
+
+
 def test_data_driven_lists_should_use_builder(tmp_path: Path) -> None:
     bad = """
     Widget build(BuildContext context) {

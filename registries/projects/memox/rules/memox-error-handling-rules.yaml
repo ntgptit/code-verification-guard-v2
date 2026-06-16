@@ -279,3 +279,45 @@ rules:
       - lifecycle
     fix:
       hint: Change the return type to Future<void>; callers that intentionally fire-and-forget should use unawaited(...).
+  - id: memox.error_handling.no_unwrap_repository_lookup
+    type: regex
+    severity: warning
+    enabled: true
+    message: 'Repository lookups must not unwrap a nullable result with `!` (e.g. `(await dao.findX(id))!`). A missing entity
+      should map to `AppFailure.NotFound` via the Result/Either boundary, not throw a raw `Null check operator used on a null
+      value`. Guard the null case and return a Failure.'
+    include:
+      - lib/data/repositories/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \(\s*await\b[^\n]*\b(?:find|get|fetch|load|lookup|require|single|first)\w*\s*\([^\n]*\)\s*\)\s*!
+    tags:
+      - memox
+      - error-handling
+      - data-boundary
+    fix:
+      hint: Replace the `!` with an explicit null check that returns AppFailure.NotFound (or the documented Result failure).
+  - id: memox.error_handling.no_blind_json_decode_cast
+    type: regex
+    severity: warning
+    enabled: true
+    message: 'Do not blind-cast a `jsonDecode(...)` result with `as` (e.g. `jsonDecode(raw) as Map`). External payloads
+      (import files, Drive sync) can be malformed; a bad shape throws a raw `CastError` instead of mapping to AppFailure.
+      Type-check with `is Map` / `is List` and a validating `fromJson`, then return a Failure on mismatch.'
+    include:
+      - lib/data/**/*.dart
+      - lib/domain/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - jsonDecode\s*\([^;\n]*\)\s*as\b
+    tags:
+      - memox
+      - error-handling
+      - data-boundary
+      - deserialization
+    fix:
+      hint: 'Guard the decoded value: `final d = jsonDecode(raw); if (d is! Map<String, Object?>) return Failure; ...fromJson(d)`.'

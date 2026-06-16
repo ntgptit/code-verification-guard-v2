@@ -61,6 +61,7 @@ rule_sets:
       - registries/projects/memox/rules/memox-architecture-rules.yaml
       - registries/projects/memox/rules/memox-coding-rules.yaml
       - registries/projects/memox/rules/memox-dart-convention-rules.yaml
+      - registries/projects/memox/rules/memox-flutter-convention-rules.yaml
       - registries/projects/memox/rules/memox-layer-naming-rules.yaml
       - registries/projects/memox/rules/memox-state-management-rules.yaml
       - registries/projects/memox/rules/memox-error-handling-rules.yaml

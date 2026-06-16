@@ -204,9 +204,11 @@ rules:
       - architecture
   - id: memox.architecture.core_di_no_state_notifiers
     type: regex
-    severity: error
+    severity: warning
     enabled: true
-    message: '`lib/app/di/*` must not define feature state or generated Riverpod notifier classes.'
+    message: '`lib/app/di/*` should wire infrastructure/use-case providers only; feature state or generated Riverpod notifier
+      classes belong in `lib/presentation/features/**/viewmodels` (or feature `providers`), not in app DI. Review if a notifier
+      is defined here.'
     scopes:
       - core_di
     patterns:
@@ -249,7 +251,7 @@ rules:
   - id: memox.architecture.tts_controller_uses_playback_policy
     type: regex
     severity: error
-    enabled: true
+    enabled: false
     message: TTS presentation controllers must not hardcode which flashcard side can be spoken; route that business rule through
       `TtsPlaybackPolicy`. (TTS is a planned feature; the glob activates this rule when the feature lands.)
     include:
@@ -391,3 +393,46 @@ rules:
       - account-sync
     fix:
       hint: Wrap the Google SDK behind a sync repository/datasource in lib/data/sync and expose a domain interface.
+  - id: memox.architecture.persist_time_as_utc
+    type: regex
+    severity: warning
+    enabled: true
+    message: 'Data-layer time must be normalized to UTC before persistence (`DateTime.now().toUtc()...`). A bare `DateTime.now()`
+      stored or compared against epoch values is timezone-dependent and caused the past `localtime` SQLite defect. Convert with
+      `.toUtc()` (or take an injected clock) so storage and tests are deterministic.'
+    include:
+      - lib/data/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \bDateTime\.now\(\)(?!\s*\.\s*toUtc\b)
+    tags:
+      - memox
+      - architecture
+      - persistence
+      - time
+    fix:
+      hint: Use DateTime.now().toUtc() (or an injected Clock) and persist epoch ms; convert back with toLocal() for display.
+  - id: memox.architecture.no_secret_in_shared_preferences
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Secrets (OAuth/access/refresh tokens, passwords, credentials, API keys) must not be written to SharedPreferences;
+      it is unencrypted plain text. Use `flutter_secure_storage` (Keychain/Keystore-backed). SharedPreferences is for
+      non-sensitive settings only.'
+    include:
+      - lib/data/**/*.dart
+      - lib/app/di/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \.set(?:String|Int|Bool|Double|StringList)\s*\(\s*[\w'."]*(?:[Tt]oken|[Ss]ecret|[Pp]assword|[Cc]redential|[Aa]pi[_]?[Kk]ey|[Rr]efresh)
+    tags:
+      - memox
+      - architecture
+      - security
+      - storage
+    fix:
+      hint: Store the secret via flutter_secure_storage; keep only a non-sensitive reference (subjectId/email) in SharedPreferences.

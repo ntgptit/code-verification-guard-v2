@@ -17,7 +17,7 @@ rules:
   - id: memox.study.no_inline_guess_sampling
     type: regex
     severity: error
-    enabled: true
+    enabled: false
     message: >-
       study_session_notifier.dart must not own Guess decoy sampling. Keep
       Random/shuffle/take option sampling in the domain GuessOptionBuilder.

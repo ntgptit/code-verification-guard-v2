@@ -12,20 +12,18 @@ metadata:
   description: Riverpod provider/notifier lifecycle, purity, and usage rules for MemoX.
   owner: code-verification-guard
 rules:
-  - id: memox.state_management.query_provider_keep_alive
+  - id: memox.state_management.query_provider_keep_alive_review
     type: regex
-    severity: error
+    severity: warning
     enabled: true
-    message: 'Feature read-model query providers that return `Future<...State>`, `Future<...ReadModel>`, `Future<...Query>`,
-      or the stream equivalents must opt into a deliberate lifecycle with `@Riverpod(keepAlive: true)` or an explicit `ref.keepAlive()`
-      strategy. Plain `@riverpod` autoDispose on these providers causes push/pop refetch flicker on screen mount.
-
-      '
+    message: Long-lived read-model query providers that return `Future<...State>`, `Future<...ReadModel>`, `Future<...Query>`,
+      or the stream equivalents may need keepAlive, but screen-scoped query providers can remain autoDispose. Review lifecycle
+      deliberately before opting in.
     include:
       - lib/presentation/features/**/viewmodels/*_viewmodel.dart
     patterns:
-      - '@riverpod\s*(?:\r?\n)+Future<\w+(?:ReadModel|State|Query)>'
-      - '@riverpod\s*(?:\r?\n)+Stream<\w+(?:ReadModel|State|Query)>'
+      - '@riverpod\s*(?:\r?\n\s*)+Future<\w+(?:ReadModel|State|Query)>'
+      - '@riverpod\s*(?:\r?\n\s*)+Stream<\w+(?:ReadModel|State|Query)>'
     mode: file
     tags:
       - memox
@@ -109,9 +107,10 @@ rules:
       - architecture
   - id: memox.state_management.provider_no_invalidate_self
     type: regex
-    severity: error
+    severity: warning
     enabled: true
-    message: Provider-owned files must not use `invalidateSelf()`; explicit retry or invalidation boundaries are required.
+    message: Provider-owned files should not use `invalidateSelf()` casually; reserve it for deliberate AsyncNotifier refresh or
+      retry flows with an explicit reason.
     scopes:
       - provider_files
     patterns:

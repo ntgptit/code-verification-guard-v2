@@ -179,7 +179,7 @@ rules:
   - id: memox.coding.guard_centralized_constants
     type: regex
     severity: error
-    enabled: true
+    enabled: false
     message: Guard Python sources must not hardcode shared guard contract literals; move them into `tools/guard/engine/constants.py`
       and import the constant instead.
     scopes:

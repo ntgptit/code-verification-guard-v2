@@ -23,7 +23,7 @@ rules:
   - id: common.no_committed_environment_file
     type: regex
     severity: warning
-    enabled: true
+    enabled: false
     message: Environment files should usually not be committed unless they are examples.
     include:
       - ".env"

@@ -36,6 +36,29 @@ def test_console_reporter_prints_class_name_and_fix_hint() -> None:
     assert "Suggested fix: Add a Dart doc block." in output
 
 
+def test_console_reporter_marks_warning_only_runs_as_passed_with_warnings() -> None:
+    buffer = StringIO()
+    reporter = ConsoleReporter(show_fix_hint=False)
+    reporter.console = Console(file=buffer, force_terminal=False, color_system=None)
+
+    reporter.print(
+        [
+            Violation(
+                rule_id="memox.state_management.query_provider_keep_alive_review",
+                severity="warning",
+                message="Review lifecycle deliberately.",
+                file_path=Path("lib/presentation/features/sample/viewmodels/sample_vm.dart"),
+                line_number=12,
+                code_line="final value = ref.watch(sampleProvider);",
+            )
+        ]
+    )
+
+    output = buffer.getvalue()
+    assert "Code verification passed with warnings." in output
+    assert "Code verification failed." not in output
+
+
 def test_json_reporter_includes_class_name_and_suggested_fix(capsys) -> None:
     JsonReporter().print(
         [

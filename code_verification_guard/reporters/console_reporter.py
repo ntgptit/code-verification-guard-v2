@@ -45,11 +45,21 @@ class ConsoleReporter:
 
         counter = Counter(violation.severity for violation in violations)
 
+        error_count = counter.get(Severity.ERROR, 0)
+        warning_count = counter.get(Severity.WARNING, 0)
+
+        if error_count:
+            headline = "[bold red]Code verification failed.[/bold red]"
+        elif warning_count:
+            headline = "[bold green]Code verification passed with warnings.[/bold green]"
+        else:
+            headline = "[bold green]Code verification passed.[/bold green]"
+
         summary = (
-            f"[bold red]Code verification failed.[/bold red]\n"
+            f"{headline}\n"
             f"Total: {len(violations)} | "
-            f"Errors: {counter.get(Severity.ERROR, 0)} | "
-            f"Warnings: {counter.get(Severity.WARNING, 0)} | "
+            f"Errors: {error_count} | "
+            f"Warnings: {warning_count} | "
             f"Info: {counter.get(Severity.INFO, 0)}"
         )
 

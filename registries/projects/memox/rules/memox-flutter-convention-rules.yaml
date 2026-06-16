@@ -1,0 +1,176 @@
+# MemoX guard rules - domain: flutter_convention
+# Flutter/Dart convention rules that are not covered by the base Dart/Flutter
+# registries but are still useful for MemoX's Riverpod + hooks style.
+#
+# Rule ID convention: memox.<domain>.<rule_name> - <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-flutter-convention
+  name: MemoX Flutter Convention Rules
+  description: Flutter widget, constructor, and lifecycle convention rules for MemoX.
+  owner: code-verification-guard
+rules:
+  - id: memox.flutter_convention.no_legacy_key_constructor
+    type: regex
+    severity: warning
+    enabled: true
+    message: "Widget constructors should use `super.key` instead of legacy `Key? key` plus `super(key: key)`."
+    scopes:
+      - widget_ui_files
+    patterns:
+      - \bKey\??\s+key\b
+      - :\s*super\s*\(\s*key\s*:\s*key\s*,?\s*\)
+    tags:
+      - memox
+      - flutter
+      - constructor
+    fix:
+      hint: Replace the legacy key parameter with `super.key` and keep the constructor const when possible.
+  - id: memox.flutter_convention.widget_constructor_named_params
+    type: regex
+    severity: warning
+    enabled: true
+    message: Public widget constructors should use named parameters for readability and safer call sites.
+    scopes:
+      - widget_ui_files
+    mode: file
+    patterns:
+      - '(?s)\bclass\s+(?P<classname>[A-Z]\w*)\s+extends\s+(?:StatelessWidget|ConsumerWidget|HookWidget|HookConsumerWidget|StatefulWidget)\b[\s\S]{0,600}?\n\s*(?:const\s+)?(?P=classname)\s*\(\s*(?![\{\)])'
+    tags:
+      - memox
+      - flutter
+      - api-design
+  - id: memox.flutter_convention.widget_constructor_should_be_const
+    type: regex
+    severity: warning
+    enabled: true
+    message: Stateless, consumer, and hook widgets should expose const constructors unless there is a real mutable runtime reason.
+    scopes:
+      - widget_ui_files
+    mode: file
+    patterns:
+      - (?s)\bclass\s+(\w+)\s+extends\s+(?:StatelessWidget|ConsumerWidget|HookWidget|HookConsumerWidget)\b[\s\S]{0,800}?\n\s*(?!const\s+)\1\s*\(
+    tags:
+      - memox
+      - flutter
+      - const
+  - id: memox.flutter_convention.no_stateful_widget_in_features
+    type: regex
+    severity: warning
+    enabled: true
+    message: Feature UI should avoid StatefulWidget and State classes. Prefer HookConsumerWidget for local lifecycle state or Riverpod providers for app state.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bextends\s+StatefulWidget\b
+      - \bextends\s+ConsumerStatefulWidget\b
+      - \bextends\s+State<\w+
+      - \bextends\s+ConsumerState<\w+
+    tags:
+      - memox
+      - flutter
+      - lifecycle
+      - riverpod
+  - id: memox.flutter_convention.no_set_state
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid `setState` in MemoX presentation code. Use Riverpod state or hooks/local controllers instead.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bsetState\s*\(
+    tags:
+      - memox
+      - flutter
+      - state-management
+  - id: memox.flutter_convention.no_build_context_fields
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not store `BuildContext` in fields. Pass context only through build or callback scope.
+    scopes:
+      - feature_ui
+    mode: file
+    patterns:
+      - (?s)\bclass\s+\w+[^{]*\{(?:(?!\n\s*(?:@override\s*)?Widget\s+build\s*\().){0,1200}?\n\s*(?:(?:final|late)\s+)*BuildContext\s+\w+\s*(?:;|=)
+    tags:
+      - memox
+      - flutter
+      - lifecycle
+  - id: memox.flutter_convention.no_private_widget_builder_methods_in_screens
+    type: regex
+    severity: warning
+    enabled: true
+    message: Screen files should extract UI sections into widgets instead of private `_buildXxx()` widget methods.
+    scopes:
+      - screen_like_files
+    patterns:
+      - \bWidget\s+_build[A-Z]\w*\s*\(
+      - \bList<Widget>\s+_build[A-Z]\w*\s*\(
+    tags:
+      - memox
+      - flutter
+      - composition
+  - id: memox.flutter_convention.no_mutable_children_list_in_build
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid assembling widget children with mutable `children.add(...)`. Prefer collection-if, spread, or extracted widgets.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - \bchildren\s*\.\s*add(?:All)?\s*\(
+    tags:
+      - memox
+      - flutter
+      - composition
+  - id: memox.flutter_convention.global_key_requires_review
+    type: regex
+    severity: warning
+    enabled: true
+    message: GlobalKey in feature UI requires review. Prefer local controllers, form state wrappers, or provider-driven state.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bGlobalKey(?:<[^>]+>)?\s*\(
+    tags:
+      - memox
+      - flutter
+      - lifecycle
+  - id: memox.flutter_convention.non_null_assertion_requires_review
+    type: regex
+    severity: warning
+    enabled: true
+    message: Avoid non-null assertion `!` in domain/presentation code. Prefer guard clauses, pattern matching, or explicit
+      failure handling. (Data repositories are excluded because Drift `row.read(col)!` and post-lookup `(await dao.find(id))!`
+      are idiomatic there.)
+    include:
+      - lib/domain/**/*.dart
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/generated/**
+    patterns:
+      - '(?<!\bis)(?<=[\w\]\)])\s*!\s*(?![=])'
+    tags:
+      - memox
+      - dart
+      - null-safety
+  - id: memox.flutter_convention.no_future_delayed_in_ui
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not use `Future.delayed` in UI logic to hide race, navigation, animation, or loading issues.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bFuture\.delayed\s*\(
+    tags:
+      - memox
+      - flutter
+      - async
+      - lifecycle

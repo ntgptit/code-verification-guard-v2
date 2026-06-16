@@ -305,6 +305,11 @@ def test_memox_rule_set_loads_ported_project_rules():
 
     assert "memox.coding.no_else" in rules_by_id
     assert "memox.coding.provider_file_naming" in rules_by_id
+    assert "memox.flutter_convention.no_legacy_key_constructor" in rules_by_id
+    assert "memox.error_handling.no_unwrap_repository_lookup" in rules_by_id
+    assert "memox.error_handling.no_blind_json_decode_cast" in rules_by_id
+    assert "memox.architecture.persist_time_as_utc" in rules_by_id
+    assert "memox.architecture.no_secret_in_shared_preferences" in rules_by_id
     assert "memox.state_management.no_state_notifier" in rules_by_id
     assert "memox.architecture.domain_no_flutter_import" in rules_by_id
     assert "memox.architecture.presentation_no_dart_io_imports" in rules_by_id
