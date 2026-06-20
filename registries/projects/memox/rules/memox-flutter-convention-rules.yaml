@@ -30,7 +30,7 @@ rules:
       hint: Replace the legacy key parameter with `super.key` and keep the constructor const when possible.
   - id: memox.flutter_convention.widget_constructor_named_params
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: Public widget constructors should use named parameters for readability and safer call sites.
     scopes:
@@ -58,7 +58,7 @@ rules:
       - const
   - id: memox.flutter_convention.no_stateful_widget_in_features
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: Feature UI should avoid StatefulWidget and State classes. Prefer HookConsumerWidget for local lifecycle state or Riverpod providers for app state.
     scopes:
@@ -142,7 +142,7 @@ rules:
       - lifecycle
   - id: memox.flutter_convention.non_null_assertion_requires_review
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: Avoid non-null assertion `!` in domain/presentation code. Prefer guard clauses, pattern matching, or explicit
       failure handling. (Data repositories are excluded because Drift `row.read(col)!` and post-lookup `(await dao.find(id))!`

@@ -27,7 +27,7 @@ rules:
 
   - id: common.no_commented_out_code
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: Commented-out code should not be committed.
     scopes:

@@ -188,7 +188,7 @@ rules:
       hint: Wrap AsyncValue rendering with AppAsyncBuilder.
   - id: memox.state_management.infrastructure_provider_keep_alive
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: 'Infrastructure providers for DB, repository, client, service, DAO, store, gateway, codec, runner, strategy,
       or auth resources should use `@Riverpod(keepAlive: true)` so expensive app-wide dependencies are not disposed on navigation

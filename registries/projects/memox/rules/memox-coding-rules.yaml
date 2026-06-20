@@ -102,7 +102,7 @@ rules:
       - crud
   - id: memox.coding.class_name_length
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: Flutter class names must be between 5 and 35 characters.
     scopes:

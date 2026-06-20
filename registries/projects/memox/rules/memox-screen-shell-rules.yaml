@@ -143,7 +143,7 @@ rules:
       - architecture
   - id: memox.screen_shell.template_shell_no_ref_watch
     type: regex
-    severity: warning
+    severity: error
     enabled: true
     message: 'Template-only screen shells that return `MxScaffold`, `MxListScaffold`, `MxFormScaffold`, or `MxStudyScaffold`
       should not also watch providers in the same build body. Move provider watching into a section widget, or add `// guard:allow-screen-watch

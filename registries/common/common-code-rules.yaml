@@ -54,7 +54,7 @@ rules:
 
   - id: common.max_file_lines
     type: max_lines
-    severity: warning
+    severity: error
     enabled: true
     message: File is too long. Split it into smaller files.
     scopes:
