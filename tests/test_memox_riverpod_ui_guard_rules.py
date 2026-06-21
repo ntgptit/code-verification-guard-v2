@@ -589,6 +589,35 @@ def test_feature_screen_tokenized_edge_insets_are_allowed(tmp_path: Path) -> Non
     )
 
 
+def test_async_value_or_null_is_flagged_in_favor_of_value(tmp_path: Path) -> None:
+    bad = """
+    String? draftTitle(WidgetRef ref) {
+      return ref.watch(deckDraftProvider).valueOrNull?.title;
+    }
+    """
+    good = bad.replace(".valueOrNull", ".value")
+
+    assert _violations("memox.state_management.no_async_value_or_null", tmp_path, bad)
+    assert not _violations("memox.state_management.no_async_value_or_null", tmp_path, good)
+
+
+def test_legacy_riverpod_import_is_forbidden(tmp_path: Path) -> None:
+    bad = """
+    import 'package:riverpod/legacy.dart';
+
+    final counter = StateProvider<int>((ref) => 0);
+    """
+    good = """
+    import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+    @riverpod
+    int counter(Ref ref) => 0;
+    """
+
+    assert _violations("memox.state_management.no_legacy_riverpod_import", tmp_path, bad)
+    assert not _violations("memox.state_management.no_legacy_riverpod_import", tmp_path, good)
+
+
 def test_base_screen_raw_layout_values_require_review_marker(tmp_path: Path) -> None:
     bad = """
     class MxListScaffold extends StatelessWidget {

@@ -325,3 +325,37 @@ rules:
       - memox
       - state-management
       - form-draft
+  - id: memox.state_management.no_async_value_or_null
+    type: regex
+    severity: error
+    enabled: true
+    message: Riverpod 3.0 renamed `AsyncValue.valueOrNull` to `value`. Use `.value` instead of the
+      deprecated `.valueOrNull` accessor.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \.valueOrNull\b
+    tags:
+      - memox
+      - state-management
+      - riverpod
+    fix:
+      hint: Replace `.valueOrNull` with `.value` (Riverpod 3.0 AsyncValue API).
+  - id: memox.state_management.no_legacy_riverpod_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not import `package:riverpod/legacy.dart` (or `flutter_riverpod/legacy.dart`). Riverpod 3.0
+      moves `StateProvider`/`ChangeNotifierProvider` behind the legacy entrypoint to discourage them; MemoX
+      uses generated `Notifier`/`AsyncNotifier` only.
+    scopes:
+      - all
+    patterns:
+      - import\s+['"]package:(?:flutter_)?riverpod/legacy\.dart['"]
+    tags:
+      - memox
+      - state-management
+      - architecture
