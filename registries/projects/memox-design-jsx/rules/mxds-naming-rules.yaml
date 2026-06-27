@@ -1,0 +1,55 @@
+# MemoX Design System (JSX) guard rules — domain: naming
+# Frozen-identifier contract: "changing a value is free; changing a name or id
+# breaks the system." Component files carry a stable PascalCase `Mx*` name;
+# screen files carry a stable PascalCase name. File-name drift is a contract
+# break, so these are errors (the current kit is already clean).
+#
+# Rule ID convention: mxds.<domain>.<rule_name>. Scopes live in config/scopes.yaml.
+# file_name rules use `pattern` (singular) matched against the file basename.
+version: 1
+
+metadata:
+  id: memox-design-jsx-naming
+  name: MemoX Design System (JSX) Naming Rules
+  description: >-
+    Enforce the frozen file-naming contract for the design system: Mx* PascalCase
+    component files and PascalCase screen files.
+  owner: code-verification-guard
+
+rules:
+  - id: mxds.naming.component_file_mx_prefix
+    type: file_name
+    severity: error
+    enabled: true
+    message: >-
+      Design-system component files must be PascalCase with the frozen `Mx`
+      prefix (e.g. `MxButton.jsx`). The Mx* name is the stable contract bound by
+      downstream code — renaming it breaks the system.
+    scopes:
+      - ds_components
+    pattern: '^Mx[A-Z][A-Za-z0-9]*\.jsx$'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - naming
+    fix:
+      hint: Rename the component file to MxPascalCase.jsx, matching its exported Mx* component name.
+
+  - id: mxds.naming.screen_file_pascal_case
+    type: file_name
+    severity: error
+    enabled: true
+    message: >-
+      Design-system screen files must be PascalCase (e.g. `Dashboard.jsx`,
+      `DeckDetail.jsx`). Shared helpers (kit-helpers.jsx) are out of scope.
+    scopes:
+      - ds_screens
+    pattern: '^[A-Z][A-Za-z0-9]*\.jsx$'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - naming
+    fix:
+      hint: Rename the screen file to PascalCase.jsx.

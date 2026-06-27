@@ -1,0 +1,69 @@
+# MemoX Design System (JSX) guard rules — domain: design_token
+# Layer-1 contract: every visual value is a `--memox-*` token. Above the token
+# layer (components + screens) there must be NO raw visual literals — colors and
+# sizes go through `var(--memox-*)`. Mirrors the raw-value selectors in
+# `docs/design/MemoX Design System/_adherence.oxlintrc.json` (the design-system's
+# own oxlint adherence config), translated to this engine's regex matcher.
+#
+# Rule ID convention: mxds.<domain>.<rule_name> — <domain> matches this file slug
+# (`mxds` is the memox-design-jsx ruleset namespace; the ruleset name carries
+# hyphens which are not legal in rule ids). Scopes live in config/scopes.yaml.
+#
+# Severity is `warning`: the current kit ships a few intentional raw literals
+# (e.g. the Theme.jsx swatch palette, px in inline styles), exactly as the
+# upstream oxlint config flags them at "warn". Promote to error once the kit is
+# fully tokenised.
+version: 1
+
+metadata:
+  id: memox-design-jsx-design-token
+  name: MemoX Design System (JSX) Design Token Rules
+  description: >-
+    Enforce design-token usage across the Mx* components and the app screen kit.
+    Raw hex colors and raw px values must not appear above the token layer; use
+    var(--memox-*) tokens instead.
+  owner: code-verification-guard
+
+rules:
+  - id: mxds.design_token.no_raw_hex_color
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw hex color literal in a design-system component/screen. Colors above the
+      token layer must use a `var(--memox-*)` color token, never a `#rrggbb`
+      literal — changing a value is free, but raw colors bypass the theme and
+      break dark mode.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '#[0-9A-Fa-f]{3,8}\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - color
+      - token
+    fix:
+      hint: Replace the hex literal with a color token, e.g. var(--memox-primary) / var(--memox-text).
+
+  - id: mxds.design_token.no_raw_px_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw `px` literal in a design-system component/screen. Spacing, radius, and
+      sizing above the token layer must use a `var(--memox-*)` token (space /
+      radius / size scale) instead of a hardcoded pixel value.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\b\d+px\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - spacing
+      - token
+    fix:
+      hint: Replace the px literal with a token, e.g. var(--memox-space-4) / var(--memox-radius-card). Unitless numbers in JSX style props (React adds px) are out of scope.

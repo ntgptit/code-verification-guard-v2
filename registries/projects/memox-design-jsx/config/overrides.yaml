@@ -1,0 +1,22 @@
+version: 1
+
+# Do not edit rule files to relax a single case. Adjust rule behaviour here:
+#   disabled_rules — turn a rule off entirely
+#   severity       — re-level a rule (e.g. warning -> error once the kit is clean)
+#   rule_options   — per-rule include/exclude or option tweaks (keyed by rule id)
+#
+# Generated bundles and binary assets are already removed at the scope level
+# (config/scopes.yaml), so no large-file / max-lines overrides are needed here.
+overrides:
+  # The shared security rules each carry a built-in `**/docs/**` exclude, so in a
+  # ruleset whose entire target tree is under `docs/design/...` they can never
+  # match a file. The engine's rule_without_targets check flags them as dead, so
+  # they are disabled here rather than left as permanent inert noise. (The kit is
+  # static design JSX/CSS — no secrets, keys, or tokens to scan for anyway.)
+  disabled_rules:
+    - security.no_private_key
+    - security.no_hardcoded_secret_assignment
+    - security.no_aws_access_key
+    - security.no_generic_bearer_token
+  severity: {}
+  rule_options: {}

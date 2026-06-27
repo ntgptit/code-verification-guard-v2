@@ -1,0 +1,48 @@
+# MemoX Design System (JSX) guard rules — domain: component_contract
+# Layer-2 contract: the Mx* family is the public surface. Consumers import the
+# components from the package index (the re-export barrel), never reach into a
+# component's internal file path. Mirrors `no-restricted-imports` in
+# `docs/design/MemoX Design System/_adherence.oxlintrc.json`.
+#
+# Rule ID convention: mxds.<domain>.<rule_name>. Scopes live in config/scopes.yaml.
+#
+# Severity is `warning`: the kit currently composes screens via the global
+# namespace (window.MemoXDesignSystem_*) and has no deep imports, so this is a
+# forward-looking guard for production code that consumes the system.
+version: 1
+
+metadata:
+  id: memox-design-jsx-component-contract
+  name: MemoX Design System (JSX) Component Contract Rules
+  description: >-
+    Keep the Mx* component family behind its public index. Design-system
+    components must be imported from the package index, not from component
+    internal paths (components/<group>/* or ui_kits/memox-app/*).
+  owner: code-verification-guard
+
+rules:
+  - id: mxds.component_contract.import_from_internal_path
+    type: forbidden_import
+    severity: warning
+    enabled: true
+    message: >-
+      Import design-system components from the package index, not from a
+      component's internal path. Deep imports into components/<group>/ or
+      ui_kits/memox-app/ bind to file locations that are free to move; the Mx*
+      names and the index are the stable contract.
+    scopes:
+      - ds_jsx
+    exclude:
+      - 'docs/design/MemoX Design System/**/index.js'
+      - 'docs/design/MemoX Design System/**/index.jsx'
+    patterns:
+      - 'components/(?:core|navigation|surfaces)/'
+      - 'ui_kits/memox-app/'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - architecture
+      - imports
+    fix:
+      hint: "Import from the design-system index barrel (e.g. import { MxButton } from '<ds-index>') instead of the component's internal file."

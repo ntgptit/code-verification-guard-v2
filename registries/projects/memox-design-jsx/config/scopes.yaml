@@ -1,0 +1,106 @@
+version: 1
+metadata:
+  id: memox-design-jsx-ruleset-scopes
+  name: MemoX Design System (JSX) Ruleset Scopes
+  description: >-
+    Scopes for the MemoX Design System pattern guard. The generic `common` scope
+    names (project_files, source_files, ...) are redefined here so that shared
+    common rules only scan `docs/design/MemoX Design System/**` instead of the
+    whole repository. Local `ds_*` scopes target the three design-system layers
+    (tokens -> components -> screens).
+scopes:
+  # ---------------------------------------------------------------------------
+  # Common-rule scopes, redefined to constrain `common: true` to the design
+  # system. The ruleset-local scope document is registered AFTER the shared
+  # common-scopes.yaml, so these definitions override the repo-wide ones.
+  # Generated bundles and binary assets are excluded so they never trip
+  # max-file-lines / large-file / naming rules.
+  # ---------------------------------------------------------------------------
+  project_files:
+    include:
+      - 'docs/design/MemoX Design System/**/*'
+    exclude:
+      - 'docs/design/MemoX Design System/fonts/**'
+      - 'docs/design/MemoX Design System/screenshots/**'
+      - 'docs/design/MemoX Design System/uploads/**'
+      - 'docs/design/MemoX Design System/_ds_bundle.js'
+      - 'docs/design/MemoX Design System/_ds_manifest.json'
+      - 'docs/design/MemoX Design System/templates/**/support.js'
+      - 'docs/design/MemoX Design System/templates/**/ds-base.js'
+
+  all_text_files:
+    include:
+      - 'docs/design/MemoX Design System/**/*.md'
+      - 'docs/design/MemoX Design System/**/*.json'
+      - 'docs/design/MemoX Design System/**/*.css'
+      - 'docs/design/MemoX Design System/**/*.html'
+      - 'docs/design/MemoX Design System/**/*.js'
+      - 'docs/design/MemoX Design System/**/*.jsx'
+      - 'docs/design/MemoX Design System/**/*.ts'
+    exclude:
+      - 'docs/design/MemoX Design System/_ds_bundle.js'
+      - 'docs/design/MemoX Design System/_ds_manifest.json'
+      - 'docs/design/MemoX Design System/templates/**/support.js'
+      - 'docs/design/MemoX Design System/templates/**/ds-base.js'
+
+  # Whitespace / merge-marker hygiene runs on real source only (no prose .md,
+  # no .json) to avoid setext-heading and formatting noise.
+  text_source_files:
+    include:
+      - 'docs/design/MemoX Design System/**/*.css'
+      - 'docs/design/MemoX Design System/**/*.html'
+      - 'docs/design/MemoX Design System/**/*.js'
+      - 'docs/design/MemoX Design System/**/*.jsx'
+      - 'docs/design/MemoX Design System/**/*.ts'
+    exclude:
+      - 'docs/design/MemoX Design System/_ds_bundle.js'
+      - 'docs/design/MemoX Design System/templates/**/support.js'
+      - 'docs/design/MemoX Design System/templates/**/ds-base.js'
+
+  source_files:
+    include:
+      - 'docs/design/MemoX Design System/**/*.jsx'
+      - 'docs/design/MemoX Design System/**/*.js'
+      - 'docs/design/MemoX Design System/**/*.ts'
+    exclude:
+      - 'docs/design/MemoX Design System/**/*.d.ts'
+      - 'docs/design/MemoX Design System/_ds_bundle.js'
+      - 'docs/design/MemoX Design System/templates/**/support.js'
+      - 'docs/design/MemoX Design System/templates/**/ds-base.js'
+
+  source_and_config_files:
+    include:
+      - 'docs/design/MemoX Design System/**/*.jsx'
+      - 'docs/design/MemoX Design System/**/*.js'
+      - 'docs/design/MemoX Design System/**/*.ts'
+      - 'docs/design/MemoX Design System/**/*.json'
+      - 'docs/design/MemoX Design System/**/*.css'
+    exclude:
+      - 'docs/design/MemoX Design System/**/*.d.ts'
+      - 'docs/design/MemoX Design System/_ds_bundle.js'
+      - 'docs/design/MemoX Design System/_ds_manifest.json'
+      - 'docs/design/MemoX Design System/templates/**/support.js'
+      - 'docs/design/MemoX Design System/templates/**/ds-base.js'
+
+  # ---------------------------------------------------------------------------
+  # Design-system layer scopes (used by the local mxds.* rules).
+  # ---------------------------------------------------------------------------
+  # Layer 2 + Layer 3 JSX: the Mx* component family and the app screen kit.
+  ds_jsx:
+    include:
+      - 'docs/design/MemoX Design System/components/**/*.jsx'
+      - 'docs/design/MemoX Design System/ui_kits/memox-app/**/*.jsx'
+    exclude: []
+
+  # Layer 2 — the frozen Mx* component family.
+  ds_components:
+    include:
+      - 'docs/design/MemoX Design System/components/**/*.jsx'
+    exclude: []
+
+  # Layer 3 — assembled app screens (kit-helpers is a shared helper, not a screen).
+  ds_screens:
+    include:
+      - 'docs/design/MemoX Design System/ui_kits/memox-app/**/*.jsx'
+    exclude:
+      - 'docs/design/MemoX Design System/ui_kits/memox-app/kit-helpers.jsx'
