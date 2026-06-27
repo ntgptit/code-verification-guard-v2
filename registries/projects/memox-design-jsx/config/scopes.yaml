@@ -104,3 +104,11 @@ scopes:
       - 'docs/design/MemoX Design System/ui_kits/memox-app/**/*.jsx'
     exclude:
       - 'docs/design/MemoX Design System/ui_kits/memox-app/kit-helpers.jsx'
+
+  # Layer 2 stylesheet (the Mx* base-class CSS) + the entry sheet. Token files
+  # (tokens/*.css) are intentionally excluded — they DEFINE the raw values.
+  ds_css:
+    include:
+      - 'docs/design/MemoX Design System/components.css'
+      - 'docs/design/MemoX Design System/styles.css'
+    exclude: []

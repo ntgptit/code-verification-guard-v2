@@ -40,3 +40,51 @@ rules:
       - design-system
     fix:
       hint: Use theme tokens instead of raw color literals.
+
+  - id: react.no_raw_inline_spacing
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not hardcode numeric spacing in inline styles. Use a design token or spacing scale.
+    scopes:
+      - react_source
+    patterns:
+      - "\\b(?:gap|rowGap|columnGap|padding|paddingTop|paddingRight|paddingBottom|paddingLeft|margin|marginTop|marginRight|marginBottom|marginLeft):\\s*-?[1-9][0-9]*\\b"
+    tags:
+      - react
+      - ui
+      - design-system
+    fix:
+      hint: Replace the raw number with a spacing token (e.g. var(--space-*)). Value 0 and unitless props (flex, opacity, zIndex) are fine.
+
+  - id: react.no_raw_inline_dimension
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not hardcode numeric width/height in inline styles. Use a design token or % / flex sizing.
+    scopes:
+      - react_source
+    patterns:
+      - "\\b(?:width|height|minHeight|maxHeight|minWidth|maxWidth):\\s*[1-9][0-9]*\\b"
+    tags:
+      - react
+      - ui
+      - design-system
+    fix:
+      hint: Replace the raw number with a size token or a fluid value (%/flex/auto).
+
+  - id: react.no_raw_inline_font
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not hardcode numeric font size / weight in inline styles. Use a typography token.
+    scopes:
+      - react_source
+    patterns:
+      - "\\b(?:fontSize|fontWeight):\\s*[1-9][0-9]*\\b"
+    tags:
+      - react
+      - ui
+      - design-system
+    fix:
+      hint: Replace the raw number with a font-size / font-weight token.

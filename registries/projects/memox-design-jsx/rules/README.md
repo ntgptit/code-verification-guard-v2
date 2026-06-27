@@ -39,8 +39,10 @@ mxds.<domain>.<rule_name>
 
 | File | Domain | Enforces |
 | --- | --- | --- |
-| `mxds-design-token-rules.yaml` | `design_token` | Layer-1: no raw hex / px above the token layer — use `var(--memox-*)` |
+| `mxds-design-token-rules.yaml` | `design_token` | Layer-1: no raw hex / px / bare unitless numbers in JSX (color, spacing, size, radius, weight, font-size, line-height, letter-spacing) + no raw hex in `components.css` — use `var(--memox-*)` |
 | `mxds-component-contract-rules.yaml` | `component_contract` | Layer-2: import the Mx* family from the package index, not internal paths |
+| `mxds-component-prop-rules.yaml` | `component_prop` | Mx* variant / size / tone / type enum values (from `_adherence.oxlintrc.json`) |
+| `mxds-layout-rules.yaml` | `layout` | No inline negative-margin spacing hacks (the section-header overlap class of bug) |
 | `mxds-naming-rules.yaml` | `naming` | Frozen identifiers: `Mx*` PascalCase component files, PascalCase screen files |
 
 ## The three-layer model this guards
@@ -48,8 +50,9 @@ mxds.<domain>.<rule_name>
 `Token → Component → Screen` (see the design system `readme.md`). Screens use only
 components; components use only tokens; **no raw visual values above the token
 layer**. The golden rule: *changing a value is free; changing a name or id breaks
-the system* — which is why the naming rules are `error` and the token rules are
-`warning` (values are tunable debt, names are contracts).
+the system*. The kit is fully tokenised, so both the naming rules and the
+`design_token` rules are `error`: raw colors, `px` literals, and bare unitless
+numbers in inline styles (React renders them as px) are all regressions.
 
 ## Scopes
 
@@ -64,28 +67,40 @@ the system* — which is why the naming rules are `error` and the token rules ar
   helpers (`support.js`, `ds-base.js`) plus binary assets (`fonts/`, `screenshots/`,
   `uploads/`) are excluded at the scope level.
 - Local `ds_*` scopes target the layers: `ds_components` (Mx* family),
-  `ds_screens` (app screens, minus `kit-helpers.jsx`), `ds_jsx` (both).
+  `ds_screens` (app screens, minus `kit-helpers.jsx`), `ds_jsx` (both),
+  `ds_css` (the Layer-2 `components.css` + `styles.css`; token files are excluded
+  because they DEFINE the raw values).
 
 ## Severity policy
 
-- `error`: blocks the gate. Used only where the kit is already clean and the rule
-  is a hard contract (the `naming` rules).
-- `warning`: existing intentional debt or forward-looking guards. The `design_token`
-  rules are `warning` because the shipped kit carries a few deliberate raw literals
-  (e.g. the `Theme.jsx` swatch palette), exactly as the upstream oxlint config flags
-  them at `warn`; the `component_contract` import rule is `warning` because the kit
-  composes via the global namespace and has no deep imports yet.
+- `error`: blocks the gate. Used where the kit is clean and the rule is a hard
+  contract — the `naming` rules and all `design_token` rules (the kit is fully
+  tokenised, so any raw hex / px / bare unitless number is a regression).
+- `warning`: forward-looking guards. The `component_contract` import rule is
+  `warning` because the kit composes via the global namespace and has no deep
+  imports yet.
 
-## Known engine limits (vs. the oxlint adherence config)
+The `design_token` raw-number rules deliberately ignore genuinely unitless props
+(`opacity`, `zIndex`, `flex`), the value `0`, percentage / `flex` / `auto`
+strings, and `var(--memox-*)` tokens. They match bare numbers written directly as
+`prop: <number>`; values hidden inside ternaries (`cond ? 80 : 48`) or passed as
+component props (`<Skeleton h={40} />`) are not caught by the regex engine.
 
-The upstream `_adherence.oxlintrc.json` also enforces **per-component prop
-allowlists and variant enums** (e.g. `<MxButton variant>` ∈
-`primary|secondary|outline|ghost|contrast`) via JSX-AST selectors. This guard
-engine has only line/file regex, import, and file-name matchers — no JSX AST — so
-those prop/variant checks are intentionally **not** reproduced here; run oxlint with
-that config for full prop-level adherence. This registry covers the parts the
-regex/import/file-name engine can verify reliably: raw-value bans, the import
-contract, and file naming.
+## Coverage vs. the oxlint adherence config
+
+The `component_prop` rules reproduce the **variant / enum** selectors from
+`_adherence.oxlintrc.json` as a regex approximation: they flag a string-literal
+enum value outside a component's set (`<MxButton variant="huge">`) with no false
+positives, but — having no JSX AST — they can miss a value when a `=>` arrow
+precedes the prop in the same tag, and they do **not** enforce the full prop
+**allowlist** (rejecting unknown prop *names*). For that, run oxlint with the
+upstream config. Everything else the regex / import / file-name engine can verify
+reliably is covered here: raw-value bans (JSX + CSS), the import contract, the
+no-negative-margin layout rule, and file naming.
+
+The raw-value detection also exists generically (design-token-agnostic) in the
+shared **`react`** registry (`react.no_raw_inline_*`), so any project that selects
+the `react` bundle gets it; this ruleset keeps its own MemoX-token-specific copies.
 
 ## Adding / changing a rule
 

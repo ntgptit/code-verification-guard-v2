@@ -1,0 +1,185 @@
+# MemoX Design System (JSX) guard rules — domain: component_prop
+# Variant / enum prop constraints for the Mx* family, translated from
+# `docs/design/MemoX Design System/_adherence.oxlintrc.json` (the design-system's
+# own oxlint config). Each rule flags a STRING-LITERAL enum prop whose value is
+# outside the component's declared set, e.g. `<MxButton variant="huge">`.
+#
+# Rule ID convention: mxds.<domain>.<rule_name>. Scopes live in config/scopes.yaml.
+#
+# Engine limit: this is a regex approximation of oxlint's JSX-AST `no-restricted-
+# syntax` selectors. It reliably flags invalid string-literal values WITHOUT false
+# positives (valid values and dynamic `prop={expr}` are not matched), but it can
+# miss a value when a `=>` arrow appears before the prop in the same tag (the tag
+# window stops at the first `>`). It does NOT enforce the full prop ALLOWLIST
+# (unknown prop names) — that needs the AST; run oxlint for full coverage.
+version: 1
+
+metadata:
+  id: memox-design-jsx-component-prop
+  name: MemoX Design System (JSX) Component Prop Rules
+  description: >-
+    Enforce the Mx* family's variant / size / tone / type enum values. A string
+    literal outside a component's declared set is a contract break.
+  owner: code-verification-guard
+
+rules:
+  - id: mxds.component_prop.mx_button_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxButton> enum value. variant ∈ primary|secondary|outline|ghost|
+      contrast, size ∈ sm|lg, type ∈ button|submit|reset.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxButton\b[^>]*\bvariant=([''"])(?!(?:primary|secondary|outline|ghost|contrast)\1)[^''"]*\1'
+      - '<MxButton\b[^>]*\bsize=([''"])(?!(?:sm|lg)\1)[^''"]*\1'
+      - '<MxButton\b[^>]*\btype=([''"])(?!(?:button|submit|reset)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxButton value, e.g. variant='primary', size='lg', type='submit'."
+
+  - id: mxds.component_prop.mx_card_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxCard> enum value. variant ∈ flat|muted|primary|primary-soft,
+      padding ∈ sm|lg.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxCard\b[^>]*\bvariant=([''"])(?!(?:flat|muted|primary|primary-soft)\1)[^''"]*\1'
+      - '<MxCard\b[^>]*\bpadding=([''"])(?!(?:sm|lg)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxCard value, e.g. variant='primary-soft', padding='sm'."
+
+  - id: mxds.component_prop.mx_badge_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxBadge> tone. tone ∈ success|warning|error.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxBadge\b[^>]*\btone=([''"])(?!(?:success|warning|error)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxBadge tone, e.g. tone='success'."
+
+  - id: mxds.component_prop.mx_avatar_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxAvatar> enum value. size ∈ sm|lg, variant ∈ accent.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxAvatar\b[^>]*\bsize=([''"])(?!(?:sm|lg)\1)[^''"]*\1'
+      - '<MxAvatar\b[^>]*\bvariant=([''"])(?!(?:accent)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxAvatar value, e.g. size='lg', variant='accent'."
+
+  - id: mxds.component_prop.mx_chip_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxChip> variant. variant ∈ accent|ghost.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxChip\b[^>]*\bvariant=([''"])(?!(?:accent|ghost)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxChip variant, e.g. variant='accent'."
+
+  - id: mxds.component_prop.mx_fab_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxFab> variant. variant ∈ accent.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxFab\b[^>]*\bvariant=([''"])(?!(?:accent)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxFab variant: variant='accent' (or omit for default)."
+
+  - id: mxds.component_prop.mx_icon_button_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxIconButton> enum value. variant ∈ filled|primary, size ∈ sm.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxIconButton\b[^>]*\bvariant=([''"])(?!(?:filled|primary)\1)[^''"]*\1'
+      - '<MxIconButton\b[^>]*\bsize=([''"])(?!(?:sm)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxIconButton value, e.g. variant='filled', size='sm'."
+
+  - id: mxds.component_prop.mx_icon_tile_enum
+    type: regex
+    severity: error
+    enabled: true
+    mode: file
+    message: >-
+      Invalid <MxIconTile> enum value. tone ∈ accent|success|warning|error,
+      size ∈ lg.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '<MxIconTile\b[^>]*\btone=([''"])(?!(?:accent|success|warning|error)\1)[^''"]*\1'
+      - '<MxIconTile\b[^>]*\bsize=([''"])(?!(?:lg)\1)[^''"]*\1'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - component-api
+    fix:
+      hint: "Use a declared MxIconTile value, e.g. tone='success', size='lg'."

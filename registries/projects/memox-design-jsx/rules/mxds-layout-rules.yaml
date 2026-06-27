@@ -1,0 +1,41 @@
+# MemoX Design System (JSX) guard rules — domain: layout
+# Guards the class of layout bug behind the section-header overlap: a NEGATIVE
+# margin used to "pull" a sibling closer. It collapses content onto the element
+# above it whenever the parent has no flex gap to absorb it. The shipped fix for
+# MxSectionHeader lives in components.css (`.app__body > div:has(> .section-head)`
+# lays the wrapper out as a flex column and zeroes the negative margin). These
+# rules keep the *inline* form of that hack out of the kit so it can't recur.
+#
+# Rule ID convention: mxds.<domain>.<rule_name>. Scopes live in config/scopes.yaml.
+version: 1
+
+metadata:
+  id: memox-design-jsx-layout
+  name: MemoX Design System (JSX) Layout Rules
+  description: >-
+    Keep fragile negative-margin spacing hacks out of inline styles. Spacing
+    between elements comes from the layout container's gap or a positive token,
+    never a negative margin that overlaps the previous element.
+  owner: code-verification-guard
+
+rules:
+  - id: mxds.layout.no_inline_negative_margin
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Negative margin in a JSX inline style. A negative margin overlaps the
+      element above it when the parent has no gap to absorb it (this is the cause
+      of the section-header overlap bug). Use the container's flex/grid `gap` or a
+      positive `var(--memox-space-*)` token for separation instead.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\bmargin(?:Top|Right|Bottom|Left)?\s*:\s*[''"]?(?:-|calc\(\s*-)'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - layout
+    fix:
+      hint: "Remove the negative margin. Space siblings with the parent's gap (display:flex/grid + gap) or a positive spacing token."

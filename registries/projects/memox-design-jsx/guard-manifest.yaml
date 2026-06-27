@@ -27,4 +27,6 @@ rule_sets:
 rules:
   - rules/mxds-design-token-rules.yaml
   - rules/mxds-component-contract-rules.yaml
+  - rules/mxds-component-prop-rules.yaml
+  - rules/mxds-layout-rules.yaml
   - rules/mxds-naming-rules.yaml

@@ -9,10 +9,12 @@
 # (`mxds` is the memox-design-jsx ruleset namespace; the ruleset name carries
 # hyphens which are not legal in rule ids). Scopes live in config/scopes.yaml.
 #
-# Severity is `warning`: the current kit ships a few intentional raw literals
-# (e.g. the Theme.jsx swatch palette, px in inline styles), exactly as the
-# upstream oxlint config flags them at "warn". Promote to error once the kit is
-# fully tokenised.
+# Severity is `error`: the kit is fully tokenised, so any raw literal is a
+# regression. These rules cover both `px` literals AND bare unitless numbers in
+# JSX inline styles (React renders them as px) — color, spacing, sizing, radius,
+# typography weight/size, line-height and letter-spacing must all flow through a
+# `--memox-*` token. Genuinely unitless props (opacity, zIndex, flex, and 0)
+# are intentionally not flagged.
 version: 1
 
 metadata:
@@ -20,7 +22,9 @@ metadata:
   name: MemoX Design System (JSX) Design Token Rules
   description: >-
     Enforce design-token usage across the Mx* components and the app screen kit.
-    Raw hex colors and raw px values must not appear above the token layer; use
+    Raw hex colors, raw px literals, and bare unitless numbers in inline styles
+    (fontWeight, fontSize, gap/padding/margin, width/height, borderRadius,
+    lineHeight, letterSpacing) must not appear above the token layer; use
     var(--memox-*) tokens instead.
   owner: code-verification-guard
 
@@ -66,4 +70,157 @@ rules:
       - spacing
       - token
     fix:
-      hint: Replace the px literal with a token, e.g. var(--memox-space-4) / var(--memox-radius-card). Unitless numbers in JSX style props (React adds px) are out of scope.
+      hint: Replace the px literal with a token, e.g. var(--memox-space-4) / var(--memox-radius-card).
+
+  - id: mxds.design_token.no_raw_spacing_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric spacing/offset in a JSX inline style (React renders it as px).
+      gap / padding / margin / inset and edge offsets must use a
+      `var(--memox-space-*)` token instead of a bare number.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\b(?:gap|rowGap|columnGap|padding|paddingTop|paddingRight|paddingBottom|paddingLeft|margin|marginTop|marginRight|marginBottom|marginLeft|inset|top|left|right|bottom)\s*:\s*-?[1-9]\d*\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - spacing
+      - token
+    fix:
+      hint: "Replace with a spacing token, e.g. gap: 'var(--memox-space-2)'. Value 0 and unitless props (flex, opacity, zIndex) are allowed."
+
+  - id: mxds.design_token.no_raw_dimension_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric width/height in a JSX inline style (React renders it as px).
+      Fixed element dimensions must use a `var(--memox-size-*)` token; fluid
+      sizing uses `%` / `flex` / `auto` strings.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\b(?:width|height|minHeight|maxHeight|minWidth|maxWidth)\s*:\s*[1-9]\d*\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - sizing
+      - token
+    fix:
+      hint: "Replace with a size token, e.g. width: 'var(--memox-size-sm)'. Percentages, flex, and 0 are allowed."
+
+  - id: mxds.design_token.no_raw_radius_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric border radius in a JSX inline style (React renders it as px).
+      Use a `var(--memox-radius-*)` token instead of a bare number.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\bborder(?:Top|Bottom)?(?:Left|Right)?Radius\s*:\s*[1-9]\d*\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - radius
+      - token
+    fix:
+      hint: "Replace with a radius token, e.g. borderRadius: 'var(--memox-radius-card)'. '50%' / '999px' shapes stay as strings."
+
+  - id: mxds.design_token.no_raw_font_weight
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric font weight in a JSX inline style. Use a
+      `var(--memox-font-weight-*)` token (regular / medium / semibold / bold /
+      extrabold) instead of a numeric weight.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\bfontWeight\s*:\s*[1-9]\d*\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - typography
+      - token
+    fix:
+      hint: "Replace, e.g. fontWeight: 'var(--memox-font-weight-bold)'."
+
+  - id: mxds.design_token.no_raw_font_size_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric font size in a JSX inline style (React renders it as px). Text
+      uses a `var(--memox-font-size-*)` token; Material Symbols glyphs use a
+      `var(--memox-icon-size-*)` token.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\bfontSize\s*:\s*[1-9]\d*\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - typography
+      - token
+    fix:
+      hint: "Replace, e.g. fontSize: 'var(--memox-font-size-base)' or 'var(--memox-icon-size-md)'."
+
+  - id: mxds.design_token.no_raw_typography_metric
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw line-height or letter-spacing in a JSX inline style. Use a
+      `var(--memox-line-height-*)` / `var(--memox-letter-spacing-*)` token
+      instead of a bare ratio or em literal.
+    scopes:
+      - ds_jsx
+    patterns:
+      - '\blineHeight\s*:\s*[0-9]'
+      - '\bletterSpacing\s*:\s*''-?[.0-9]'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - typography
+      - token
+    fix:
+      hint: "Replace, e.g. lineHeight: 'var(--memox-line-height-normal)', letterSpacing: 'var(--memox-letter-spacing-wide)'."
+
+  # --- Layer-2 stylesheet (components.css) ---------------------------------
+  # The base-class CSS legitimately holds component-intrinsic pixel dimensions
+  # (switch / avatar / control sizes) and sub-grid tuning values, so raw px is
+  # NOT banned there. Raw COLORS are — every color must stay theme-switchable
+  # via a token. This is a regression guard (the stylesheet is colour-clean).
+  - id: mxds.design_token.no_raw_hex_color_css
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw hex color literal in the design-system stylesheet. Every color in
+      components.css must use a `var(--memox-*)` color token so light/dark theming
+      keeps working — never a `#rrggbb` literal. (Token files define the values.)
+    scopes:
+      - ds_css
+    patterns:
+      - '#[0-9A-Fa-f]{3,8}\b'
+    tags:
+      - mxds
+      - design
+      - design-system
+      - color
+      - token
+      - css
+    fix:
+      hint: "Replace the hex literal with a color token, e.g. color: var(--memox-text); background: var(--memox-surface)."
