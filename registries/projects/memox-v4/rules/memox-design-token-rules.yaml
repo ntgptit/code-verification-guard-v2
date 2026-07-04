@@ -357,8 +357,12 @@ rules:
     message: >-
       Raw `Duration(milliseconds: N)`, `Duration(seconds: N)`, or `Duration(minutes: N)`
       literals must not appear on presentation/app-shell surfaces. Source all animation,
-      transition, and debounce durations from `AppMotion.*` or approved duration constants.
-      Domain/data durations (SRS intervals, timeouts, retention windows) are out of scope here.
+      transition, and feedback/loop durations from `MxDurations.*` (generated into
+      `lib/core/theme/mx_motion.dart` from `tokens/motion.css`). If no token fits the value,
+      do NOT hardcode it: add a named `--memox-duration-*` to `tokens/motion.css`, reference
+      it from the kit element that renders it (so gen_tokens mirrors it, not prunes it), run
+      `/design-sync`, regenerate, then use the new `MxDurations.*`. Domain/data durations
+      (SRS intervals, timeouts, retention windows; `Duration(days:/hours:)`) are out of scope.
     scopes:
       - ui_surfaces
     patterns:
@@ -369,4 +373,4 @@ rules:
       - design-system
       - motion
     fix:
-      hint: 'Replace with AppMotion.*, DurationTokens.*, or a named constant. Duration.zero is allowed where the value is truly zero.'
+      hint: 'Replace with an MxDurations.* motion token (mx_motion.dart). Duration.zero is allowed where the value is truly zero. If the value is not on the motion scale, add the token to tokens/motion.css + wire it in the kit + regenerate — never hardcode.'

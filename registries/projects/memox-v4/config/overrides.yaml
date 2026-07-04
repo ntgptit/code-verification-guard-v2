@@ -16,18 +16,17 @@ overrides:
     # memox-v4 rules whose required target does not exist in v4 yet (kit-first gaps):
     #   header_actions_use_toolbar_icon_buttons wants `MxIconButton.toolbar(...)` — no
     #     such named constructor exists (v4 has only `MxIconButton(...)`).
-    #   no_raw_duration_value wants a motion/duration token — v4 has no motion tokens.
     #   no_raw_progress_indicator wants an Mx progress component for a spinner — v4 has
     #     only a linear MxProgressBar, no circular one.
     #   no_raw_divider wants an MxDivider — no such component exists in v4.
     - memox.design_system.header_actions_use_toolbar_icon_buttons
-    - memox.design_token.no_raw_duration_value
     - memox.design_system.no_raw_progress_indicator
     - memox.design_system.no_raw_divider
-    # flutter.no_hardcoded_duration: same no-token gap as no_raw_duration_value above —
-    #   v4 has no motion tokens, so animation durations (300ms match-flash, 1300ms
-    #   skeleton shimmer) have nothing to reference — AND it flags domain date
-    #   arithmetic like `today.subtract(Duration(days: n))`, which is correct raw use.
+    # flutter.no_hardcoded_duration stays off as the BLUNT duplicate: its pattern is a
+    #   bare `Duration(` so it also flags domain date arithmetic (`Duration(days: n)`),
+    #   which is correct raw use. The token-aware memox.design_token.no_raw_duration_value
+    #   is ENABLED instead — it targets only ms/seconds/minutes on ui_surfaces and points
+    #   at MxDurations.* (mirrored from tokens/motion.css into lib/core/theme/mx_motion.dart).
     - flutter.no_hardcoded_duration
   severity: {}
   rule_options:
