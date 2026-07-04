@@ -101,14 +101,16 @@ rules:
       - memox
       - design-system
       - design_system
-  # v4: downgraded error -> warning. v4 has no shared MxTextField primitive yet, so
-  # this can't be satisfied without a kit-first component. Kept as visible debt
-  # (build MxTextField) rather than a gate-blocking error.
+  # v4: `MxTextField` (lib/presentation/shared/primitives/mx_text_field.dart, kit
+  # `components/core/MxTextField.jsx` · `.field`) is the shared inline-input primitive,
+  # so this is back to error: feature code must route editable text through it.
   - id: memox.design_system.no_raw_text_input
     type: regex
-    severity: warning
+    severity: error
     enabled: true
-    message: Avoid raw Material text input widgets in feature code; prefer shared text-field primitives.
+    message: Avoid raw Material text inputs (TextField/TextFormField/SearchBar) in feature code; use the shared `MxTextField`
+      primitive so inline inputs share the MemoX chrome (borderless, token hint/cursor). The visible box, if any, stays the
+      caller's own container.
     scopes:
       - features
     patterns:
