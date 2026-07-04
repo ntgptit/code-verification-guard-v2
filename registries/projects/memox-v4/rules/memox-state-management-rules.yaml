@@ -262,10 +262,18 @@ rules:
       - memox
       - state-management
       - riverpod
+  # v4: disabled — a blunt proximity heuristic, not a size measure. The pattern only
+  # checks that a `.when(` appears within ~1200 chars of a `ref.watch(`, so it fires on
+  # EVERY screen using v4's standard idiom (watch controller -> return async.when),
+  # even though 18/19 already do exactly what it asks: a thin `.when` (skeleton loading,
+  # a section widget for error, `data: (x) => _content(...)` delegating the body). It
+  # can't see the delegation or measure the real block size, and the "shared async
+  # component" it suggests (AppAsyncBuilder) doesn't exist in v4. Enforcing "not too
+  # large" would need a line-count rule (like flutter.max_build_lines), not this.
   - id: memox.state_management.screen_async_when_section_split
     type: regex
     severity: warning
-    enabled: true
+    enabled: false
     message: Large screen-level `AsyncValue.when` rendering should be split into smaller sections or wrapped by the shared
       async component instead of owning loading/error/data branches inline.
     scopes:
