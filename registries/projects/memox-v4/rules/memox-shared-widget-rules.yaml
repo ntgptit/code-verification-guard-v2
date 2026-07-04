@@ -102,6 +102,8 @@ rules:
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
+      # Dev-only component showcase (not routed / not shipped).
+      - lib/presentation/shared/screens/**
     max_lines: 140
     count_mode: logical
     tags:

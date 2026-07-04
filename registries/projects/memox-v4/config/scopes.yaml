@@ -114,6 +114,7 @@ scopes:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
       - lib/l10n/app_localizations*.dart
+      - lib/presentation/shared/screens/**
       - '**/.dart_tool/**'
       - '**/build/**'
   all:
@@ -342,11 +343,14 @@ scopes:
       - '**/*.config.dart'
       - '**/gen/**'
   shared_widget_dirs:
+    # The `mx_*.dart` file + `Mx*` public-type contract targets the reusable
+    # component library only (primitives/composites/layouts). `shared/screens/**`
+    # holds full screens (e.g. the dev component gallery), which are legitimately
+    # not Mx primitives — excluded so they don't trip the mx_ naming rules.
     include:
       - lib/presentation/shared/primitives/**/*.dart
       - lib/presentation/shared/composites/**/*.dart
       - lib/presentation/shared/layouts/**/*.dart
-      - lib/presentation/shared/screens/**/*.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
@@ -378,6 +382,8 @@ scopes:
       - '**/*.freezed.dart'
       - '**/*.config.dart'
       - '**/gen/**'
+      # Dev-only component showcase (not routed / not shipped) — don't lint as product UI.
+      - lib/presentation/shared/screens/**
   ui_surfaces:
     include:
       - lib/main.dart

@@ -41,6 +41,8 @@ rules:
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
+      # Dev-only component showcase (not routed / not shipped) — labels are dev-facing.
+      - lib/presentation/shared/screens/**
     patterns:
       - Text\(\s*'(?:[^']*[A-Za-zÀ-ỹ][^']*)'
       - Text\(\s*"(?:[^"]*[A-Za-zÀ-ỹ][^"]*)"

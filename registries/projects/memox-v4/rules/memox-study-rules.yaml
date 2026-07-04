@@ -49,7 +49,7 @@ rules:
     include:
       - lib/**/*.dart
     exclude:
-      - lib/domain/usecases/srs/srs_scheduler.dart
+      - lib/domain/services/srs_scheduler.dart
     patterns:
       - \b_?intervalForBox\b
       - \b_?boxAfterFinalization\b
