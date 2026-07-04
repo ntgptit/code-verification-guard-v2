@@ -154,9 +154,13 @@ rules:
     type: regex
     severity: warning
     enabled: true
-    message: Avoid non-null assertion `!` in domain/presentation code. Prefer guard clauses, pattern matching, or explicit
-      failure handling. (Data repositories are excluded because Drift `row.read(col)!` and post-lookup `(await dao.find(id))!`
-      are idiomatic there.)
+    message: 'Avoid non-null assertion `!` in domain/presentation. Fix per Dart null-safety guidance, in order —
+      (1) copy the nullable field/getter into a LOCAL variable so flow analysis promotes it
+      (`final v = field; if (v != null) use(v);`) — fields/getters do not promote, locals do;
+      (2) for a field that is always assigned after construction (e.g. set in a notifier `build()`),
+      declare it `late T` instead of `T?` + `!` (a violated invariant then throws a clear LateInitializationError);
+      (3) otherwise use a guard clause / early return. Reserve `!` only for a genuine invariant the compiler
+      cannot express. (Data repos are excluded — Drift `row.read(col)!` and post-lookup `(await dao.find(id))!` are idiomatic.)'
     include:
       - lib/domain/**/*.dart
       - lib/presentation/**/*.dart
