@@ -71,9 +71,12 @@ rules:
     type: regex
     severity: warning
     enabled: true
-    message: IntrinsicHeight / IntrinsicWidth can force extra layout passes and show up as frame jank on dense Flutter surfaces.
-      Prefer fixed constraints, LayoutBuilder, shared layout primitives, or a reviewed exception when the intrinsic measurement
-      is intentionally bounded.
+    message: 'IntrinsicHeight / IntrinsicWidth force an extra layout pass and can jank dense or long surfaces. Prefer fixed
+      constraints, LayoutBuilder, or a shared layout primitive. A reviewed exception is allowed ONLY when the measurement is
+      genuinely bounded — a small FIXED number of children (e.g. 2–3 equal-height cards in a Row(stretch)), never around a
+      long/dynamic list, a scroll view, or a nested intrinsic. You MUST first verify that boundedness by reading the child
+      set; do NOT add the marker just to silence the warning. Once verified, mark the SAME line:
+      `IntrinsicHeight( // guard:intrinsic-reviewed -- reason: <why it is bounded, e.g. exactly 2 stat tiles>`.'
     include:
       - lib/main.dart
       - lib/app/app.dart
@@ -83,7 +86,7 @@ rules:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - \bIntrinsic(?:Height|Width)\s*\(
+      - \bIntrinsic(?:Height|Width)\s*\((?![^\n]*guard:intrinsic-reviewed\s+--\s+reason:\s*\S)
     tags:
       - memox
       - ui
