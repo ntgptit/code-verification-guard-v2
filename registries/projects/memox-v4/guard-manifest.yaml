@@ -34,7 +34,9 @@ rules:
   - rules/memox-performance-rules.yaml
   - rules/memox-routing-rules.yaml
   - rules/memox-shared-widget-rules.yaml
-  - rules/memox-shared-widget-doc-rules.yaml
+  # memox-shared-widget-doc-rules.yaml removed: memox-V4 uses plain prose dartdoc
+  # for shared widgets (0/27 use the structured Category/Purpose/Use-when block),
+  # and no tool consumes those structured sections.
   # memox-hooks-rules.yaml dropped: memox-V4 has no flutter_hooks dependency.
   - rules/memox-ui-async-guard-rules.yaml
   - rules/memox-action-density-rules.yaml

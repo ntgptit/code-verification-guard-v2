@@ -163,6 +163,10 @@ khi feature tương ứng landed.
 ### Rule bị tắt trong v4 (premise không tồn tại / trái với kiến trúc v4)
 
 - **hooks:** cả file `memox-hooks-rules.yaml` bị **bỏ khỏi manifest** — v4 không dùng `flutter_hooks`.
+- **shared widget docs:** cả file `memox-shared-widget-doc-rules.yaml` (11 rule
+  `shared_widget_doc.*`) bị **xoá hẳn** — v4 dùng prose dartdoc cho shared widget (0/27
+  widget dùng block có cấu trúc `Category/Purpose/Use when/Public API`), và không có tool
+  nào tiêu thụ các section đó. Scope `shared_widget_dart_doc_source` cũng đã gỡ.
 - **DI:** `architecture.centralized_shared_preferences_provider`, `.core_di_no_ui_imports`,
   `.core_di_no_state_notifiers`, `.di_no_export_wrappers` — không có `lib/app/di`; SharedPreferences không dùng.
 - **sync:** `architecture.drive_sync_isolated` — không có `lib/data/sync`, không có google dep.
