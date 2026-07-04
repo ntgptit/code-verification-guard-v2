@@ -109,12 +109,16 @@ rules:
     type: regex
     severity: warning
     enabled: true
-    message: Provider-owned files should not use `invalidateSelf()` casually; reserve it for deliberate AsyncNotifier refresh or
-      retry flows with an explicit reason.
+    message: '`invalidateSelf()` triggers a full rebuild + re-fetch of the provider. Never call it casually — NOT in `build()`
+      (infinite loop) or a listener that re-triggers itself. It IS correct for a deliberate post-mutation refresh (invalidate
+      after a successful save / param change so the state reflects the persisted value). First VERIFY the call is a real
+      deliberate refresh (read the surrounding method — it should follow a successful mutation, not run during build); do NOT
+      add the marker to silence a casual or loop-prone call. Once verified, document it on the SAME line:
+      `ref.invalidateSelf(); // guard:invalidate-reviewed -- reason: <e.g. re-fetch settings after a successful save>`.'
     scopes:
       - provider_files
     patterns:
-      - \binvalidateSelf\s*\(
+      - \binvalidateSelf\s*\((?![^\n]*guard:invalidate-reviewed\s+--\s+reason:\s*\S)
     tags:
       - memox
       - state-management
