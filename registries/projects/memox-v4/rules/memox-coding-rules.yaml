@@ -136,11 +136,17 @@ rules:
       - naming
     fix:
       hint: Keep the local variable name between 2 and 18 characters.
+  # v4: disabled — the regex is broken AND the convention is opinionated (Dart has
+  # no name-length lint). Because the pattern is `class …State\b.*?` under (?s) +
+  # mode:file, the `.*?` runs past the class body into method bodies, so it flags any
+  # short LOCAL variable in any file that happens to contain a *State/*Model class
+  # (e.g. `final id = …` mislabeled as a "MatchingState field"). Bounding a regex to
+  # a single class body isn't reliable; drop the rule rather than ship false positives.
   - id: memox.coding.model_state_field_name_length
     type: regex
     mode: file
     severity: warning
-    enabled: true
+    enabled: false
     message: Model and State field names must be between 3 and 22 characters.
     scopes:
       - app_and_presentation_source
