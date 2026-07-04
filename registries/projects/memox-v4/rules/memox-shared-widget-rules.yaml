@@ -75,10 +75,17 @@ rules:
       - shared-widget
       - architecture
       - design_system
+  # v4: disabled — over-strict for v4's idiom. Every shared InkWell is either
+  # wrapped in a `Material(clipBehavior: Clip.antiAlias, shape|borderRadius: …)` that
+  # ALREADY clips the ripple to the shape (mx_card/mx_fab/mx_chip/mx_choice_option/
+  # mx_segmented_control), or is an intentionally flat, full-bleed list row where a
+  # rectangular ripple is correct (mx_list_row/mx_status_card_row). The regex only
+  # checks for InkWell-level customBorder/borderRadius and can't see the parent clip,
+  # so it 100% false-positives. Re-enable if v4 stops clipping ripples via Material.
   - id: memox.shared_widget.ink_must_have_shape
     type: regex
     severity: error
-    enabled: true
+    enabled: false
     message: If a shared widget keeps a raw `InkWell`, it must pass `customBorder:` or `borderRadius:` so the interaction
       overlay matches the visual shape.
     scopes:

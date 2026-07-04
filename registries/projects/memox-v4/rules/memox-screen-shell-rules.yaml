@@ -141,10 +141,17 @@ rules:
       - memox
       - screen-shell
       - architecture
+  # v4: disabled — assumes a "template-only shell" category that v4 doesn't have.
+  # Every v4 screen is a ConsumerWidget that does `ref.watch(xController)` and renders
+  # the MxScaffold via `AsyncValue.when(loading/error/data)` — the standard Riverpod
+  # screen idiom (theme/library/settings/game/... 14 screens). The watch drives the
+  # WHOLE screen (three states => three different scaffolds), so it is structurally
+  # un-moveable into a section; requiring the escape hatch on ~all screens signals the
+  # rule default is wrong for v4. Re-enable if v4 adopts template-only shells.
   - id: memox.screen_shell.template_shell_no_ref_watch
     type: regex
     severity: error
-    enabled: true
+    enabled: false
     message: 'Template-only screen shells that return `MxScaffold`, `MxListScaffold`, `MxFormScaffold`, or `MxStudyScaffold`
       should not also watch providers in the same build body. Move provider watching into a section widget, or add `// guard:allow-screen-watch
       -- reason: ...` when the screen shell must stay reactive.'

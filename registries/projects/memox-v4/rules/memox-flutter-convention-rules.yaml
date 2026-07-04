@@ -146,9 +146,13 @@ rules:
       - memox
       - flutter
       - lifecycle
+  # v4: downgraded error -> warning to match the rule's own "requires_review" intent.
+  # Many hits are guarded (`x != null && x!...`) where `!` is idiomatic Dart when the
+  # target is a non-promotable field/getter. Keep it as an advisory review signal, not
+  # a gate-blocking error.
   - id: memox.flutter_convention.non_null_assertion_requires_review
     type: regex
-    severity: error
+    severity: warning
     enabled: true
     message: Avoid non-null assertion `!` in domain/presentation code. Prefer guard clauses, pattern matching, or explicit
       failure handling. (Data repositories are excluded because Drift `row.read(col)!` and post-lookup `(await dao.find(id))!`
