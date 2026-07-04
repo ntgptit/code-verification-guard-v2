@@ -3,6 +3,27 @@ version: 1
 overrides:
   disabled_rules:
     - common.no_large_source_file
+    # Blunt shared-language rules that false-positive on v4's token idiom. memox-v4
+    # has its own token-aware equivalents, so these are redundant here:
+    #   flutter.no_hardcoded_radius flags `Radius.circular(MxRadius.x)` (already a
+    #     token) — memox.design_token.no_raw_radius_value covers raw N correctly.
+    #   flutter.no_hardcoded_color flags `Colors.transparent` (a legit utility value)
+    #     — memox.design_token.no_raw_color_hex_outside_tokens covers raw hex.
+    #   dart.no_dynamic_usage matches the word "dynamic" inside comments.
+    - flutter.no_hardcoded_radius
+    - flutter.no_hardcoded_color
+    - dart.no_dynamic_usage
+    # memox-v4 rules whose required target does not exist in v4 yet (kit-first gaps):
+    #   header_actions_use_toolbar_icon_buttons wants `MxIconButton.toolbar(...)` — no
+    #     such named constructor exists (v4 has only `MxIconButton(...)`).
+    #   no_raw_duration_value wants a motion/duration token — v4 has no motion tokens.
+    #   no_raw_progress_indicator wants an Mx progress component for a spinner — v4 has
+    #     only a linear MxProgressBar, no circular one.
+    #   no_raw_divider wants an MxDivider — no such component exists in v4.
+    - memox.design_system.header_actions_use_toolbar_icon_buttons
+    - memox.design_token.no_raw_duration_value
+    - memox.design_system.no_raw_progress_indicator
+    - memox.design_system.no_raw_divider
   severity: {}
   rule_options:
     memox.coding.provider_file_naming:
@@ -35,3 +56,16 @@ overrides:
         - lib/core/**
         - lib/data/**
         - lib/domain/**
+    # Bespoke values with no matching token yet — scoped out (keep the rule elsewhere):
+    #   mx_button uses a 1.5 border width (MxStroke has only 1/2/3).
+    memox.design_token.require_border_token:
+      exclude:
+        - lib/presentation/shared/primitives/mx_button.dart
+    #   mx_avatar uses a two-ring BoxShadow effect, not an elevation shadow.
+    memox.design_token.require_shadow_token:
+      exclude:
+        - lib/presentation/shared/primitives/mx_avatar.dart
+    #   DeckStatsRow is a Drift query-result row co-located with its DAO (not a DAO type).
+    memox.layer_naming.dao_class_suffix:
+      exclude:
+        - lib/data/datasources/local/dao/deck_dao.dart
