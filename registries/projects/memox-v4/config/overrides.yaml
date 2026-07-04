@@ -74,3 +74,8 @@ overrides:
     memox.layer_naming.dao_class_suffix:
       exclude:
         - lib/data/datasources/local/dao/deck_dao.dart
+    #   The dev-only component gallery (not routed / not shipped) shows skeletons at
+    #   fixed demo sizes; it is not a real loading surface.
+    memox.design_token.skeleton_width_use_factor:
+      exclude:
+        - lib/presentation/shared/screens/**

@@ -140,6 +140,29 @@ rules:
     fix:
       hint: 'Replace raw visual box sizes with ComponentSizeTokens.*, BorderTokens.*, IconSizeTokens.*, or another named size token.'
 
+  - id: memox.design_token.skeleton_width_use_factor
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      A skeleton text-line must size its width with `widthFactor` (a fraction of the
+      parent, 0..1) mirroring the kit `Skeleton w="X%"`, NOT a raw pixel `width:` — a
+      hardcoded px freezes the kit's percentage at one assumed screen width and breaks
+      responsiveness. An absolute `width:` is only allowed for a square/pill placeholder,
+      which must carry an explicit `radius:` (e.g. an avatar `width: 48, height: 48,
+      radius: 16`).
+    scopes:
+      - ui_surfaces
+    patterns:
+      - 'MxSkeleton\(\s*width:\s*[0-9](?![^)]*radius)'
+    tags:
+      - memox
+      - design
+      - design-system
+      - sizing
+    fix:
+      hint: 'Change MxSkeleton(width: N ...) to MxSkeleton(widthFactor: F ...) with F = the kit w="X%" as a fraction (e.g. 40% -> 0.4). Keep absolute width only for square/pill placeholders that set radius.'
+
   - id: memox.design_token.no_spacing_token_for_icon_size
     type: regex
     severity: error
