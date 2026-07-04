@@ -24,6 +24,11 @@ overrides:
     - memox.design_token.no_raw_duration_value
     - memox.design_system.no_raw_progress_indicator
     - memox.design_system.no_raw_divider
+    # flutter.no_hardcoded_duration: same no-token gap as no_raw_duration_value above —
+    #   v4 has no motion tokens, so animation durations (300ms match-flash, 1300ms
+    #   skeleton shimmer) have nothing to reference — AND it flags domain date
+    #   arithmetic like `today.subtract(Duration(days: n))`, which is correct raw use.
+    - flutter.no_hardcoded_duration
   severity: {}
   rule_options:
     memox.coding.provider_file_naming:
@@ -51,16 +56,17 @@ overrides:
       count_mode: logical
       exclude:
         - lib/presentation/shared/**
-    flutter.no_hardcoded_duration:
-      exclude:
-        - lib/core/**
-        - lib/data/**
-        - lib/domain/**
     # Bespoke values with no matching token yet — scoped out (keep the rule elsewhere):
     #   mx_button uses a 1.5 border width (MxStroke has only 1/2/3).
     memox.design_token.require_border_token:
       exclude:
         - lib/presentation/shared/primitives/mx_button.dart
+    #   mx_segmented_control's _segmentMinHeight is a fixed component tap-target size,
+    #   not a screen-responsive breakpoint (the rule's real target); no MxSizes token
+    #   matches it, so scope it out of this one shared primitive.
+    memox.responsive_layout.child_no_local_responsive_constants:
+      exclude:
+        - lib/presentation/shared/primitives/mx_segmented_control.dart
     #   mx_avatar uses a two-ring BoxShadow effect, not an elevation shadow.
     memox.design_token.require_shadow_token:
       exclude:
