@@ -1,0 +1,112 @@
+# MemoX guard rules — domain: responsive_layout
+# Responsive ownership: screen-size reads stay in root layouts/shell; child widgets derive
+# layout from constraints/ResponsiveRules, never from MediaQuery or local breakpoints.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-responsive-layout
+  name: MemoX Responsive Layout Rules
+  description: 'Responsive ownership: MediaQuery usage, child-widget sizing, and shared responsive contracts.'
+  owner: code-verification-guard
+rules:
+  - id: memox.responsive_layout.no_media_query_font_scaling
+    type: regex
+    severity: error
+    enabled: true
+    message: UI code must not scale `fontSize` directly from `MediaQuery`, raw screen dimensions, or per-widget text scaling
+      math.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - \bfontSize\s*:\s*[^,\n)]*MediaQuery
+      - \bfontSize\s*:\s*[^,\n)]*screenWidth
+      - \bfontSize\s*:\s*[^,\n)]*screenHeight
+      - \bfontSize\s*:\s*[^,\n)]*textScaleFactor
+      - \bfontSize\s*:\s*[^,\n)]*textScaler
+    tags:
+      - memox
+      - responsive-layout
+      - design_system
+  - id: memox.responsive_layout.child_no_media_query_size
+    type: regex
+    severity: warning
+    enabled: true
+    message: Child widgets must not read `MediaQuery.of(context).size` or `MediaQuery.sizeOf(context)` directly for layout
+      decisions. Keep screen-wide size ownership in root page layouts, app shell, dialogs, sheets, or overlays.
+    scopes:
+      - child_widget_layout_files
+    patterns:
+      - \bMediaQuery\.of\(context\)\.size\b
+      - \bMediaQuery\.sizeOf\(context\)\b
+    tags:
+      - memox
+      - responsive-layout
+      - architecture
+  - id: memox.responsive_layout.child_no_screen_width_layout
+    type: regex
+    severity: error
+    enabled: true
+    message: Child widgets must not read `MediaQuery.of(context).size.width` or `MediaQuery.sizeOf(context).width` to derive
+      local layout widths. Drive child layout from local constraints, `LayoutBuilder`, or responsive helpers instead.
+    scopes:
+      - child_widget_screen_width_files
+    patterns:
+      - \bMediaQuery\.of\(context\)\.size\.width\b
+      - \bMediaQuery\.sizeOf\(context\)\.width\b
+    tags:
+      - memox
+      - responsive-layout
+      - architecture
+  - id: memox.responsive_layout.child_no_local_responsive_constants
+    type: regex
+    severity: warning
+    enabled: true
+    message: Child widgets should not declare local responsive sizing constants such as min/max width, min/max height, thresholds,
+      or column counts. Move shared layout sizing into `ResponsiveRules`, tokens, or a parent-owned responsive contract instead.
+    scopes:
+      - child_widget_layout_files
+    patterns:
+      - (?:^|\s)(?:static\s+)?const\s+(?:double|int)\s+_[A-Za-z0-9_]*(?:Threshold|MinWidth|MaxWidth|MinHeight|MaxHeight|Breakpoint|Columns)\s*=\s*\d
+    tags:
+      - memox
+      - responsive-layout
+      - architecture
+  - id: memox.responsive_layout.child_no_direct_screen_type
+    type: regex
+    severity: warning
+    enabled: true
+    message: Child widgets should not call `ScreenType.of(context)` directly. Keep direct screen-type branching inside responsive
+      core helpers, shared layouts, or root screens, and let widgets consume `context.screenType`, parent-owned parameters,
+      or local constraints instead.
+    scopes:
+      - child_widget_layout_files
+    patterns:
+      - \bScreenType\.of\(context\)\b
+      - \bScreenType\.of\(this\)\b
+    tags:
+      - memox
+      - responsive-layout
+      - architecture
+  # v4: no lib/presentation/shared/layouts/ files exist — the base-shell concept
+  # lives in shared/composites/mx_scaffold.dart, already covered by the
+  # memox.screen_shell.* layout-value rules. Disabled to avoid an orphan scope +
+  # duplicate findings; re-enable if a shared/layouts/ contract folder is added.
+  - id: memox.responsive_layout.shared_layout_no_magic_numbers
+    type: regex
+    severity: error
+    enabled: false
+    message: Shared layout contracts must not embed raw numeric width caps or variant-specific layout numbers inline. Define
+      a named constant or route the value through `ResponsiveRules`/a preset instead.
+    scopes:
+      - shared_layout_files
+    patterns:
+      - =>\s*\d+(?:\.\d+)?\b
+      - '\?\s*\d+(?:\.\d+)?\s*:'
+      - \?\s*null\s*:\s*\d+(?:\.\d+)?\b
+    tags:
+      - memox
+      - responsive-layout
+      - architecture

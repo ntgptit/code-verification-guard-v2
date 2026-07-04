@@ -1,0 +1,512 @@
+# MemoX guard rules — domain: design_system
+# MemoX Design System usage: shared Mx components instead of raw Material widgets,
+# theme-driven colors/typography, no direct token-source imports in feature code.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-design-system
+  name: MemoX Design System Rules
+  description: Shared Mx components over raw Material widgets; theme-driven colors and typography.
+  owner: code-verification-guard
+rules:
+  - id: memox.design_system.no_mx_gap_h_constructor
+    type: regex
+    severity: error
+    enabled: true
+    message: '`MxGap.h(...)` was removed when MemoX migrated to the axis-aware `gap` wrapper. Use `MxGap(...)` everywhere
+      so spacing follows the parent axis automatically.
+
+      '
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+    patterns:
+      - \bMxGap\.h\s*\(
+    tags:
+      - memox
+      - design-system
+      - coding
+      - architecture
+  - id: memox.design_system.no_raw_modal_bottom_sheet
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw `showModalBottomSheet(...)` in feature presentation code; route through a shared helper.
+    scopes:
+      - features
+    patterns:
+      - showModalBottomSheet\s*\(
+    tags:
+      - memox
+      - design-system
+      - architecture
+  - id: memox.design_system.no_raw_app_bar
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material app bars in feature code; prefer shared toolbar primitives.
+    scopes:
+      - features
+    patterns:
+      - \bAppBar\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_fab
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material floating action buttons in feature code; prefer shared FAB primitives.
+    scopes:
+      - features
+    patterns:
+      - \bFloatingActionButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_button
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material button widgets in feature code; prefer shared button primitives.
+    scopes:
+      - features
+    patterns:
+      - \bElevatedButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bFilledButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bOutlinedButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bTextButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_dialog
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material dialog widgets in feature code; prefer shared dialog primitives.
+    scopes:
+      - features
+    patterns:
+      - \bAlertDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSimpleDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bAboutDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDialog(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_text_input
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material text input widgets in feature code; prefer shared text-field primitives.
+    scopes:
+      - features
+    patterns:
+      - \bTextField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bTextFormField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSearchBar(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSearchAnchor(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_chip
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material chip widgets in feature code; prefer shared chip primitives.
+    scopes:
+      - features
+    patterns:
+      - \bChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bChoiceChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bFilterChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bActionChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bInputChip(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_icon_button
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material icon buttons in feature code; prefer shared icon-button primitives.
+    scopes:
+      - features
+    patterns:
+      - \bIconButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_dropdown
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material dropdown widgets in feature code; prefer shared select-field primitives.
+    scopes:
+      - features
+    patterns:
+      - \bDropdownButton(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDropdownButtonFormField(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bDropdownMenu(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_progress_indicator
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material progress indicators in feature code; prefer shared loading/progress primitives.
+    scopes:
+      - features
+    patterns:
+      - \bCircularProgressIndicator(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bLinearProgressIndicator(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_divider
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material dividers in feature code; prefer shared divider primitives.
+    scopes:
+      - features
+    patterns:
+      - \bDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bVerticalDivider(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_switch
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material switches in feature code; prefer shared toggle primitives.
+    scopes:
+      - features
+    patterns:
+      - \bSwitch(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+      - \bSwitchListTile(?:\.[A-Za-z_][A-Za-z0-9_]*)?\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_misc_material_controls
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Flutter Material higher-level controls in feature code, such as checkboxes, radios, sliders, menus,
+      tiles, tabs, navigation widgets, and steppers; prefer shared Mx primitives (e.g. MxListTile, MxSettingsTile).
+    scopes:
+      - features
+    patterns:
+      - \bCheckbox\s*\(
+      - \bCheckboxListTile\s*\(
+      - \bRadio\s*\(
+      - \bRadioListTile\s*\(
+      - \bSlider\s*\(
+      - \bRangeSlider\s*\(
+      - \bSegmentedButton(?:<[^>]+>)?\s*\(
+      - \bPopupMenuButton(?:<[^>]+>)?\s*\(
+      - \bMenuAnchor\s*\(
+      - \bMenuBar\s*\(
+      - \bSubmenuButton\s*\(
+      - \bListTile\s*\(
+      - \bExpansionTile\s*\(
+      - \bNavigationBar\s*\(
+      - \bBottomNavigationBar\s*\(
+      - \bNavigationRail\s*\(
+      - \bNavigationDrawer\s*\(
+      - \bTabBar\s*\(
+      - \bTabBarView\s*\(
+      - \bTabPageSelector\s*\(
+      - \bStepper\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_raw_date_time_pickers
+    type: regex
+    severity: warning
+    enabled: true
+    message: Raw Material date/time pickers in feature code bypass the MemoX Design System. No Mx wrapper exists for these
+      yet — if a feature genuinely needs one, report the design-system gap and get the wrapper approved instead of silencing
+      this warning.
+    scopes:
+      - features
+    patterns:
+      - \bshowDatePicker\s*\(
+      - \bshowDateRangePicker\s*\(
+      - \bshowTimePicker\s*\(
+      - \bDatePickerDialog\s*\(
+      - \bTimePickerDialog\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+    fix:
+      hint: Report the missing Mx date/time picker wrapper as a design-system gap; do not hand-roll picker styling in features.
+  - id: memox.design_system.no_raw_snackbar
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw Material snack bars in feature code; prefer shared snackbar helpers.
+    scopes:
+      - features
+    patterns:
+      - \bSnackBar\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_popup_menu_button_child
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Do not use `PopupMenuButton(child: ...)` on UI surfaces because its internal overlay may not match the child''s
+      rounded shape.'
+    scopes:
+      - ui
+    patterns:
+      - '(?s)\bPopupMenuButton(?:<[^>]+>)?\s*\(.*?\bchild\s*:'
+    mode: file
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_direct_scaffold_messenger
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature UI should not call `ScaffoldMessenger.of(...)` directly; route feedback through shared snackbar helpers.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bScaffoldMessenger\.of\s*\(
+    tags:
+      - memox
+      - design-system
+      - architecture
+  - id: memox.design_system.no_direct_show_dialog
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature UI should not call `showDialog(...)` directly; route dialog flows through shared dialog helpers.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bshowDialog\s*\(
+    tags:
+      - memox
+      - design-system
+      - architecture
+  - id: memox.design_system.no_raw_text_style
+    type: regex
+    severity: error
+    enabled: true
+    message: Avoid raw `TextStyle(...)` in feature UI files; prefer theme text styles and shared typography.
+    scopes:
+      - feature_ui
+    patterns:
+      - \bTextStyle\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_direct_color_typography_tokens
+    type: regex
+    severity: error
+    enabled: true
+    message: UI code should access colors and typography through theme/context extensions, not directly from raw theme source
+      files such as `app_colors.dart` or `app_typography.dart`.
+    scopes:
+      - ui
+    patterns:
+      - import\s+'package:memox/core/theme/tokens/app_colors\.dart';
+      - import\s+'package:memox/core/theme/tokens/app_typography\.dart';
+      - import\s+'(?:\.\./)+core/theme/tokens/app_colors\.dart';
+      - import\s+'(?:\.\./)+core/theme/tokens/app_typography\.dart';
+      - \bAppColors\.
+      - \bAppTypography\.
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_material_colors
+    type: regex
+    severity: error
+    enabled: true
+    message: App source must not use `Colors.*` directly. Read colors from the active `ColorScheme`, a custom theme extension,
+      or a shared semantic accessor instead. `Colors.transparent` is theme-neutral and allowed.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bColors\.(?!transparent\b)
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_with_opacity
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature presentation code must not call `.withOpacity(...)`; route opacity through theme-driven semantic color
+      APIs or centralized opacity tokens instead.
+    scopes:
+      - feature_ui
+    patterns:
+      - \.withOpacity\s*\(
+    tags:
+      - memox
+      - design-system
+      - design_system
+  - id: memox.design_system.no_theme_token_imports
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature-layer source must not import raw theme source files such as `app_spacing.dart` or `app_radius.dart`;
+      consume UI values through theme/context accessors or shared widgets instead. (`app_colors.dart` / `app_typography.dart`
+      imports are covered by `memox.design_system.no_direct_color_typography_tokens` on the wider `ui` scope.)
+    scopes:
+      - features
+    patterns:
+      - import\s+'package:memox/core/theme/tokens/app_spacing\.dart'
+      - import\s+'package:memox/core/theme/tokens/app_radius\.dart'
+      - import\s+'package:memox/core/theme/tokens/app_elevation\.dart'
+      - import\s+'package:memox/core/theme/tokens/app_motion\.dart'
+      - import\s+'package:memox/core/theme/tokens/app_opacity\.dart'
+      - import\s+'package:memox/core/theme/responsive/app_breakpoints\.dart'
+      - import\s+'package:memox/core/theme/tokens/app_icon_sizes\.dart'
+    tags:
+      - memox
+      - design-system
+      - architecture
+      - design_system
+  - id: memox.design_system.no_direct_text_theme
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Feature code must not choose Material text-theme roles directly. Route semantic typography through `MxText(role:
+      ...)` so the same UI intent resolves to the same scale across screens.'
+    scopes:
+      - features
+    patterns:
+      - Theme\.of\(context\)\.textTheme\.
+      - \.textTheme\.(?:display|headline|title|body|label)
+    tags:
+      - memox
+      - design-system
+      - architecture
+      - design_system
+  - id: memox.design_system.theme_file_no_riverpod
+    type: regex
+    severity: error
+    enabled: true
+    message: '`lib/core/theme/app_theme.dart` should contain theme definitions only, not Riverpod providers or notifier classes.'
+    scopes:
+      - theme_file
+    patterns:
+      - '@riverpod'
+      - '@Riverpod'
+      - class\s+\w+\s+extends\s+_\$\w+
+    tags:
+      - memox
+      - design-system
+      - architecture
+  - id: memox.design_system.no_theme_export_wrappers
+    type: regex
+    severity: error
+    enabled: true
+    message: '`lib/core/theme/**` should not use export-wrapper files; import the real theme source file directly.'
+    scopes:
+      - theme_sources
+    patterns:
+      - ^export\s+
+    tags:
+      - memox
+      - design-system
+      - architecture
+  - id: memox.design_system.header_actions_use_toolbar_icon_buttons
+    type: regex
+    severity: error
+    enabled: true
+    message: App bar and feature header icon actions must use `MxIconButton.toolbar(...)` so normal Back/More actions stay
+      visually quiet.
+    scopes:
+      - app_bar_header_files
+    patterns:
+      - \bMxIconButton\s*\(
+    tags:
+      - memox
+      - design-system
+      - architecture
+      - design_system
+  - id: memox.design_system.no_raw_ink_surface
+    type: regex
+    severity: error
+    enabled: true
+    message: Interactive UI surfaces must route hover, focus, and pressed overlays through a shared shaped tap primitive instead
+      of hand-rolled `InkWell`, `InkResponse`, or tap-only `GestureDetector` usage.
+    scopes:
+      - ui
+    exclude:
+      - lib/presentation/shared/**
+    patterns:
+      - \bInkWell\s*\(
+      - \bInkResponse\s*\(
+      - '(?s)GestureDetector\s*\((?:(?!\)).)*?\bonTap\s*:'
+    mode: file
+    tags:
+      - memox
+      - design-system
+      - architecture
+      - design_system
+  - id: memox.design_system.no_raw_card
+    type: regex
+    severity: error
+    enabled: true
+    message: MemoX must not use Card directly. Use MxCard or a more specific shared surface.
+    scopes:
+      - flutter_source
+    exclude:
+      - lib/presentation/shared/**
+    patterns:
+      - \bCard\s*\(
+    tags:
+      - memox
+      - ui
+      - design-system
+    fix:
+      hint: Replace raw Card usage with MxCard or a more specific shared surface.
+  - id: memox.design_system.no_deprecated_flutter_api
+    type: regex
+    severity: error
+    enabled: true
+    message: Deprecated Flutter APIs must not be (re)introduced - `WillPopScope` is replaced by `PopScope`,
+      `textScaleFactor` by `TextScaler`, and `MaterialState*` by `WidgetState*`. Deprecated APIs block Flutter upgrades
+      and behave inconsistently across SDK versions.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bWillPopScope\s*\(
+      - \.textScaleFactor\b
+      - \bMaterialState\w*\b
+    tags:
+      - memox
+      - design-system
+      - deprecation
+    fix:
+      hint: Use PopScope, MediaQuery.textScalerOf(context) / TextScaler, and WidgetStateProperty instead.

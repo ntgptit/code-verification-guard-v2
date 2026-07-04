@@ -1,0 +1,37 @@
+version: 1
+
+overrides:
+  disabled_rules:
+    - common.no_large_source_file
+  severity: {}
+  rule_options:
+    memox.coding.provider_file_naming:
+      exclude:
+        - '**/*.g.dart'
+        - '**/*.freezed.dart'
+    # string_normalization_via_string_utils is disabled in memox-v4 (no StringUtils
+    # helper exists), so no override is needed here.
+    common.no_placeholder_implementation:
+      exclude:
+        - test/**
+        - integration_test/**
+    common.max_file_lines:
+      include:
+        - lib/**/*.dart
+      exclude:
+        - '**/*.g.dart'
+        - '**/*.freezed.dart'
+        - lib/l10n/app_localizations*.dart
+        - test/**
+        - integration_test/**
+      max_lines: 500
+      count_mode: logical
+    flutter.max_build_lines:
+      count_mode: logical
+      exclude:
+        - lib/presentation/shared/**
+    flutter.no_hardcoded_duration:
+      exclude:
+        - lib/core/**
+        - lib/data/**
+        - lib/domain/**

@@ -1,0 +1,445 @@
+# MemoX guard rules — domain: architecture
+# Clean Architecture boundaries: dependency direction (domain ← data, presentation → domain),
+# DI wiring, and data-layer ownership (transactions, DAO/Drift access, raw SQL).
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-architecture
+  name: MemoX Architecture Rules
+  description: Layering, dependency-direction, DI wiring, and data-boundary rules for MemoX.
+  owner: code-verification-guard
+rules:
+  - id: memox.architecture.no_transaction_outside_data_layer
+    type: regex
+    severity: error
+    enabled: true
+    message: Database transactions must stay in the data or database layer; do not call `transaction(...)` from UI, app providers,
+      presentation notifiers, services, or use cases.
+    scopes:
+      - non_data_layer_source
+    patterns:
+      - \btransaction\s*\(
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.widget_no_repository_provider_access
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not read or watch repository providers directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - ref\.(?:read|watch)\s*\(\s*\w*RepositoryProvider(?:\b|\s*[.)])
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.widget_no_database_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not import DAO or database files directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - ^import\s+'package:memox/data/datasources/local/[^']+\.dart';
+      - ^import\s+'package:memox/data/datasources/local/dao/[^']+\.dart';
+      - ^import\s+'(?:\.\./)+[^']*/(?:dao|database)/[^']+\.dart';
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.widget_no_database_query
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not query Drift or call DAO objects directly.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - \b(?:_?database|db|appDatabase)\s*\.\s*(?:select|into|customSelect|customSelectStream)\s*\(
+      - \b(?:_?[A-Za-z0-9]*Dao)\s*\.\s*[A-Za-z_][A-Za-z0-9_]*\s*\(
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.domain_no_flutter_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The domain layer must not import Flutter packages.
+    include:
+      - lib/domain/**/*.dart
+    patterns:
+      - package:flutter/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Keep domain code framework-independent.
+  - id: memox.architecture.domain_no_data_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The domain layer must not import the data layer.
+    include:
+      - lib/domain/**/*.dart
+    patterns:
+      - package:memox/data/
+      - (?:\.\./)+data/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Depend on domain abstractions instead of data implementations.
+  - id: memox.architecture.domain_no_presentation_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The domain layer must not import the presentation layer.
+    include:
+      - lib/domain/**/*.dart
+    patterns:
+      - package:memox/presentation/
+      - (?:\.\./)+presentation/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Move shared contracts into the domain layer.
+  - id: memox.architecture.presentation_no_data_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The presentation layer must not import the data layer directly.
+    include:
+      - lib/presentation/**/*.dart
+    patterns:
+      - package:memox/data/
+      - (?:\.\./)+data/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Access data through application services or use cases.
+  - id: memox.architecture.domain_no_flutter_foundation_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Domain entities and services must stay pure Dart and must not import Flutter framework annotations.
+    scopes:
+      - domain_files
+    patterns:
+      - import\s+'package:flutter/foundation\.dart'
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.presentation_no_dart_io_imports
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature screens and widgets must not read files or platform IO directly; route platform access through core/data
+      helpers.
+    scopes:
+      - feature_ui
+    patterns:
+      - import\s+'dart:io
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.presentation_no_broad_dart_ui_imports
+    type: regex
+    severity: error
+    enabled: true
+    message: Presentation code that needs low-level engine APIs must import only the explicit symbols it uses.
+    scopes:
+      - ui
+    patterns:
+      - import\s+'dart:ui';
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.no_cross_feature_study_provider_imports
+    type: regex
+    severity: error
+    enabled: true
+    message: Non-study presentation features must not import Study feature providers directly; expose shared revision or settings
+      boundaries outside the feature.
+    scopes:
+      - features
+    patterns:
+      - import\s+'(?:\.\./)+study-session/providers/
+      - import\s+'package:memox/presentation/features/study-session/providers/
+    tags:
+      - memox
+      - architecture
+  # v4: no lib/app/di; SharedPreferences not used anywhere in v4.
+  - id: memox.architecture.centralized_shared_preferences_provider
+    type: regex
+    severity: error
+    enabled: false
+    message: Only the app-level DI provider may call `SharedPreferences.getInstance()`; feature DI must reuse `sharedPreferencesProvider`.
+    scopes:
+      - core_di
+    patterns:
+      - SharedPreferences\.getInstance\s*\(
+    exclude:
+      - lib/app/di/app_providers.dart
+    tags:
+      - memox
+      - architecture
+  # v4: no lib/app/di folder.
+  - id: memox.architecture.core_di_no_ui_imports
+    type: regex
+    severity: error
+    enabled: false
+    message: '`lib/app/di/*` should wire infrastructure only and must not depend on presentation modules.'
+    scopes:
+      - core_di
+    patterns:
+      - import\s+'package:memox/presentation/
+    tags:
+      - memox
+      - architecture
+  # v4: no lib/app/di folder.
+  - id: memox.architecture.core_di_no_state_notifiers
+    type: regex
+    severity: warning
+    enabled: false
+    message: '`lib/app/di/*` should wire infrastructure/use-case providers only; feature state or generated Riverpod notifier
+      classes belong in `lib/presentation/features/**/viewmodels` (or feature `providers`), not in app DI. Review if a notifier
+      is defined here.'
+    scopes:
+      - core_di
+    patterns:
+      - class\s+\w+\s+extends\s+_\$\w+
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.no_direct_dependency_creation
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget, app layout, notifier, and viewmodel files must not instantiate infrastructure dependencies directly;
+      wire them through provider injection.
+    scopes:
+      - widget_ui_files
+      - viewmodel_files
+    patterns:
+      - \bDio\s*\(
+      - \b(?:http\.)?Client\s*\(
+      - \b[A-Z]\w*RepositoryImpl\s*\(
+      - \b[A-Z]\w*Database\s*\(
+      - SharedPreferences\.getInstance\s*\(
+    tags:
+      - memox
+      - architecture
+  # v4: aligned to Flutter's recommended app architecture (MVVM + Repository).
+  # A feature provider (ViewModel) SHOULD depend on repositories directly —
+  # use-cases are an optional layer, not a mandatory hop. So reading
+  # `*RepositoryProvider` is allowed. What stays forbidden is a ViewModel
+  # reaching PAST the repository to raw infrastructure (the Drift database),
+  # which breaks the data-layer boundary. The v1 service providers
+  # (storageServiceProvider/…) don't exist in v4 and were dropped.
+  - id: memox.architecture.no_direct_infrastructure_access
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature provider (ViewModel) files may depend on repositories, but must not reach raw infrastructure directly.
+      Do not read the Drift database (`appDatabaseProvider`) from a feature provider — go through a repository.
+    scopes:
+      - viewmodel_files
+    patterns:
+      - ref\.(?:read|watch)\s*\(\s*appDatabaseProvider\b
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.tts_controller_uses_playback_policy
+    type: regex
+    severity: error
+    enabled: false
+    message: TTS presentation controllers must not hardcode which flashcard side can be spoken; route that business rule through
+      `TtsPlaybackPolicy`. (TTS is a planned feature; the glob activates this rule when the feature lands.)
+    include:
+      - lib/presentation/features/player/providers/**/*.dart
+    patterns:
+      - if\s*\([^\)]*TtsTextSide\.front
+      - side\s*!=\s*TtsTextSide\.front
+    tags:
+      - memox
+      - architecture
+  # v4: no lib/app/di folder.
+  - id: memox.architecture.di_no_export_wrappers
+    type: regex
+    severity: error
+    enabled: false
+    message: Provider-owned files under `lib/app/di/**` must contain concrete provider wiring, not export-wrapper shortcuts.
+    include:
+      - lib/app/di/**/*_providers.dart
+    patterns:
+      - ^export\s+
+    tags:
+      - memox
+      - architecture
+  - id: memox.architecture.drift_database_off_main_isolate
+    type: regex
+    severity: error
+    enabled: true
+    message: '`AppDatabase` must keep its `QueryExecutor` off the main isolate on native platforms and configured explicitly
+      for web. Use the `driftDatabase(...)` factory from `drift_flutter` with `native: DriftNativeOptions(...)` and, when
+      web is supported, `web: DriftWebOptions(...)`; alternatively use `NativeDatabase.createInBackground(...)` for native-only
+      code. Constructing `NativeDatabase(...)` synchronously runs every query on the UI isolate and blocks frames during large
+      reads/writes.'
+    include:
+      - lib/data/datasources/local/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+    patterns:
+      - \bNativeDatabase\s*\(
+    tags:
+      - memox
+      - architecture
+      - performance
+      - drift
+  - id: memox.architecture.no_ui_import_data_layer_directly
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: Presentation and feature UI files must not import Drift, raw DAOs, or datasource implementation packages directly.
+      Access persistence through provider/use-case/repository abstractions so the data layer stays swappable and domain boundaries
+      remain enforced.
+    include:
+      - lib/presentation/**/*.dart
+      - lib/app/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - package:drift/drift.dart
+      - package:drift/native.dart
+      - package:drift_flutter/
+      - package:memox/data/datasources/
+      - package:memox/data/repositories/
+    tags:
+      - memox
+      - architecture
+      - drift
+    fix:
+      hint: Route database access through a use case or repository interface injected via Riverpod. Never import Drift or
+        DAO classes directly in presentation code.
+  - id: memox.architecture.no_raw_sql_outside_data_layer
+    type: regex
+    severity: error
+    enabled: true
+    message: Raw SQL query strings (`SELECT`, `INSERT INTO`, `UPDATE … SET`, `DELETE FROM`) must not appear outside the database/DAO/query
+      layer. UI and viewmodel code must never embed SQL; move queries into Drift table definitions or DAO custom queries.
+    scopes:
+      - non_data_layer_source
+    patterns:
+      - '[''"]\s*(?:SELECT|INSERT\s+INTO|UPDATE\s+\w|DELETE\s+FROM|CREATE\s+TABLE|DROP\s+TABLE)'
+    tags:
+      - memox
+      - architecture
+      - drift
+    fix:
+      hint: Move the SQL into a Drift DAO method or a `.drift` query file. Reference the DAO through the repository abstraction.
+  - id: memox.architecture.data_no_presentation_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: The data layer must not import the presentation or app layer. Dependencies point inward — data implements domain
+      interfaces and must stay UI-agnostic.
+    include:
+      - lib/data/**/*.dart
+    patterns:
+      - package:memox/presentation/
+      - package:memox/app/
+      - (?:\.\./)+presentation/
+      - (?:\.\./)+app/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Move shared contracts into the domain layer and let presentation depend on them instead.
+  - id: memox.architecture.domain_no_platform_io
+    type: regex
+    severity: error
+    enabled: true
+    message: The domain layer must stay pure Dart and must not perform platform IO directly; file and platform access belongs
+      behind repository interfaces implemented in the data layer.
+    scopes:
+      - domain_files
+    patterns:
+      - import\s+'dart:io
+      - import\s+'dart:html
+      - import\s+'dart:ffi
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Define a repository/service interface in domain and implement the IO in lib/data or lib/core.
+  # v4: no lib/data/sync, no google deps (local-first, no remote backend).
+  - id: memox.architecture.drive_sync_isolated
+    type: regex
+    severity: error
+    enabled: false
+    message: Google Drive / Google auth APIs may only be imported inside the sync data layer (`lib/data/sync/**`) and its
+      DI wiring. Keeping the sync SDK isolated lets account-sync evolve without leaking vendor types across the app.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/data/sync/**
+      - lib/app/di/**
+    patterns:
+      - import\s+'package:googleapis
+      - import\s+'package:googleapis_auth
+      - import\s+'package:google_sign_in
+    tags:
+      - memox
+      - architecture
+      - account-sync
+    fix:
+      hint: Wrap the Google SDK behind a sync repository/datasource in lib/data/sync and expose a domain interface.
+  - id: memox.architecture.persist_time_as_utc
+    type: regex
+    severity: warning
+    enabled: true
+    message: 'Data-layer time must be normalized to UTC before persistence (`DateTime.now().toUtc()...`). A bare `DateTime.now()`
+      stored or compared against epoch values is timezone-dependent and caused the past `localtime` SQLite defect. Convert with
+      `.toUtc()` (or take an injected clock) so storage and tests are deterministic.'
+    include:
+      - lib/data/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \bDateTime\.now\(\)(?!\s*\.\s*toUtc\b)
+    tags:
+      - memox
+      - architecture
+      - persistence
+      - time
+    fix:
+      hint: Use DateTime.now().toUtc() (or an injected Clock) and persist epoch ms; convert back with toLocal() for display.
+  - id: memox.architecture.no_secret_in_shared_preferences
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Secrets (OAuth/access/refresh tokens, passwords, credentials, API keys) must not be written to SharedPreferences;
+      it is unencrypted plain text. Use `flutter_secure_storage` (Keychain/Keystore-backed). SharedPreferences is for
+      non-sensitive settings only.'
+    include:
+      - lib/data/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \.set(?:String|Int|Bool|Double|StringList)\s*\(\s*[\w'."]*(?:[Tt]oken|[Ss]ecret|[Pp]assword|[Cc]redential|[Aa]pi[_]?[Kk]ey|[Rr]efresh)
+    tags:
+      - memox
+      - architecture
+      - security
+      - storage
+    fix:
+      hint: Store the secret via flutter_secure_storage; keep only a non-sensitive reference (subjectId/email) in SharedPreferences.

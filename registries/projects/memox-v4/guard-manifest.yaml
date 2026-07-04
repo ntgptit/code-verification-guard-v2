@@ -1,0 +1,43 @@
+version: 1
+
+ruleset:
+  name: memox-v4
+
+profile: local
+
+config:
+  profiles: config/profiles.yaml
+  scopes: config/scopes.yaml
+  overrides: config/overrides.yaml
+
+rule_sets:
+  common: true
+  languages:
+    - dart
+    - flutter
+  projects: []
+
+rules:
+  - rules/memox-architecture-rules.yaml
+  - rules/memox-coding-rules.yaml
+  - rules/memox-dart-convention-rules.yaml
+  - rules/memox-flutter-convention-rules.yaml
+  - rules/memox-layer-naming-rules.yaml
+  - rules/memox-state-management-rules.yaml
+  - rules/memox-error-handling-rules.yaml
+  - rules/memox-observability-rules.yaml
+  - rules/memox-i18n-rules.yaml
+  - rules/memox-design-system-rules.yaml
+  - rules/memox-design-token-rules.yaml
+  - rules/memox-screen-shell-rules.yaml
+  - rules/memox-responsive-layout-rules.yaml
+  - rules/memox-performance-rules.yaml
+  - rules/memox-routing-rules.yaml
+  - rules/memox-shared-widget-rules.yaml
+  - rules/memox-shared-widget-doc-rules.yaml
+  # memox-hooks-rules.yaml dropped: memox-V4 has no flutter_hooks dependency.
+  - rules/memox-ui-async-guard-rules.yaml
+  - rules/memox-action-density-rules.yaml
+  - rules/memox-study-rules.yaml
+  - rules/memox-dependencies-rules.yaml
+  - rules/memox-testing-rules.yaml

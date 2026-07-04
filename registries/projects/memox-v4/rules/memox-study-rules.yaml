@@ -1,0 +1,62 @@
+# MemoX guard rules — domain: study
+# Study-feature domain boundaries, e.g. Guess decoy sampling stays in the domain
+# GuessOptionBuilder instead of presentation notifiers.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+
+metadata:
+  id: memox-study
+  name: MemoX Study Domain Rules
+  description: Study-feature domain rules, e.g. keeping Guess decoy sampling in the domain GuessOptionBuilder.
+  owner: code-verification-guard
+
+rules:
+  - id: memox.study.no_inline_guess_sampling
+    type: regex
+    severity: error
+    enabled: false
+    message: >-
+      study_session_notifier.dart must not own Guess decoy sampling. Keep
+      Random/shuffle/take option sampling in the domain GuessOptionBuilder.
+      (Guess mode is a planned feature; the glob activates this rule when the
+      notifier lands.)
+    include:
+      - lib/presentation/features/study-session/providers/**/*.dart
+    patterns:
+      - "import\\s+'dart:math'"
+      - "\\bRandom\\s*\\("
+      - "\\.shuffle\\s*\\("
+      - "\\.take\\s*\\("
+    tags:
+      - memox
+      - study
+      - guess
+      - architecture
+  # v4: keyed to v1 symbols (`intervalForBox`, `boxAfterFinalization`) and the
+  # `study_repo_impl*.dart` files, none of which exist in memox-V4. SRS logic now
+  # lives in `lib/domain/usecases/srs/srs_scheduler.dart` (SrsScheduler). Disabled
+  # until retuned to the v4 SrsScheduler API + method names.
+  - id: memox.study.srs_logic_single_source
+    type: regex
+    severity: error
+    enabled: false
+    message: SRS box-transition and interval logic (`intervalForBox`, `boxAfterFinalization`) must stay in the study repository
+      implementation (`lib/data/repositories/study_repo_impl*.dart`). Copies of this logic elsewhere will drift from
+      `docs/business/srs/srs-review.md` and the SRS transition tests.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/domain/usecases/srs/srs_scheduler.dart
+    patterns:
+      - \b_?intervalForBox\b
+      - \b_?boxAfterFinalization\b
+    tags:
+      - memox
+      - study
+      - srs
+      - architecture
+    fix:
+      hint: Call the study repository through its domain interface instead of re-implementing SRS interval/box math.

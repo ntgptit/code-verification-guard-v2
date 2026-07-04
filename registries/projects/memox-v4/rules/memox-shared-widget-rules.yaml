@@ -1,0 +1,113 @@
+# MemoX guard rules — domain: shared_widget
+# Shared widget (Mx*) contract: mx_* file names, Mx* public types, provider/app-wiring-free
+# internals, bounded build methods, and shaped ink overlays.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-shared-widget
+  name: MemoX Shared Widget Rules
+  description: 'Shared widget (Mx*) contract: naming, purity, API shape, build size, and interaction overlays.'
+  owner: code-verification-guard
+rules:
+  - id: memox.shared_widget.file_naming_mx_prefix
+    type: file_name
+    severity: error
+    enabled: true
+    message: Widget-bearing shared files must use the `mx_*.dart` naming contract.
+    scopes:
+      - shared_widget_dirs
+    pattern: ^mx_[a-z0-9_]+\.dart$
+    tags:
+      - memox
+      - shared-widget
+      - architecture
+  - id: memox.shared_widget.public_type_mx_prefix
+    type: regex
+    severity: error
+    enabled: true
+    message: Public types in widget-bearing shared files must use the `Mx*` prefix.
+    scopes:
+      - shared_widget_dirs
+    patterns:
+      - ^\s*(?:abstract\s+final\s+class|abstract\s+class|class)\s+(?!Mx|_)[A-Z]\w*
+      - ^\s*enum\s+(?!Mx|_)[A-Z]\w*
+      - ^\s*typedef\s+(?!Mx|_)[A-Z]\w*
+    tags:
+      - memox
+      - shared-widget
+      - architecture
+  - id: memox.shared_widget.no_app_wiring
+    type: regex
+    severity: error
+    enabled: true
+    message: Shared widgets must remain provider-free and app-wiring-free.
+    scopes:
+      - shared_widget_dirs
+    patterns:
+      - import\s+'package:flutter_riverpod/flutter_riverpod\.dart';
+      - \bConsumerWidget\b
+      - \bConsumerStatefulWidget\b
+      - \bConsumerState\b
+      - \bWidgetRef\b
+      - import\s+'package:memox/app/
+      - import\s+'package:memox/core/routes/
+      - import\s+'package:memox/domain/
+      - import\s+'package:memox/presentation/features/
+      - import\s+'package:go_router/go_router\.dart';
+    tags:
+      - memox
+      - shared-widget
+      - architecture
+  - id: memox.shared_widget.no_public_mx_text_role_api
+    type: regex
+    severity: error
+    enabled: true
+    message: Shared components should own typography semantics internally instead of exposing arbitrary `MxTextRole` parameters.
+    scopes:
+      - shared_widget_component_api_files
+    patterns:
+      - \bMxTextRole\??\s+[A-Za-z_][A-Za-z0-9_]*
+    tags:
+      - memox
+      - shared-widget
+      - architecture
+      - design_system
+  - id: memox.shared_widget.ink_must_have_shape
+    type: regex
+    severity: error
+    enabled: true
+    message: If a shared widget keeps a raw `InkWell`, it must pass `customBorder:` or `borderRadius:` so the interaction
+      overlay matches the visual shape.
+    scopes:
+      - shared_widget_dirs
+    patterns:
+      - (?s)InkWell\s*\((?:(?!customBorder\s*:|borderRadius\s*:).)*?\)
+    mode: file
+    tags:
+      - memox
+      - shared-widget
+      - architecture
+      - design_system
+  - id: memox.shared_widget.build_method_max_lines
+    type: max_build_lines
+    severity: warning
+    enabled: true
+    message: Shared widget build() is too long. Split visual states into private helpers while preserving the public shared
+      widget API.
+    include:
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    max_lines: 140
+    count_mode: logical
+    tags:
+      - memox
+      - ui
+      - maintainability
+      - shared-widget
+    fix:
+      hint: Extract private build helpers or smaller internal widgets without widening the shared widget public API.

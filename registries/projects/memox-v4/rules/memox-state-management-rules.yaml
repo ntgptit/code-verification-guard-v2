@@ -1,0 +1,372 @@
+# MemoX guard rules — domain: state_management
+# Riverpod v3 contract: generated providers only, deliberate keepAlive lifecycles,
+# provider purity (no UI types/side effects), and correct ref.watch/read/listen usage.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-state-management
+  name: MemoX State Management Rules
+  description: Riverpod provider/notifier lifecycle, purity, and usage rules for MemoX.
+  owner: code-verification-guard
+rules:
+  - id: memox.state_management.query_provider_keep_alive_review
+    type: regex
+    severity: warning
+    enabled: true
+    message: Long-lived read-model query providers that return `Future<...State>`, `Future<...ReadModel>`, `Future<...Query>`,
+      or the stream equivalents may need keepAlive, but screen-scoped query providers can remain autoDispose. Review lifecycle
+      deliberately before opting in.
+    include:
+      - lib/presentation/features/**/providers/*_providers.dart
+    patterns:
+      - '@riverpod\s*(?:\r?\n\s*)+Future<\w+(?:ReadModel|State|Query)>'
+      - '@riverpod\s*(?:\r?\n\s*)+Stream<\w+(?:ReadModel|State|Query)>'
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - coding
+      - performance
+  - id: memox.state_management.no_state_notifier
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not use `StateNotifier` in non-legacy app source; new state should use `Notifier` or `AsyncNotifier`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bStateNotifier\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+    fix:
+      hint: Use Riverpod 3 annotation syntax with generated notifiers instead.
+  - id: memox.state_management.no_change_notifier_provider
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not import or use `ChangeNotifierProvider`; it is a migration bridge and is not allowed in this codebase.
+    scopes:
+      - all
+    patterns:
+      - \bChangeNotifierProvider\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_management.no_state_notifier_provider
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not create `StateNotifierProvider` in non-legacy app source; new state should use generated `Notifier` or
+      `AsyncNotifier`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - \bStateNotifierProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_management.no_manual_provider_constructors
+    type: regex
+    severity: error
+    enabled: true
+    message: App source should use Riverpod code generation instead of manual provider constructors.
+    scopes:
+      - all
+    patterns:
+      - \bProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+      - \bStateProvider(?:\.[A-Za-z]+)?\s*(?:<[^>]+>)?\s*\(
+      - \bFutureProvider\b
+      - \bStreamProvider\b
+      - \bNotifierProvider\b
+      - \bAsyncNotifierProvider\b
+      - \bStreamNotifierProvider\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_management.provider_no_ui_types
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not depend on UI-bound types such as BuildContext or WidgetRef.
+    scopes:
+      - provider_files
+    patterns:
+      - \bBuildContext\b
+      - \bWidgetRef\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_management.provider_no_invalidate_self
+    type: regex
+    severity: warning
+    enabled: true
+    message: Provider-owned files should not use `invalidateSelf()` casually; reserve it for deliberate AsyncNotifier refresh or
+      retry flows with an explicit reason.
+    scopes:
+      - provider_files
+    patterns:
+      - \binvalidateSelf\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_management.provider_no_ui_side_effects
+    type: regex
+    severity: error
+    enabled: true
+    message: Provider-owned files must not perform UI side effects directly.
+    scopes:
+      - provider_files
+    patterns:
+      - \bSnackBar\s*\(
+      - \bshowDialog\s*\(
+      - \bshowModalBottomSheet\s*\(
+      - \bScaffoldMessenger\.
+      - \bNavigator\.
+      - \bcontext\.go\s*\(
+      - \bcontext\.push\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_management.no_ref_watch_in_callbacks
+    type: regex
+    severity: error
+    enabled: true
+    message: UI callbacks must not call `ref.watch(...)`; callbacks should use `ref.read(...)` for one-shot imperative work.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?s)\bon[A-Z][A-Za-z0-9_]*\b\s*:\s*(?:\([^)]*\)\s*=>\s*ref\.watch\(|\([^)]*\)\s*\{.{0,240}?ref\.watch\()
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - architecture
+  - id: memox.state_management.widget_no_direct_stream_watch
+    type: regex
+    severity: error
+    enabled: true
+    message: Widget files must not subscribe to direct `.watch()` streams; stream data should be normalized behind a provider
+      and the widget should only use `ref.watch(...)`. (File mode so formatter-wrapped `ref\n.watch(...)` chains are not
+      false-flagged.)
+    scopes:
+      - widget_ui_files
+    mode: file
+    patterns:
+      - \b(?!ref\b)[a-zA-Z_][a-zA-Z0-9_]*\s*\.\s*watch\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+  # v4: no AppAsyncBuilder helper exists; grep 'AppAsyncBuilder' finds none — feature UI renders AsyncValue directly, so there is nothing to enforce, disable.
+  - id: memox.state_management.use_app_async_builder
+    type: regex
+    severity: error
+    enabled: false
+    message: Feature and app-shell UI must not render `AsyncValue` with `.when(...)` directly; wrap async rendering with
+      `AppAsyncBuilder`. Scope is limited to UI surfaces so freezed-union `.when(...)` in domain/data/test code stays usable.
+    scopes:
+      - feature_ui
+      - app_ui
+    patterns:
+      - \.when\s*\(
+    tags:
+      - memox
+      - state-management
+      - ui
+      - state
+    fix:
+      hint: Wrap AsyncValue rendering with AppAsyncBuilder.
+  - id: memox.state_management.infrastructure_provider_keep_alive
+    type: regex
+    severity: error
+    enabled: true
+    message: 'Infrastructure providers for DB, repository, client, service, DAO, store, gateway, codec, runner, strategy,
+      or auth resources should use `@Riverpod(keepAlive: true)` so expensive app-wide dependencies are not disposed on navigation
+      churn. Screen/search/input state may remain autoDispose.'
+    include:
+      - lib/data/providers/**/*.dart
+      - lib/core/routes/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?s)@riverpod\s*(?![\s\S]{0,200}\b\w*UseCase(?:>|[\s\r\n]+\w+\s*\())(?:\r?\n\s*)+(?:Future<[^>]*(?:Database|Repository|Client|Service|Dao|Store|Gateway|Codec|Runner|Strategy|Auth|Dio)[^>]*>|(?:[A-Z]\w*(?:Database|Repository|Client|Service|Dao|Store|Gateway|Codec|Runner|Strategy|Auth)|Dio))\s+\w+\s*\(
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - riverpod
+      - lifecycle
+  - id: memox.state_management.provider_state_max_fields
+    type: regex
+    severity: warning
+    enabled: true
+    message: Provider state objects with more than 7 fields should be split into smaller read models or justified by a clear
+      cohesion boundary.
+    scopes:
+      - viewmodel_files
+    patterns:
+      - (?s)\b(?:final\s+)?class\s+\w*State\s*\{(?:(?!\n\}).)*?\b(?:final\s+[\w<>, ?]+\s+\w+\s*;\s*){8,}
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - maintainability
+  - id: memox.state_management.no_broad_provider_invalidation
+    type: regex
+    severity: error
+    enabled: true
+    message: Mutation and command providers must not invalidate broad home/all/list/overview providers when a deck/card/folder
+      scoped refresh is enough. Invalidate the narrow family provider or update state locally.
+    scopes:
+      - provider_files
+    patterns:
+      - \bref\.invalidate\s*\(\s*(?:homeProvider|allProvider|libraryOverviewProvider|dashboardOverviewProvider|progressOverviewProvider)\b
+      - \bref\.invalidate\s*\(\s*[A-Za-z0-9_]*(?:All|Home|List|Overview)[A-Za-z0-9_]*Provider\s*\)
+    tags:
+      - memox
+      - state-management
+      - invalidation
+  # v4: narrowed to VOID-returning methods only. v4's AsyncNotifier idiom is
+  # `Future<XData> build()` delegating to a private `Future<XData> _load()` that
+  # uses `ref.watch(...RepositoryProvider)` to build derived state reactively —
+  # that watch is CORRECT (read `ref.read` there would break rebuilds). Read-model
+  # builders return data; genuine imperative commands return `Future<void>`/`void`.
+  # Matching only void-returning methods catches the real anti-pattern (watching a
+  # repo inside a mutation) without false-flagging `_load()` builders.
+  - id: memox.state_management.command_no_repository_ref_watch
+    type: regex
+    severity: error
+    enabled: true
+    message: Command (void-returning) methods must not `ref.watch(...RepositoryProvider)`. In imperative/one-shot mutation work
+      use `ref.read(...)`, not `ref.watch(...)` — watching outside `build`/read-model builders re-subscribes the command to
+      provider changes (a Riverpod anti-pattern). Depending on a repository is fine; only the `watch`-in-command usage is wrong.
+      (Read-model builders like `Future<XData> _load()` correctly use `ref.watch` and are not matched.)
+    scopes:
+      - provider_files
+    patterns:
+      - (?s)\b(?:Future<void>|FutureOr<void>|void)\s+(?!build\b)\w+\s*\([^)]*\)\s*(?:async\s*)?\{(?:(?!\n\s*\}).){0,1600}?\bref\.watch\s*\(\s*\w+RepositoryProvider\b
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - riverpod
+  - id: memox.state_management.screen_async_when_section_split
+    type: regex
+    severity: warning
+    enabled: true
+    message: Large screen-level `AsyncValue.when` rendering should be split into smaller sections or wrapped by the shared
+      async component instead of owning loading/error/data branches inline.
+    scopes:
+      - screen_like_files
+    patterns:
+      - (?s)\bref\.watch\s*\([^)]+\)(?:(?!class\s).){0,1200}?\.when\s*\(
+      - (?s)\bAsyncValue<[^>]+>\s+\w+\s*;(?:(?!class\s).){0,1200}?\b\w+\.when\s*\(
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - ui
+      - async
+  - id: memox.state_management.no_raw_future_stream_builder
+    type: regex
+    severity: warning
+    enabled: true
+    message: Presentation widgets should route async rendering through Riverpod providers and shared async surfaces instead
+      of raw FutureBuilder / StreamBuilder. Raw builders couple fetch lifecycles to widget rebuilds and make retained loading/error
+      handling harder to keep consistent.
+    include:
+      - lib/main.dart
+      - lib/app/app.dart
+      - lib/presentation/features/**/*.dart
+      - lib/presentation/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \b(?:FutureBuilder|StreamBuilder)(?:<[^>]+>)?\s*\(
+    tags:
+      - memox
+      - state-management
+      - ui
+      - performance
+      - async
+  - id: memox.state_management.side_effects_use_ref_listen
+    type: regex
+    severity: warning
+    enabled: true
+    message: UI side effects driven by provider state should use `ref.listen`; do not trigger dialog or snackbar effects directly
+      from state read with `ref.watch`.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - (?s)\bref\.watch\s*\([^)]+\)(?:(?!ref\.listen).){0,1200}?\b(?:showDialog|SnackBar|ScaffoldMessenger\.of)\s*\(
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - side-effects
+  # v4: no MxAsyncDraft helper / lib/presentation/shared/viewmodels/mx_async_draft.dart exists; grep finds none — nothing to route through, disable.
+  - id: memox.state_management.async_draft_via_helper
+    type: regex
+    severity: error
+    enabled: false
+    message: Read the current draft from an `AsyncValue<T>` via the `MxAsyncDraft.currentValue` extension from `lib/presentation/shared/viewmodels/mx_async_draft.dart`.
+      Do not inline the `AsyncData(:final value) => value, _ => null` switch in viewmodels.
+    include:
+      - lib/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/mx_async_draft.dart'
+    patterns:
+      - AsyncData\(\s*:\s*final\s+value\s*\)\s*=>\s*value\s*,\s*_\s*=>\s*null
+    tags:
+      - memox
+      - state-management
+      - form-draft
+  - id: memox.state_management.no_async_value_or_null
+    type: regex
+    severity: error
+    enabled: true
+    message: Riverpod 3.0 renamed `AsyncValue.valueOrNull` to `value`. Use `.value` instead of the
+      deprecated `.valueOrNull` accessor.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - \.valueOrNull\b
+    tags:
+      - memox
+      - state-management
+      - riverpod
+    fix:
+      hint: Replace `.valueOrNull` with `.value` (Riverpod 3.0 AsyncValue API).
+  - id: memox.state_management.no_legacy_riverpod_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not import `package:riverpod/legacy.dart` (or `flutter_riverpod/legacy.dart`). Riverpod 3.0
+      moves `StateProvider`/`ChangeNotifierProvider` behind the legacy entrypoint to discourage them; MemoX
+      uses generated `Notifier`/`AsyncNotifier` only.
+    scopes:
+      - all
+    patterns:
+      - import\s+['"]package:(?:flutter_)?riverpod/legacy\.dart['"]
+    tags:
+      - memox
+      - state-management
+      - architecture

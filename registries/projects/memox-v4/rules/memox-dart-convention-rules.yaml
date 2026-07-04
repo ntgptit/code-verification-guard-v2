@@ -1,0 +1,54 @@
+# MemoX guard rules — domain: dart_convention
+# Dart-level conventions: package imports over deep relative imports, snake_case file names.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-dart-convention
+  name: MemoX Dart Convention Rules
+  description: 'Dart-level conventions for MemoX: package imports and snake_case file naming.'
+  owner: code-verification-guard
+rules:
+  - id: memox.dart_convention.no_deep_relative_imports
+    type: regex
+    severity: error
+    enabled: true
+    message: Relative imports that climb two or more directory levels (`../../`) are forbidden inside `lib/`. Cross-feature
+      and cross-layer references must use `package:memox/...` imports so the dependency direction stays explicit and refactoring
+      a folder does not silently break imports elsewhere.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/app_localizations*.dart
+    patterns:
+      - ^import\s+'(?:\.\./){2,}[^']+';
+    tags:
+      - memox
+      - dart
+      - architecture
+      - imports
+    fix:
+      hint: Convert the relative import to a package import — `import 'package:memox/path/to/file.dart';`.
+  - id: memox.dart_convention.file_name_snake_case
+    type: file_name
+    severity: error
+    enabled: true
+    message: Dart file names inside `lib/` must use snake_case (`lower_case_with_underscores.dart`). Mixed-case or hyphenated
+      names break import consistency and tooling conventions.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/app_localizations*.dart
+    pattern: ^[a-z][a-z0-9_]*\.dart$
+    tags:
+      - memox
+      - dart
+      - naming
+    fix:
+      hint: Rename the file to snake_case and update all import references to match.

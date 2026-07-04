@@ -1,0 +1,372 @@
+# MemoX guard rules — domain: design_token
+# Token enforcement: raw color/spacing/radius/typography/duration literals are banned outside
+# token/theme definition files; each visual property must use its matching token family.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+
+metadata:
+  id: memox-design-token
+  name: MemoX Design Token Rules
+  description: >-
+    Enforce design token usage across lib/. Raw color, spacing, radius, typography, and
+    duration literals must never appear outside token / theme definition files.
+  owner: code-verification-guard
+
+rules:
+  - id: memox.design_token.no_raw_color_hex_outside_tokens
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw hex/ARGB/RGBO color constructors (`Color(0x...)`, `Color.fromARGB`, `Color.fromRGBO`)
+      must not be used outside token/theme files. Route colors through ColorScheme, theme
+      extensions, or named color tokens from the MemoX Design System.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - 'Color\s*\(\s*0x[0-9A-Fa-f]+'
+      - '\bColor\.fromARGB\s*\('
+      - '\bColor\.fromRGBO\s*\('
+    tags:
+      - memox
+      - design
+      - design-system
+      - color
+    fix:
+      hint: Replace with a named color token (e.g. AppColors.*, scheme.primary) or a ColorScheme accessor from the MemoX Design System.
+
+  - id: memox.design_token.no_raw_spacing_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric literals in `SizedBox(width/height: N)` and `SizedBox.square(dimension: N)`
+      must not appear outside token/theme files. Use `MxSpace.*`, `MxGap(...)`,
+      `SpacingTokens.*`, `ComponentSpacingTokens.*`, or `AppLayout` spacing primitives instead.
+      Value 0 is allowed.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - 'SizedBox\s*\(\s*(?:width|height)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - 'SizedBox\.square\s*\(\s*dimension\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+    fix:
+      hint: "Replace the literal with MxSpace.*, MxGap(...), SpacingTokens.*, ComponentSpacingTokens.*, or an AppLayout spacing token. SizedBox(width: 0) and SizedBox.shrink() are allowed."
+
+  - id: memox.design_token.no_token_arithmetic_in_ui
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Không tính toán trực tiếp trên token trong UI. Nếu đây là spacing/padding, hãy thêm
+      SpacingTokens hoặc ComponentSpacingTokens. Nếu đây là visual size/thickness/effect,
+      hãy dùng component/border/divider/shadow token phù hợp.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - '\b(?:SpacingTokens|ComponentSpacingTokens|RadiusTokens|SizeTokens|IconSizeTokens|ComponentSizeTokens|BorderTokens|DividerTokens|ShadowTokens|ElevationTokens|OpacityTokens)\.[A-Za-z_][A-Za-z0-9_]*\s*[*/+\-]\s*(?:\d+(?:\.\d+)?|\b(?:SpacingTokens|ComponentSpacingTokens|RadiusTokens|SizeTokens|IconSizeTokens|ComponentSizeTokens|BorderTokens|DividerTokens|ShadowTokens|ElevationTokens|OpacityTokens)\.[A-Za-z_][A-Za-z0-9_]*)'
+    tags:
+      - memox
+      - design
+      - design-system
+      - token
+    fix:
+      hint: 'Add a semantic token instead of computing token values directly in UI code.'
+
+  - id: memox.design_token.require_icon_size_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Icon(size) must use a named icon size token instead of a raw number.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bIcon\s*\((?:[^()]|\([^()]*\))*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - sizing
+      - icon-size
+    fix:
+      hint: 'Replace Icon(size: N) with IconSizeTokens.*, SizeTokens.icon*, or another named icon size token.'
+
+  - id: memox.design_token.require_mx_icon_tile_size_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      MxIconTile(size) must use a named component size token instead of a raw number.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bMxIconTile\s*\((?:[^()]|\([^()]*\))*?\bsize\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - sizing
+      - component-size
+    fix:
+      hint: 'Replace MxIconTile(size: N) with ComponentSizeTokens.*, IconSizeTokens.*, or another named component size token.'
+
+  - id: memox.design_token.require_visual_box_size_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Visual boxes must use named width, height, radius, or size tokens instead of raw numbers.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\b(?:Container|CircleAvatar|Image|IconButton|MxAvatar|MxIconButton)\s*\((?:[^()]|\([^()]*\))*?\b(?:width|height|radius|size)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - sizing
+      - component-size
+    fix:
+      hint: 'Replace raw visual box sizes with ComponentSizeTokens.*, BorderTokens.*, IconSizeTokens.*, or another named size token.'
+
+  - id: memox.design_token.no_spacing_token_for_icon_size
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho Icon(size). Hãy dùng IconSizeTokens.*, SizeTokens.icon*, hoặc component token.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bIcon\s*\([\s\S]*?\bsize\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - icon
+    fix:
+      hint: 'Replace Icon(size: SpacingTokens.*) with IconSizeTokens.*, SizeTokens.icon*, or another component token.'
+
+  - id: memox.design_token.no_spacing_token_for_component_size
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho component size. Hãy dùng component size token.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\b(?:MxIconTile|MxAvatar|MxIconButton)\s*\([\s\S]*?\bsize\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - component-size
+    fix:
+      hint: 'Replace component sizes written with SpacingTokens.* with a named component size token.'
+
+  - id: memox.design_token.no_spacing_token_for_border_width
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho border width. Hãy dùng BorderTokens hoặc StrokeTokens.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bBorder\.all\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBorderSide\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - border
+    fix:
+      hint: 'Replace SpacingTokens.* border widths with BorderTokens.* or StrokeTokens.*.'
+
+  - id: memox.design_token.no_spacing_token_for_divider_thickness
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho Divider(thickness). Hãy dùng DividerTokens.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bDivider\s*\([\s\S]*?\bthickness\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - divider
+    fix:
+      hint: 'Replace Divider(thickness: SpacingTokens.*) with DividerTokens.* or MxDivider.'
+
+  - id: memox.design_token.no_spacing_token_for_shadow
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      SpacingTokens không được dùng cho BoxShadow blur/spread. Hãy dùng ShadowTokens hoặc ElevationTokens.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bBoxShadow\s*\([\s\S]*?\bblurRadius\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+      - '\bBoxShadow\s*\([\s\S]*?\bspreadRadius\s*:\s*SpacingTokens\.[A-Za-z_][A-Za-z0-9_]*'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - shadow
+    fix:
+      hint: 'Replace BoxShadow blurRadius/spreadRadius using SpacingTokens.* with ShadowTokens.* or ElevationTokens.*.'
+
+  - id: memox.design_token.require_border_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Border widths must use BorderTokens, StrokeTokens, or a component border token instead of raw numbers.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bBorder\.all\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+      - '\bBorderSide\s*\((?:[^()]|\([^()]*\))*?\bwidth\s*:\s*[1-9]\d*(?:\.\d+)?'
+    tags:
+      - memox
+      - design
+      - design-system
+      - border
+    fix:
+      hint: 'Replace Border.all(width: N) with BorderTokens.*, StrokeTokens.*, or another named border token.'
+
+  - id: memox.design_token.require_shadow_token
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      BoxShadow blurRadius and spreadRadius must use ShadowTokens, ElevationTokens, or a component shadow token instead of hardcoded values.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bBoxShadow\s*\((?:[^()]|\([^()]*\))*?\bblurRadius\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bBoxShadow\s*\((?:[^()]|\([^()]*\))*?\bspreadRadius\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - shadow
+    fix:
+      hint: 'Replace BoxShadow blurRadius/spreadRadius with ShadowTokens.*, ElevationTokens.*, or a named shadow token.'
+
+  - id: memox.design_token.require_spacing_token_for_edge_insets
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      EdgeInsets phải dùng token spacing/component token hoặc EdgeInsets.zero thay cho số thô.
+      Giá trị động (biến từ viewInsets, LayoutBuilder constraints, responsive helpers) được phép.
+    scopes:
+      - flutter_app_source
+    mode: file
+    patterns:
+      - '\bEdgeInsets\.all\s*\((?:[^()]|\([^()]*\))*?\b[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.symmetric\s*\((?:[^()]|\([^()]*\))*?\b(?:horizontal|vertical)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.only\s*\((?:[^()]|\([^()]*\))*?\b(?:left|top|right|bottom)\s*:\s*[1-9]\d*(?:\.\d+)?\b'
+      - '\bEdgeInsets\.fromLTRB\s*\((?:[^()]|\([^()]*\))*?\b[1-9]\d*(?:\.\d+)?\b'
+    tags:
+      - memox
+      - design
+      - design-system
+      - spacing
+      - edge-insets
+    fix:
+      hint: 'Use spacing/component tokens or EdgeInsets.zero instead of raw EdgeInsets values.'
+
+  - id: memox.design_token.no_raw_radius_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw numeric radius literals in `BorderRadius.circular(N)` and `Radius.circular(N)`
+      must not appear outside token/theme files. Use `AppRadius.*` or `RadiusTokens.*`
+      named constants. Value 0 is allowed.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - 'BorderRadius\.circular\s*\([1-9]\d*(?:\.\d+)?\s*[,)]'
+      - '\bRadius\.circular\s*\([1-9]\d*(?:\.\d+)?\s*[,)]'
+    tags:
+      - memox
+      - design
+      - design-system
+      - radius
+    fix:
+      hint: 'Replace the literal with AppRadius.*, RadiusTokens.*, or an equivalent named radius constant. BorderRadius.circular(0) is allowed.'
+
+  - id: memox.design_token.no_raw_text_style_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `TextStyle` with hardcoded `fontSize`, `fontWeight`, `letterSpacing`, or `fontFamily`
+      must not appear outside typography token/theme files. Route semantic typography through
+      `MxText(role: ...)` or theme accessors backed by MemoX typography tokens.
+    scopes:
+      - flutter_app_source
+    patterns:
+      - '\bfontSize\s*:\s*[0-9]'
+      - '\bfontWeight\s*:\s*FontWeight\.'
+      - '\bletterSpacing\s*:\s*[-0-9]'
+      - '\bfontFamily\s*:\s*[''"]'
+    tags:
+      - memox
+      - design
+      - design-system
+      - typography
+    fix:
+      hint: 'Use MxText(role: ...) or AppTypography.* for typography instead of raw TextStyle in feature code.'
+
+  - id: memox.design_token.no_raw_duration_value
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Raw `Duration(milliseconds: N)`, `Duration(seconds: N)`, or `Duration(minutes: N)`
+      literals must not appear on presentation/app-shell surfaces. Source all animation,
+      transition, and debounce durations from `AppMotion.*` or approved duration constants.
+      Domain/data durations (SRS intervals, timeouts, retention windows) are out of scope here.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - 'Duration\s*\(\s*(?:milliseconds|seconds|minutes)\s*:\s*[0-9]'
+    tags:
+      - memox
+      - design
+      - design-system
+      - motion
+    fix:
+      hint: 'Replace with AppMotion.*, DurationTokens.*, or a named constant. Duration.zero is allowed where the value is truly zero.'

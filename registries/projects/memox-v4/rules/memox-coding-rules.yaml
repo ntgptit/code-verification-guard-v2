@@ -1,0 +1,312 @@
+# MemoX guard rules — domain: coding
+# Naming conventions (files, classes, variables, CRUD members), style (no else),
+# and maintainability hygiene (part-of splits, TODO traceability).
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-coding
+  name: MemoX Coding Convention Rules
+  description: Naming, style, and maintainability conventions for MemoX source code.
+  owner: code-verification-guard
+rules:
+  - id: memox.coding.no_else
+    type: regex
+    severity: error
+    enabled: true
+    message: Prefer early return, guard clauses, or switch expressions over `else`.
+    scopes:
+      - non_legacy_app_source
+    patterns:
+      - (?m)(?:^|[}\s])else(?:\s+if\b|\s*\{|\s*$)
+    tags:
+      - memox
+      - coding
+      - style
+    fix:
+      hint: Refactor control flow to return early and flatten nesting.
+  - id: memox.coding.provider_file_naming
+    type: file_name
+    severity: error
+    enabled: true
+    message: Provider-owned files should use a clear suffix such as `*_provider.dart`, `*_providers.dart`, `*_notifier.dart`,
+      or `*_viewmodel.dart`, and should avoid vague stems such as `common` or `main`.
+    include:
+      - lib/presentation/features/*/providers/*.dart
+    pattern: ^(?!(?:common|main|shared|base|misc|helper|util|temp)(?:_|$))(?:[a-z0-9]+(?:_[a-z0-9]+)*)_(?:provider|providers|notifier|notifiers|viewmodel)\.dart$|^(?:app_)?providers\.dart$
+    tags:
+      - memox
+      - coding
+      - style
+  # v4: keyed to v1 entity vocab (Folder/Subfolder/Tag/Flashcard); v4 uses Deck/Card and screens don't follow a uniform <Entity><Surface> CRUD pattern — retune for v4 vocabulary before re-enabling.
+  - id: memox.coding.crud_screen_class_naming
+    type: regex
+    severity: error
+    enabled: false
+    message: CRUD/entity screen classes must name the entity, surface, and `Screen` suffix explicitly, for example `DeckImportScreen`,
+      `FlashcardEditorScreen`, `FlashcardListScreen`, or `FolderDetailScreen`.
+    include:
+      - lib/presentation/features/*/screens/*_screen.dart
+      - lib/presentation/features/**/screens/**/*_screen.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?m)^\s*class\s+(?!(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Screen\b)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\w*(?:View|Page|Screen|Details)\b
+    tags:
+      - memox
+      - coding
+      - architecture
+      - naming
+      - crud
+  # v4: keyed to v1 entity vocab (Folder/Subfolder/Tag/Flashcard); v4 uses Deck/Card and no uniform CRUD controller pattern — retune for v4 vocabulary before re-enabling.
+  - id: memox.coding.crud_controller_class_naming
+    type: regex
+    severity: error
+    enabled: false
+    message: CRUD/entity controller classes must use `{Entity}{Surface}Controller` or `{Entity}ActionController` so the owning
+      object and workflow are obvious from the class name.
+    include:
+      - lib/presentation/features/**/providers/*_providers.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?m)^\s*class\s+(?!(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Controller\b)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\w*Controller\b
+    tags:
+      - memox
+      - coding
+      - architecture
+      - naming
+      - crud
+  # v4: keyed to v1 entity vocab (Folder/Subfolder/Tag/Flashcard); v4 uses Deck/Card — retune for v4 vocabulary before re-enabling.
+  - id: memox.coding.crud_command_method_naming
+    type: regex
+    severity: error
+    enabled: false
+    message: CRUD command methods in presentation viewmodels must include the affected object in the method name, for example
+      `createDeck`, `updateFolder`, `deleteFlashcards`, `moveDeck`, or `reorderSubfolders`.
+    include:
+      - lib/presentation/features/**/providers/*_providers.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - (?m)^\s*(?:Future<[^>]+>|Future<void>|void)\s+(?!(?:create|update|delete|move|duplicate|reorder|save)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\b)(?:create|update|delete|move|duplicate|reorder|save)\w*\s*\(
+    tags:
+      - memox
+      - coding
+      - architecture
+      - naming
+      - crud
+  - id: memox.coding.class_name_length
+    type: regex
+    severity: error
+    enabled: true
+    message: Flutter class names must be between 5 and 35 characters.
+    scopes:
+      - app_and_presentation_source
+    patterns:
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!Mx[A-Za-z0-9_]*\b)[A-Za-z_][A-Za-z0-9_]{0,3}\b
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!Mx[A-Za-z0-9_]*\b)[A-Za-z_][A-Za-z0-9_]{35,}\b
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Keep the class name between 5 and 35 characters.
+  - id: memox.coding.local_variable_name_length
+    type: regex
+    severity: warning
+    enabled: true
+    message: Local variable names must be between 2 and 18 characters (single-letter names are reserved for trivial loop
+      indices).
+    scopes:
+      - app_and_presentation_source
+    patterns:
+      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_]\b(?=\s*(?:=|;|:))
+      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{18,}\b(?=\s*(?:=|;|:))
+      - (?m)^\s{4,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_]\b(?=\s*(?:=|;|:))
+      - (?m)^\s{4,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{18,}\b(?=\s*(?:=|;|:))
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Keep the local variable name between 2 and 18 characters.
+  - id: memox.coding.model_state_field_name_length
+    type: regex
+    mode: file
+    severity: warning
+    enabled: true
+    message: Model and State field names must be between 3 and 22 characters.
+    scopes:
+      - app_and_presentation_source
+    patterns:
+      - (?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|,|:))
+      - (?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+(?!bool\b)[A-Za-z_][A-Za-z0-9_]{22,}\b(?=\s*(?:=|;|,|:))
+      - (?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{0,1}\b(?=\s*(?:=|;|,|:))
+      - (?ms)^\s*class\s+[A-Za-z_][A-Za-z0-9_]*(?:Model|State)\b.*?^\s{2,}(?:static\s+)?(?:[A-Z][A-Za-z0-9_<>,?.]*|(?:String|int|double|num|dynamic|Object|Never|void|List|Map|Set|Future|Stream|Iterable|ValueChanged|WidgetBuilder|EdgeInsetsGeometry|PreferredSizeWidget|MainAxisAlignment|CrossAxisAlignment|AnimationController|TextEditingController|Color)(?:<[^>]+>)?)\s+[A-Za-z_][A-Za-z0-9_]{22,}\b(?=\s*(?:=|;|,|:))
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Keep the field name between 3 and 22 characters.
+  - id: memox.coding.boolean_name_length
+    type: regex
+    severity: warning
+    enabled: true
+    message: Boolean variable and field names must be between 5 and 25 characters.
+    scopes:
+      - app_and_presentation_source
+    patterns:
+      - (?m)^\s{2,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*(?:=|;|:))
+      - (?m)^\s{2,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*(?:=|;|:))
+      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*(?:=|;|:))
+      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?bool\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*(?:=|;|:))
+      - (?m)^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*=\s*(?:true|false)\b)
+      - (?m)^\s{2,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*=\s*(?:true|false)\b)
+      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{0,4}\b(?=\s*=\s*(?:true|false)\b)
+      - (?m)^\s{4,}(?:static\s+)?(?:late\s+)?(?:final|const|var)\s+[A-Za-z_][A-Za-z0-9_]{25,}\b(?=\s*=\s*(?:true|false)\b)
+    tags:
+      - memox
+      - coding
+      - naming
+    fix:
+      hint: Keep the boolean name between 5 and 25 characters.
+  - id: memox.coding.guard_centralized_constants
+    type: regex
+    severity: error
+    enabled: false
+    message: Guard Python sources must not hardcode shared guard contract literals; move them into `tools/guard/engine/constants.py`
+      and import the constant instead.
+    scopes:
+      - guard_python_non_constants
+    patterns:
+      - '["'']config\.yaml["'']'
+      - '["'']messages\.yaml["'']'
+      - '["'']suppressions\.yaml["'']'
+      - '["'']baseline\.json["'']'
+      - '["'']utf-8["'']'
+      - '["'']terminal["'']'
+      - '["'']json["'']'
+      - '["'']markdown["'']'
+      - '["'']PASS["'']'
+      - '["'']FAIL["'']'
+      - '["'']enabled["'']'
+      - '["'']disabled["'']'
+      - '["'']rules["'']'
+      - '["'']violations_preview["'']'
+    tags:
+      - memox
+      - coding
+      - architecture
+  # v4: no StringUtils helper exists (lib/core/utils/string_utils.dart is gone); grep 'class StringUtils' finds none — nothing to route through, disable.
+  - id: memox.coding.string_normalization_via_string_utils
+    type: regex
+    severity: error
+    enabled: false
+    message: 'Domain and presentation code must route runtime string trimming, case normalization, matching, and sorting
+      through `StringUtils` instead of calling core string normalization methods directly. Centralizing this keeps search,
+      comparison, and answer matching semantics consistent. Infrastructure code (core/data) may use core string methods for
+      non-user-data work such as file extensions or internal keys.
+
+      '
+    include:
+      - lib/domain/**/*.dart
+      - lib/presentation/**/*.dart
+    exclude:
+      - lib/core/utils/string_utils.dart
+    patterns:
+      - \.trim\s*\(
+      - \.toLowerCase\s*\(
+      - \.toUpperCase\s*\(
+    tags:
+      - memox
+      - coding
+      - architecture
+  - id: memox.coding.no_stale_todo_without_ticket
+    type: regex
+    severity: warning
+    enabled: true
+    message: '`TODO`, `FIXME`, and `HACK` comments must include a ticket id (e.g. `MEMOX-123`, `#123`) or an explicit reason
+      (`-- reason: ...`) so the intent is traceable. Uncommented markers become invisible tech debt. Complements `common.no_todo_without_ticket`
+      and extends coverage to `HACK`.'
+    scopes:
+      - source_files
+    patterns:
+      - \b(TODO|FIXME|HACK)\b(?!.*([A-Z]+-[0-9]+|#[0-9]+|--\s*reason\s*:))
+    tags:
+      - memox
+      - coding
+      - maintainability
+    fix:
+      hint: 'Add a ticket reference (MEMOX-123 / #123) or `-- reason: <why>` on the same line.'
+  - id: memox.coding.no_screen_part_of_split
+    type: regex
+    severity: error
+    enabled: true
+    message: Feature screen splits must not use `part of '..._screen.dart'`; extract a real widget file instead.
+    scopes:
+      - feature_ui
+    patterns:
+      - (?m)^\s*part\s+of\s+["'][^"']+_screen\.dart["']\s*;
+    tags:
+      - memox
+      - coding
+      - architecture
+      - maintainability
+  - id: memox.coding.screen_file_naming
+    type: file_name
+    severity: error
+    enabled: true
+    message: Files inside feature `screens/` folders must use the `_screen.dart` or `_page.dart` suffix.
+    scopes:
+      - screens
+    pattern: ^[a-z0-9_]+_(?:screen|page)\.dart$
+    tags:
+      - memox
+      - coding
+      - architecture
+  - id: memox.coding.flashcard_editor_no_part_of
+    type: regex
+    severity: error
+    enabled: true
+    message: Flashcard editor widgets must stay as standalone Dart libraries; do not split them with `part of` directives.
+    include:
+      - lib/presentation/features/flashcard-editor/widgets/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - ^\s*part\s+of\s+['\"][^'\"]+['\"];?$
+    tags:
+      - memox
+      - coding
+      - ui
+      - architecture
+      - maintainability
+  - id: memox.coding.no_ignore_without_reason
+    type: regex
+    severity: warning
+    enabled: true
+    message: '`// ignore:` / `// ignore_for_file:` must carry a justification (`-- reason: ...` on the same line). Analyzer
+      suppressions without a reason silently erode every other convention; the guard escape hatches (`guard:*-reviewed`)
+      already follow this pattern.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/app_localizations*.dart
+    patterns:
+      - '//\s*ignore(?:_for_file)?:(?![^\n]*--\s*reason:\s*\S)'
+    tags:
+      - memox
+      - coding
+      - maintainability
+    fix:
+      hint: 'Append `-- reason: <why this suppression is safe>` or fix the underlying diagnostic instead of ignoring it.'

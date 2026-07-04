@@ -1,0 +1,114 @@
+# MemoX guard rules — domain: observability
+# Logging/monitoring boundaries: AppLogger only (no print/debugPrint), no direct Sentry calls,
+# no sensitive values in log payloads.
+#
+# Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
+# Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
+# for the root-manifest ruleset). See README.md in this directory for the full authoring guide.
+version: 1
+metadata:
+  id: memox-observability
+  name: MemoX Observability Rules
+  description: 'Logging and monitoring rules: AppLogger routing, Sentry boundaries, and sensitive log payloads.'
+  owner: code-verification-guard
+rules:
+  - id: memox.observability.no_direct_sentry_calls
+    type: regex
+    severity: error
+    enabled: true
+    message: App source must not call Sentry APIs directly; monitoring should flow through the repo's centralized logging
+      or monitoring utility.
+    scopes:
+      - app_source_except_logger
+    patterns:
+      - \bSentryFlutter\.init\s*\(
+      - \bSentry\.captureException\s*\(
+      - \bSentry\.captureMessage\s*\(
+      - \bSentry\.configureScope\s*\(
+    tags:
+      - memox
+      - observability
+      - architecture
+  - id: memox.observability.no_sensitive_log_payload
+    type: regex
+    severity: error
+    enabled: true
+    message: Logging calls must not interpolate sensitive values such as tokens, passwords, secrets, or session identifiers.
+    scopes:
+      - app_source_except_logger
+    patterns:
+      - (?:AppLogger\.(?:debug|info|warning|error|fatal)|debugPrint|print|developer\.log)\s*\([^\n]*(?:token|password|secret|cookie|session|credential|api[
+        _-]?key)[^\n:=]{0,32}[:=]
+      - (?:AppLogger\.(?:debug|info|warning|error|fatal)|debugPrint|print|developer\.log)\s*\([^\n]*[Bb]earer\s+[A-Za-z0-9\-._~+/=]+
+    tags:
+      - memox
+      - observability
+      - architecture
+  - id: memox.observability.no_debug_print
+    type: regex
+    severity: error
+    enabled: true
+    message: '`print(...)`, `debugPrint(...)`, and `developer.log(...)` must not be used in `lib/`. Route all runtime logging
+      through the approved logger wrapper (`AppLogger`) so output can be controlled per build configuration.'
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/core/logging/app_logger.dart
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - lib/l10n/app_localizations*.dart
+    patterns:
+      - \bprint\s*\(
+      - \bdebugPrint\s*\(
+      - \bdeveloper\.log\s*\(
+    tags:
+      - memox
+      - observability
+      - dart
+      - logging
+      - debug
+    fix:
+      hint: Replace with AppLogger.debug(...) / AppLogger.info(...) / AppLogger.error(...). Import 'package:memox/core/logging/app_logger.dart'.
+  - id: memox.observability.error_pipeline_wired
+    type: regex
+    severity: error
+    enabled: true
+    message: App bootstrap must keep the centralized error pipeline wired - both `FlutterError.onError` and `runZonedGuarded`
+      are required so uncaught errors reach the logging/monitoring boundary. This file no longer contains both.
+    include:
+      - lib/app/bootstrap.dart
+    mode: file
+    patterns:
+      - (?s)\A(?![\s\S]*FlutterError\.onError)[\s\S]*\Z
+      - (?s)\A(?![\s\S]*runZonedGuarded)[\s\S]*\Z
+    tags:
+      - memox
+      - observability
+      - error-handling
+    fix:
+      hint: Restore the FlutterError.onError handler and the runZonedGuarded wrapper in lib/app/bootstrap.dart.
+  - id: memox.observability.error_zone_ownership
+    type: regex
+    severity: error
+    enabled: true
+    message: Global error handlers (`FlutterError.onError`, `PlatformDispatcher.instance.onError`, `ErrorWidget.builder`)
+      and `runZonedGuarded` may only be wired inside `lib/app/bootstrap.dart`. Reassigning them elsewhere silently hijacks
+      or forks the centralized error pipeline, so uncaught errors stop reaching the logging/monitoring boundary.
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/app/bootstrap.dart
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    patterns:
+      - FlutterError\.onError\s*=
+      - PlatformDispatcher\.instance\.onError\s*=
+      - ErrorWidget\.builder\s*=
+      - \brunZonedGuarded\s*\(
+    tags:
+      - memox
+      - observability
+      - error-handling
+      - architecture
+    fix:
+      hint: Hook into the existing pipeline in lib/app/bootstrap.dart instead of installing a local handler.
