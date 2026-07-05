@@ -5,7 +5,8 @@ profiles:
     failure:
       fail_on:
         - error
-      warning_as_error: false
+        - warning
+      warning_as_error: true
     report:
       format: console
       show_code_line: true
@@ -19,7 +20,8 @@ profiles:
     failure:
       fail_on:
         - error
-      warning_as_error: false
+        - warning
+      warning_as_error: true
     report:
       format: console
       show_code_line: true
