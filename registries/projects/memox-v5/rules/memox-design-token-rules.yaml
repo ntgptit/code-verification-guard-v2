@@ -1,0 +1,66 @@
+# MemoX V5 guard rules — domain: design_token
+# NativeWind styling discipline (v4's Mx token rules remapped): colors and sizes come
+# from the Tailwind theme (tailwind.config.js theme.extend), not from arbitrary-value
+# escapes or StyleSheet literals. Language-level react.* rules already cover inline
+# style objects and raw hex outside className.
+version: 1
+metadata:
+  id: memox-design-token
+  name: MemoX V5 Design Token Rules
+  description: NativeWind/Tailwind token rules for memox-v5 product UI.
+  owner: code-verification-guard
+rules:
+  - id: memox.design_token.no_arbitrary_color_in_classname
+    type: regex
+    severity: error
+    enabled: true
+    message: Arbitrary color values in className (e.g. `bg-[#22C55E]`) bypass the design
+      tokens. Add the color to tailwind.config.js theme.extend.colors and use the token class.
+    scopes:
+      - react_source
+    patterns:
+      - '[a-z-]+-\[#[0-9A-Fa-f]{3,8}\]'
+      - '[a-z-]+-\[(?:rgb|hsl)a?\('
+    tags:
+      - memox
+      - design-token
+      - nativewind
+    fix:
+      hint: 'Define the color once in theme.extend.colors (e.g. `brand: {...}`) and use
+        `bg-brand-500` instead of the arbitrary value.'
+  - id: memox.design_token.no_arbitrary_size_in_classname
+    type: regex
+    severity: warning
+    enabled: true
+    message: Arbitrary pixel sizes in className (e.g. `w-[137px]`, `p-[13]`) bypass the
+      spacing scale. Use scale classes (w-4, p-2, gap-3) or extend the theme.
+    scopes:
+      - react_source
+    patterns:
+      - \b(?:w|h|m[trblxy]?|p[trblxy]?|gap|top|left|right|bottom|inset|size|min-w|min-h|max-w|max-h|leading|text)-\[\d
+    tags:
+      - memox
+      - design-token
+      - nativewind
+    fix:
+      hint: Round to the nearest Tailwind scale step, or add a named size to theme.extend
+        if the value is a real design decision.
+  - id: memox.design_token.no_stylesheet_create
+    type: regex
+    severity: warning
+    enabled: true
+    message: Product UI styles with NativeWind className, not StyleSheet.create. StyleSheet
+      is acceptable only for genuinely dynamic/animated styles that classes cannot express.
+    scopes:
+      - app_routes
+      - features
+      - shared
+    patterns:
+      - StyleSheet\.create\s*\(
+    tags:
+      - memox
+      - design-token
+      - nativewind
+    fix:
+      hint: Express the style as Tailwind classes. For animated/computed values keep a
+        minimal style prop and put every static part in className.

@@ -1,0 +1,197 @@
+version: 1
+metadata:
+  id: memox-v5-ruleset-scopes
+  name: MemoX V5 Ruleset Scopes
+  description: Scopes for the memox-v5 (Expo + React Native) repo layout. Routes live
+    in src/app (expo-router), product code in src/features + src/shared. The starter
+    template kit (src/components, src/constants, src/hooks, src/app/explore.tsx) is
+    kept as screen-code REFERENCE ONLY and is excluded from every scope on purpose —
+    do not lint it as product code. Cross-feature import direction (feature A must not
+    import feature B) cannot be expressed as a per-file regex; that check is owned by
+    scripts/check-boundaries.mjs (runs in `npm run check`).
+scopes:
+  # ---- Shared-scope remaps (names required by common/typescript/react rule sets) ----
+  project_files:
+    include:
+      - package.json
+      - app.json
+      - tsconfig.json
+      - biome.json
+      - tailwind.config.js
+      - babel.config.js
+      - metro.config.js
+      - src/**/*
+      - scripts/check-boundaries.mjs
+    exclude:
+      - '**/node_modules/**'
+      - .expo/**
+      - docs/**
+      - assets/**
+      - coverage/**
+      - code-verification-guard-v2/**
+      - android/**
+      - ios/**
+      - dist/**
+      - src/components/**
+      - src/constants/**
+      - src/hooks/**
+      - src/app/explore.tsx
+  all_text_files:
+    include:
+      - package.json
+      - app.json
+      - tsconfig.json
+      - biome.json
+      - tailwind.config.js
+      - babel.config.js
+      - metro.config.js
+      - src/**/*.ts
+      - src/**/*.tsx
+      - src/**/*.css
+      - scripts/check-boundaries.mjs
+    exclude:
+      - '**/node_modules/**'
+      - .expo/**
+      - docs/**
+      - assets/**
+      - coverage/**
+      - code-verification-guard-v2/**
+      - src/components/**
+      - src/constants/**
+      - src/hooks/**
+      - src/app/explore.tsx
+  text_source_files:
+    include:
+      - package.json
+      - app.json
+      - tsconfig.json
+      - biome.json
+      - tailwind.config.js
+      - babel.config.js
+      - metro.config.js
+      - src/**/*.ts
+      - src/**/*.tsx
+      - src/**/*.css
+      - scripts/check-boundaries.mjs
+    exclude:
+      - '**/node_modules/**'
+      - .expo/**
+      - docs/**
+      - assets/**
+      - coverage/**
+      - code-verification-guard-v2/**
+      - src/components/**
+      - src/constants/**
+      - src/hooks/**
+      - src/app/explore.tsx
+  source_files:
+    include:
+      - src/**/*.ts
+      - src/**/*.tsx
+      - tailwind.config.js
+      - babel.config.js
+      - metro.config.js
+      - scripts/check-boundaries.mjs
+    exclude:
+      - '**/*.d.ts'
+      - '**/node_modules/**'
+      - src/components/**
+      - src/constants/**
+      - src/hooks/**
+      - src/app/explore.tsx
+  source_and_config_files:
+    include:
+      - package.json
+      - app.json
+      - tsconfig.json
+      - biome.json
+      - tailwind.config.js
+      - babel.config.js
+      - metro.config.js
+      - src/**/*.ts
+      - src/**/*.tsx
+      - scripts/check-boundaries.mjs
+    exclude:
+      - '**/*.d.ts'
+      - '**/node_modules/**'
+      - src/components/**
+      - src/constants/**
+      - src/hooks/**
+      - src/app/explore.tsx
+  typescript_source:
+    include:
+      - src/app/**/*.ts
+      - src/app/**/*.tsx
+      - src/features/**/*.ts
+      - src/features/**/*.tsx
+      - src/shared/**/*.ts
+      - src/shared/**/*.tsx
+    exclude:
+      - '**/*.d.ts'
+      - '**/__tests__/**'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - '**/node_modules/**'
+      - src/app/explore.tsx
+  react_source:
+    include:
+      - src/app/**/*.tsx
+      - src/features/**/*.tsx
+      - src/shared/**/*.tsx
+    exclude:
+      - '**/__tests__/**'
+      - '**/*.test.tsx'
+      - '**/node_modules/**'
+      - src/app/explore.tsx
+
+  # ---- memox-v5 project scopes ----
+  app_routes:
+    include:
+      - src/app/**/*.ts
+      - src/app/**/*.tsx
+    exclude:
+      - src/app/explore.tsx
+  features:
+    include:
+      - src/features/**/*.ts
+      - src/features/**/*.tsx
+    exclude:
+      - '**/*.d.ts'
+  shared:
+    include:
+      - src/shared/**/*.ts
+      - src/shared/**/*.tsx
+    exclude:
+      - '**/*.d.ts'
+  feature_shared_source:
+    include:
+      - src/features/**/*.ts
+      - src/features/**/*.tsx
+      - src/shared/**/*.ts
+      - src/shared/**/*.tsx
+    exclude:
+      - '**/*.d.ts'
+      - '**/__tests__/**'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+  store_files:
+    include:
+      - src/features/**/*-store.ts
+      - src/shared/**/*-store.ts
+      - src/features/**/stores/**/*.ts
+      - src/shared/**/stores/**/*.ts
+    exclude:
+      - '**/__tests__/**'
+      - '**/*.test.ts'
+  test_files:
+    include:
+      - src/**/__tests__/**/*.ts
+      - src/**/__tests__/**/*.tsx
+      - src/**/*.test.ts
+      - src/**/*.test.tsx
+    exclude:
+      - '**/node_modules/**'
+  package_manifest:
+    include:
+      - package.json
+    exclude: []

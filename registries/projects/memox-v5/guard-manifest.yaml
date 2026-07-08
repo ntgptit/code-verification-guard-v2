@@ -1,0 +1,30 @@
+version: 1
+
+ruleset:
+  name: memox-v5
+
+profile: local
+
+config:
+  profiles: config/profiles.yaml
+  scopes: config/scopes.yaml
+  overrides: config/overrides.yaml
+
+rule_sets:
+  common: true
+  languages:
+    - typescript
+    - react
+  projects: []
+
+rules:
+  - rules/memox-architecture-rules.yaml
+  - rules/memox-coding-rules.yaml
+  - rules/memox-naming-rules.yaml
+  - rules/memox-state-management-rules.yaml
+  - rules/memox-error-handling-rules.yaml
+  - rules/memox-design-token-rules.yaml
+  - rules/memox-routing-rules.yaml
+  - rules/memox-forms-rules.yaml
+  - rules/memox-dependencies-rules.yaml
+  - rules/memox-testing-rules.yaml

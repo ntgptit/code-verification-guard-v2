@@ -1,0 +1,44 @@
+# MemoX V5 guard rules — domain: forms
+# react-hook-form + Zod are the form/validation stack. Zod is the single schema library;
+# forms wire validation through @hookform/resolvers/zod.
+version: 1
+metadata:
+  id: memox-forms
+  name: MemoX V5 Forms Rules
+  description: react-hook-form and Zod validation rules for memox-v5.
+  owner: code-verification-guard
+rules:
+  - id: memox.forms.no_alternative_schema_libs
+    type: regex
+    severity: error
+    enabled: true
+    message: Zod is the only schema/validation library in memox-v5. Do not add yup, joi,
+      valibot, superstruct, or non-zod hookform resolvers.
+    scopes:
+      - typescript_source
+    patterns:
+      - from\s+['"](?:yup|joi|valibot|superstruct)['"]
+      - from\s+['"]@hookform/resolvers/(?!zod)
+    tags:
+      - memox
+      - forms
+      - validation
+    fix:
+      hint: Model the schema with zod and wire it via zodResolver from @hookform/resolvers/zod.
+  - id: memox.forms.use_form_requires_zod_resolver
+    type: regex
+    mode: file
+    severity: warning
+    enabled: true
+    message: Files calling useForm() should validate through zodResolver — hand-rolled
+      validate callbacks drift from the Zod schema that the rest of the app trusts.
+    scopes:
+      - react_source
+    patterns:
+      - (?s)\A(?!.*zodResolver).*?\buseForm\s*[<(]
+    tags:
+      - memox
+      - forms
+      - validation
+    fix:
+      hint: 'Pass the schema: `useForm({ resolver: zodResolver(deckFormSchema) })`.'

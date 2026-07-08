@@ -1,0 +1,65 @@
+# MemoX V5 guard rules — domain: state_management
+# Zustand discipline (v4's Riverpod rules remapped to the v5 stack): stores are defined
+# only in *-store.ts files, components subscribe through selectors, getState() stays
+# out of render code.
+version: 1
+metadata:
+  id: memox-state-management
+  name: MemoX V5 State Management Rules
+  description: Zustand store definition and consumption rules for memox-v5.
+  owner: code-verification-guard
+rules:
+  # v5-seed: src/features + src/shared have no non-test code yet — enable when the
+  # first feature/shared module lands.
+  - id: memox.state_management.store_creation_only_in_store_files
+    type: regex
+    severity: error
+    enabled: false
+    message: Zustand may only be imported in store files (`*-store.ts` / stores/ directories).
+      Components and other modules consume the exported store hook, never zustand directly.
+    scopes:
+      - feature_shared_source
+    exclude:
+      - '**/*-store.ts'
+      - '**/stores/**'
+    patterns:
+      - from\s+['"]zustand
+    tags:
+      - memox
+      - state
+    fix:
+      hint: Move the store definition into src/features/<feature>/stores/<name>-store.ts
+        and import the exported use<Name>Store hook instead.
+  - id: memox.state_management.no_whole_store_subscription
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not subscribe to a whole store (`useXxxStore()` without a selector) — the
+      component re-renders on every store change. Select the slice you need.
+    scopes:
+      - react_source
+    patterns:
+      - \buse[A-Z]\w*Store\(\s*\)
+    tags:
+      - memox
+      - state
+      - performance
+    fix:
+      hint: 'Pass a selector: `const decks = useDeckStore((s) => s.decks);`.'
+  - id: memox.state_management.no_get_state_in_components
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not call `store.getState()` inside components — it reads without subscribing,
+      so the UI silently goes stale. Use the store hook with a selector; getState() belongs
+      in store actions and non-React modules.
+    scopes:
+      - react_source
+    patterns:
+      - \.getState\(\)
+    tags:
+      - memox
+      - state
+      - correctness
+    fix:
+      hint: Replace with the store hook + selector, or move the logic into a store action.

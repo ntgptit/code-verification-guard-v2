@@ -1,0 +1,61 @@
+# MemoX V5 guard rules — domain: naming
+# File naming conventions for product code. The repo convention is kebab-case file
+# names (matching the Expo template style: themed-text.tsx, use-color-scheme.ts).
+version: 1
+metadata:
+  id: memox-naming
+  name: MemoX V5 Naming Rules
+  description: File-name conventions for src/features and src/shared.
+  owner: code-verification-guard
+rules:
+  - id: memox.naming.file_name_kebab_case
+    type: file_name
+    severity: error
+    enabled: true
+    message: Feature and shared source files must use kebab-case names (dots allowed for
+      qualifiers, e.g. smoke.test.ts, deck-card.web.tsx).
+    scopes:
+      - features
+      - shared
+    pattern: '^[a-z0-9]+(?:[-.][a-z0-9]+)*\.tsx?$'
+    tags:
+      - memox
+      - naming
+    fix:
+      hint: Rename the file to kebab-case (e.g. DeckCard.tsx -> deck-card.tsx).
+  # v5-seed: no stores/ directory exists yet — enable with the first Zustand store.
+  - id: memox.naming.store_file_suffix
+    type: file_name
+    severity: error
+    enabled: false
+    message: Files under a stores/ directory must be named `<name>-store.ts` so Zustand
+      stores are discoverable and the state-management rules can target them.
+    include:
+      - src/features/**/stores/**/*.ts
+      - src/shared/**/stores/**/*.ts
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*-store\.ts$'
+    tags:
+      - memox
+      - naming
+      - state
+    fix:
+      hint: Rename to <name>-store.ts (e.g. deck-store.ts) or move the non-store module
+        out of the stores/ directory.
+  # v5-seed: no schemas/ directory exists yet — enable with the first Zod schema module.
+  - id: memox.naming.schema_file_suffix
+    type: file_name
+    severity: error
+    enabled: false
+    message: Files under a schemas/ directory must be named `<name>-schema.ts` so Zod
+      schemas are discoverable next to the forms that use them.
+    include:
+      - src/features/**/schemas/**/*.ts
+      - src/shared/**/schemas/**/*.ts
+    pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*-schema\.ts$'
+    tags:
+      - memox
+      - naming
+      - validation
+    fix:
+      hint: Rename to <name>-schema.ts (e.g. deck-form-schema.ts) or move the non-schema
+        module out of the schemas/ directory.

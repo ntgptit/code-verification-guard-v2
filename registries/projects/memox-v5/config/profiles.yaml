@@ -1,0 +1,32 @@
+version: 1
+
+profiles:
+  local:
+    failure:
+      fail_on:
+        - error
+        - warning
+      warning_as_error: true
+    report:
+      format: console
+      show_code_line: true
+      show_fix_hint: true
+    overrides:
+      disabled_rules: []
+      severity: {}
+      rule_options: {}
+
+  ci:
+    failure:
+      fail_on:
+        - error
+        - warning
+      warning_as_error: true
+    report:
+      format: console
+      show_code_line: true
+      show_fix_hint: true
+    overrides:
+      disabled_rules: []
+      severity: {}
+      rule_options: {}

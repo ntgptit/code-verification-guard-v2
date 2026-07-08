@@ -1,0 +1,83 @@
+# MemoX V5 guard rules — domain: architecture
+# Feature/shared boundaries and route-layer thinness for the Expo Router layout
+# (src/app = routes, src/features = feature modules, src/shared = shared code).
+#
+# NOTE: the generic cross-feature ban (features/<A> must not import features/<B>, A != B)
+# cannot be expressed as a per-file regex — it is enforced by scripts/check-boundaries.mjs
+# (part of `npm run check`). The rules here cover the boundaries regex CAN express.
+version: 1
+metadata:
+  id: memox-architecture
+  name: MemoX V5 Architecture Rules
+  description: Layering and dependency-direction rules for the memox-v5 React Native app.
+  owner: code-verification-guard
+rules:
+  - id: memox.architecture.shared_no_feature_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Shared code (src/shared) must not import from src/features. Shared is the
+      bottom layer; move the shared part of the feature into src/shared instead.
+    scopes:
+      - shared
+    patterns:
+      - (?:from\s+|import\s*\(\s*|require\s*\(\s*)['"]@/features/
+      - (?:from\s+|import\s*\(\s*|require\s*\(\s*)['"](?:\.\./)+features/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Extract the reusable part into src/shared and let the feature depend on it,
+        never the reverse. scripts/check-boundaries.mjs enforces the same rule in `npm run check`.
+  # v5-seed: src/features has no code yet (only .gitkeep) — enable when the first
+  # feature lands, otherwise the engine flags the rule as target-less.
+  - id: memox.architecture.features_no_route_import
+    type: regex
+    severity: error
+    enabled: false
+    message: Feature modules must not import route files from src/app. Routes compose
+      features; features must stay route-agnostic so they can be re-mounted anywhere.
+    scopes:
+      - features
+    patterns:
+      - (?:from\s+|import\s*\(\s*|require\s*\(\s*)['"]@/app/
+      - (?:from\s+|import\s*\(\s*|require\s*\(\s*)['"](?:\.\./)+app/
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Move the shared code out of src/app into the feature (or src/shared) and import it there.
+  - id: memox.architecture.routes_no_store_definition
+    type: regex
+    severity: error
+    enabled: true
+    message: Route files (src/app) must not define Zustand stores or import zustand directly.
+      Routes are a thin composition layer; state lives in feature/shared store files.
+    scopes:
+      - app_routes
+    patterns:
+      - from\s+['"]zustand
+    tags:
+      - memox
+      - architecture
+      - state
+    fix:
+      hint: Define the store in src/features/<feature>/stores/*-store.ts (or src/shared)
+        and consume its hook from the screen component.
+  - id: memox.architecture.routes_no_direct_fetch
+    type: regex
+    severity: warning
+    enabled: true
+    message: Route files (src/app) should not call fetch/axios directly. Data access belongs
+      in feature/shared service modules so screens stay declarative and testable.
+    scopes:
+      - app_routes
+    patterns:
+      - \bfetch\s*\(
+      - from\s+['"]axios
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Wrap the call in a service under src/features/<feature>/api (returning a
+        neverthrow Result) and call it from a store action or query hook.

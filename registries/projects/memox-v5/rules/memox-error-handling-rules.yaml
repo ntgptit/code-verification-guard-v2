@@ -1,0 +1,63 @@
+# MemoX V5 guard rules — domain: error_handling
+# neverthrow discipline (v4's AppFailure rules remapped): fallible boundaries return
+# Result/ResultAsync, no silent catches, unsafe unwraps stay in tests.
+version: 1
+metadata:
+  id: memox-error-handling
+  name: MemoX V5 Error Handling Rules
+  description: neverthrow Result usage and catch hygiene for memox-v5.
+  owner: code-verification-guard
+rules:
+  - id: memox.error_handling.no_empty_catch
+    type: regex
+    severity: error
+    enabled: true
+    message: Empty catch blocks swallow failures silently. Handle the error, map it into a
+      neverthrow Result, or at minimum surface it.
+    scopes:
+      - typescript_source
+    patterns:
+      - catch\s*(?:\([^)]*\))?\s*\{\s*\}
+    tags:
+      - memox
+      - error-handling
+    fix:
+      hint: Map the failure into an err(...) value, or handle/report it explicitly.
+  - id: memox.error_handling.no_unsafe_unwrap_outside_tests
+    type: regex
+    severity: error
+    enabled: true
+    message: '`_unsafeUnwrap()` / `_unsafeUnwrapErr()` are test-only escape hatches; in
+      product code they turn a typed failure back into an untyped throw.'
+    scopes:
+      - typescript_source
+    patterns:
+      - _unsafeUnwrap(?:Err)?\s*\(
+    tags:
+      - memox
+      - error-handling
+      - neverthrow
+    fix:
+      hint: Handle both branches with match/map/mapErr, or propagate the Result upward.
+  # v5-seed: src/shared/lib has no code yet (only .gitkeep) — enable with the first
+  # shared lib module.
+  - id: memox.error_handling.shared_lib_prefer_result
+    type: regex
+    severity: warning
+    enabled: false
+    message: Reusable modules in src/shared/lib should return neverthrow Result/ResultAsync
+      for fallible operations instead of throwing — callers get a typed failure channel.
+    include:
+      - src/shared/lib/**/*.ts
+    exclude:
+      - '**/__tests__/**'
+      - '**/*.test.ts'
+    patterns:
+      - \bthrow\s+new\s+\w*Error\b
+    tags:
+      - memox
+      - error-handling
+      - neverthrow
+    fix:
+      hint: Return err(new DomainError(...)) instead, or wrap the call site with
+        Result.fromThrowable / ResultAsync.fromPromise.

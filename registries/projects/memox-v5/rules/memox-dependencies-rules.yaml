@@ -1,0 +1,41 @@
+# MemoX V5 guard rules — domain: dependencies
+# package.json governance (v4's pubspec rules remapped): pinned, registry-sourced
+# dependencies only. Expo SDK compatibility is managed by `npx expo install --check`.
+version: 1
+metadata:
+  id: memox-dependencies
+  name: MemoX V5 Dependencies Rules
+  description: package.json dependency governance for memox-v5.
+  owner: code-verification-guard
+rules:
+  - id: memox.dependencies.no_wildcard_versions
+    type: regex
+    severity: error
+    enabled: true
+    message: Dependency versions must be pinned to a range — `*` and `latest` make builds
+      unreproducible.
+    scopes:
+      - package_manifest
+    patterns:
+      - '":\s*"(?:\*|latest)"'
+    tags:
+      - memox
+      - dependencies
+    fix:
+      hint: Use a caret/tilde range (or the exact version `npx expo install` picks).
+  - id: memox.dependencies.no_git_or_file_dependencies
+    type: regex
+    severity: error
+    enabled: true
+    message: Dependencies must come from the npm registry — git/file/link specifiers skip
+      integrity checks and break clean installs.
+    scopes:
+      - package_manifest
+    patterns:
+      - '":\s*"(?:git\+|github:|file:|link:)'
+    tags:
+      - memox
+      - dependencies
+    fix:
+      hint: Publish the package (or vendor the code into src/shared) instead of pointing
+        at a git URL or local path.

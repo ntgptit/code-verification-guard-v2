@@ -1,0 +1,59 @@
+# MemoX V5 guard rules — domain: routing
+# expo-router is the single navigation API (v4's GoRouter rules remapped). File-based
+# routes live in src/app; typed routes are enabled (app.json experiments.typedRoutes).
+version: 1
+metadata:
+  id: memox-routing
+  name: MemoX V5 Routing Rules
+  description: expo-router navigation rules for memox-v5.
+  owner: code-verification-guard
+rules:
+  - id: memox.routing.no_react_navigation_import
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not import @react-navigation/* directly — expo-router owns navigation and
+      re-exports what screens need. Mixing both APIs breaks typed routes and deep links.
+    scopes:
+      - app_routes
+      - features
+      - shared
+    patterns:
+      - from\s+['"]@react-navigation/
+    tags:
+      - memox
+      - routing
+    fix:
+      hint: Use expo-router (`router.push`, `<Link>`, `useLocalSearchParams`, ...) instead.
+  - id: memox.routing.no_window_location_navigation
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not navigate with window.location — it breaks native platforms and bypasses
+      the expo-router history.
+    scopes:
+      - react_source
+    patterns:
+      - window\.location\s*(?:\.(?:href|assign|replace)\b|=)
+    tags:
+      - memox
+      - routing
+      - web
+    fix:
+      hint: Use router.push/replace from expo-router; for external URLs use expo-web-browser.
+  - id: memox.routing.no_anchor_navigation
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not use raw `<a href>` for navigation — it only works on web and skips the
+      router. Use `<Link>` from expo-router.
+    scopes:
+      - react_source
+    patterns:
+      - <a\s+[^>]*href=
+    tags:
+      - memox
+      - routing
+      - web
+    fix:
+      hint: Replace with `<Link href="...">` (internal) or an ExternalLink wrapper (external).

@@ -1,0 +1,39 @@
+# MemoX V5 guard rules — domain: testing
+# Jest (jest-expo) hygiene: no focused tests committed, skips carry a reason.
+version: 1
+metadata:
+  id: memox-testing
+  name: MemoX V5 Testing Rules
+  description: Jest test hygiene rules for memox-v5.
+  owner: code-verification-guard
+rules:
+  - id: memox.testing.no_focused_tests
+    type: regex
+    severity: error
+    enabled: true
+    message: Focused tests (`.only`) must not be committed — they silently disable the rest
+      of the suite.
+    scopes:
+      - test_files
+    patterns:
+      - \b(?:describe|it|test)\.only\s*\(
+    tags:
+      - memox
+      - testing
+    fix:
+      hint: Remove `.only` before committing.
+  - id: memox.testing.skip_requires_reason
+    type: regex
+    severity: warning
+    enabled: true
+    message: Skipped tests must carry a same-line `//` comment explaining why and when they
+      come back.
+    scopes:
+      - test_files
+    patterns:
+      - \b(?:describe|it|test)\.skip\s*\((?!.*//)
+    tags:
+      - memox
+      - testing
+    fix:
+      hint: 'Add the reason: `it.skip(''...'', ...) // blocked by EXPO-1234, re-enable after SDK fix`.'

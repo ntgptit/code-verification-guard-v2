@@ -1,0 +1,6 @@
+version: 1
+
+overrides:
+  disabled_rules: []
+  severity: {}
+  rule_options: {}

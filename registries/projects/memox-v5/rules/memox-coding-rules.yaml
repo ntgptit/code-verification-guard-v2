@@ -1,0 +1,63 @@
+# MemoX V5 guard rules — domain: coding
+# Style and maintainability: early-return over else, TypeScript suppression hygiene,
+# console discipline. Formatting itself is owned by Biome (`npx biome check .`).
+version: 1
+metadata:
+  id: memox-coding
+  name: MemoX V5 Coding Rules
+  description: Coding style rules for memox-v5 product code (src/app, src/features, src/shared).
+  owner: code-verification-guard
+rules:
+  - id: memox.coding.no_else
+    type: regex
+    severity: error
+    enabled: true
+    message: Do not use `else`. Prefer early return, guard clauses, or a lookup/switch —
+      same contract as memox-v4 and the project coding contract (fail fast, early return).
+    scopes:
+      - app_routes
+      - features
+      - shared
+    patterns:
+      - '^\s*\}?\s*else\b'
+    tags:
+      - memox
+      - coding
+      - style
+    fix:
+      hint: Invert the condition and return early, or extract the branch into a named function.
+  - id: memox.coding.no_ts_suppression
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not suppress the type checker. `@ts-ignore`/`@ts-nocheck` are forbidden;
+      `@ts-expect-error` needs a trailing description explaining why.
+    scopes:
+      - typescript_source
+    patterns:
+      - '@ts-ignore\b'
+      - '@ts-nocheck\b'
+      - '@ts-expect-error\s*$'
+    tags:
+      - memox
+      - coding
+      - typing
+    fix:
+      hint: Fix the type error, or use `@ts-expect-error <reason>` with a real reason.
+  - id: memox.coding.no_console_noise
+    type: regex
+    severity: warning
+    enabled: true
+    message: Do not leave console.debug/info/trace calls in product code (console.log is
+      already covered by typescript.no_console_log). console.warn/error are tolerated
+      until a project logger exists.
+    scopes:
+      - typescript_source
+    patterns:
+      - \bconsole\.(?:debug|info|trace)\s*\(
+    tags:
+      - memox
+      - coding
+      - logging
+    fix:
+      hint: Remove the debug output, or route it through the project logger once one exists.
