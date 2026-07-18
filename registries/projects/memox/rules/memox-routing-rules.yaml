@@ -89,7 +89,7 @@ rules:
       - lib/app/router/app_router.dart
     patterns:
       - import\s+'(?:\.\./)+presentation/features/[^']+/(?:screens|widgets)/
-      - import\s+'package:memox/presentation/features/[^/]+/(?:screens|widgets)/
+      - import\s+'package:memox_v6/presentation/features/[^/]+/(?:screens|widgets)/
     tags:
       - memox
       - routing
@@ -119,7 +119,7 @@ rules:
       - routing
       - architecture
     fix:
-      hint: Use RoutePaths.* constants or builder methods (e.g. RoutePaths.folderDetail(id)) instead of raw path strings.
+      hint: Use RoutePaths.* constants or builder methods (e.g. RoutePaths.deckDetail(id)) instead of raw path strings.
   - id: memox.routing.no_raw_route_name_string
     type: regex
     severity: error

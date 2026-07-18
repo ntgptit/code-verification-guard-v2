@@ -52,10 +52,10 @@ rules:
       - \bConsumerStatefulWidget\b
       - \bConsumerState\b
       - \bWidgetRef\b
-      - import\s+'package:memox/app/
-      - import\s+'package:memox/app/router/
-      - import\s+'package:memox/domain/
-      - import\s+'package:memox/presentation/features/
+      - import\s+'package:memox_v6/app/
+      - import\s+'package:memox_v6/app/router/
+      - import\s+'package:memox_v6/domain/
+      - import\s+'package:memox_v6/presentation/features/
       - import\s+'package:go_router/go_router\.dart';
     tags:
       - memox

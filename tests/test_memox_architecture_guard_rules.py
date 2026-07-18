@@ -46,7 +46,7 @@ def test_core_di_ui_import_rule_only_blocks_presentation_imports(
     tmp_path: Path,
 ) -> None:
     bad = """
-    import 'package:memox/presentation/features/dashboard/widgets/dashboard_header.dart';
+    import 'package:memox_v6/presentation/features/dashboard/widgets/dashboard_header.dart';
 
     @Riverpod(keepAlive: true)
     class AuthSessionController extends _$AuthSessionController {

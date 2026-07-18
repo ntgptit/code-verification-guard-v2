@@ -335,8 +335,8 @@ rules:
     scopes:
       - ui
     patterns:
-      - import\s+'package:memox/core/theme/tokens/app_colors\.dart';
-      - import\s+'package:memox/core/theme/tokens/app_typography\.dart';
+      - import\s+'package:memox_v6/core/theme/tokens/app_colors\.dart';
+      - import\s+'package:memox_v6/core/theme/tokens/app_typography\.dart';
       - import\s+'(?:\.\./)+core/theme/tokens/app_colors\.dart';
       - import\s+'(?:\.\./)+core/theme/tokens/app_typography\.dart';
       - \bAppColors\.
@@ -383,13 +383,13 @@ rules:
     scopes:
       - features
     patterns:
-      - import\s+'package:memox/core/theme/tokens/app_spacing\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_radius\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_elevation\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_motion\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_opacity\.dart'
-      - import\s+'package:memox/core/theme/responsive/app_breakpoints\.dart'
-      - import\s+'package:memox/core/theme/tokens/app_icon_sizes\.dart'
+      - import\s+'package:memox_v6/core/theme/tokens/app_spacing\.dart'
+      - import\s+'package:memox_v6/core/theme/tokens/app_radius\.dart'
+      - import\s+'package:memox_v6/core/theme/tokens/app_elevation\.dart'
+      - import\s+'package:memox_v6/core/theme/tokens/app_motion\.dart'
+      - import\s+'package:memox_v6/core/theme/tokens/app_opacity\.dart'
+      - import\s+'package:memox_v6/core/theme/responsive/app_breakpoints\.dart'
+      - import\s+'package:memox_v6/core/theme/tokens/app_icon_sizes\.dart'
     tags:
       - memox
       - design-system

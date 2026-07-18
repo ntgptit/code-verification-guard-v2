@@ -58,7 +58,7 @@ def test_crud_screen_class_naming_allows_non_entity_overview_names(
       Widget build(BuildContext context, WidgetRef ref) => const SizedBox();
     }
     """
-    path = "lib/presentation/features/folders/screens/library_overview_screen.dart"
+    path = "lib/presentation/features/library/screens/library_overview_screen.dart"
 
     assert not _violations("memox.coding.crud_screen_class_naming", tmp_path, path, source)
 
@@ -86,15 +86,15 @@ def test_crud_viewmodel_controller_naming_flags_vague_controllers(
 
 def test_crud_command_method_names_must_include_entity(tmp_path: Path) -> None:
     bad = """
-    class FolderActionController extends _$FolderActionController {
+    class DeckActionController extends _$DeckActionController {
       @override
       FutureOr<void> build() {}
 
       Future<bool> delete() async => true;
     }
     """
-    good = bad.replace("delete()", "deleteFolder()")
-    path = "lib/presentation/features/folders/viewmodels/folder_detail_viewmodel.dart"
+    good = bad.replace("delete()", "deleteDeck()")
+    path = "lib/presentation/features/decks/viewmodels/deck_detail_viewmodel.dart"
 
     assert _violations(
         "memox.coding.crud_command_method_naming",
