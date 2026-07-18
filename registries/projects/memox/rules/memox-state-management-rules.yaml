@@ -226,7 +226,7 @@ rules:
     type: regex
     severity: error
     enabled: true
-    message: Mutation and command providers must not invalidate broad home/all/list/overview providers when a deck/card/folder
+    message: Mutation and command providers must not invalidate broad home/all/list/overview providers when a deck/card
       scoped refresh is enough. Invalidate the narrow family provider or update state locally.
     scopes:
       - provider_files

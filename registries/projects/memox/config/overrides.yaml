@@ -40,7 +40,7 @@ overrides:
         # Cohesive data-layer repository (14 interface methods); `implements` blocks
         # an extension-based split, so a true split needs a composition refactor —
         # tracked as a follow-up. Scoped exception until then.
-        - lib/data/repositories/folder_repository_impl.dart
+        - lib/data/repositories/deck_repository_impl.dart
       max_lines: 500
       count_mode: logical
     flutter.max_build_lines:

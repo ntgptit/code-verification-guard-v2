@@ -290,8 +290,8 @@ scopes:
     include:
       - lib/presentation/features/flashcards/viewmodels/flashcard_editor_viewmodel.dart
       - lib/presentation/features/flashcards/viewmodels/flashcard_list_viewmodel.dart
-      - lib/presentation/features/folders/viewmodels/folder_detail_viewmodel.dart
-      - lib/presentation/features/folders/viewmodels/library_overview_viewmodel.dart
+      - lib/presentation/features/decks/viewmodels/deck_detail_viewmodel.dart
+      - lib/presentation/features/library/viewmodels/library_overview_viewmodel.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'

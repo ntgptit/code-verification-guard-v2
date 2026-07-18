@@ -39,7 +39,7 @@ rules:
 
       '
     include:
-      - lib/presentation/features/folders/screens/folder_detail_screen.dart
+      - lib/presentation/features/decks/screens/deck_detail_screen.dart
       - lib/presentation/features/flashcards/screens/flashcard_list_screen.dart
     patterns:
       - (?s)MxRetainedAsyncState<[^>]+>\((?:(?!skeletonBuilder).)*?\)

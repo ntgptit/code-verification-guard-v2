@@ -45,8 +45,8 @@ rules:
     scopes:
       - widget_ui_files
     patterns:
-      - ^import\s+'package:memox/core/database/[^']+\.dart';
-      - ^import\s+'package:memox/data/dao/[^']+\.dart';
+      - ^import\s+'package:memox_v6/core/database/[^']+\.dart';
+      - ^import\s+'package:memox_v6/data/dao/[^']+\.dart';
       - ^import\s+'(?:\.\./)+[^']*/(?:dao|database)/[^']+\.dart';
     tags:
       - memox
@@ -86,7 +86,7 @@ rules:
     include:
       - lib/domain/**/*.dart
     patterns:
-      - package:memox/data/
+      - package:memox_v6/data/
       - (?:\.\./)+data/
     tags:
       - memox
@@ -101,7 +101,7 @@ rules:
     include:
       - lib/domain/**/*.dart
     patterns:
-      - package:memox/presentation/
+      - package:memox_v6/presentation/
       - (?:\.\./)+presentation/
     tags:
       - memox
@@ -116,7 +116,7 @@ rules:
     include:
       - lib/presentation/**/*.dart
     patterns:
-      - package:memox/data/
+      - package:memox_v6/data/
       - (?:\.\./)+data/
     tags:
       - memox
@@ -171,8 +171,8 @@ rules:
     patterns:
       - import\s+'(?:\.\./)+study/providers/
       - import\s+'(?:\.\./)+app/di/study/study_revision_providers\.dart'
-      - import\s+'package:memox/presentation/features/study/providers/
-      - import\s+'package:memox/app/di/study/study_revision_providers\.dart'
+      - import\s+'package:memox_v6/presentation/features/study/providers/
+      - import\s+'package:memox_v6/app/di/study/study_revision_providers\.dart'
     tags:
       - memox
       - architecture
@@ -198,7 +198,7 @@ rules:
     scopes:
       - core_di
     patterns:
-      - import\s+'package:memox/presentation/
+      - import\s+'package:memox_v6/presentation/
     tags:
       - memox
       - architecture
@@ -312,8 +312,8 @@ rules:
       - package:drift/drift.dart
       - package:drift/native.dart
       - package:drift_flutter/
-      - package:memox/data/datasources/
-      - package:memox/data/repositories/
+      - package:memox_v6/data/datasources/
+      - package:memox_v6/data/repositories/
     tags:
       - memox
       - architecture
@@ -346,8 +346,8 @@ rules:
     include:
       - lib/data/**/*.dart
     patterns:
-      - package:memox/presentation/
-      - package:memox/app/
+      - package:memox_v6/presentation/
+      - package:memox_v6/app/
       - (?:\.\./)+presentation/
       - (?:\.\./)+app/
     tags:

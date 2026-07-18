@@ -68,7 +68,7 @@ rules:
       - logging
       - debug
     fix:
-      hint: Replace with AppLogger.debug(...) / AppLogger.info(...) / AppLogger.error(...). Import 'package:memox/core/logging/app_logger.dart'.
+      hint: Replace with AppLogger.debug(...) / AppLogger.info(...) / AppLogger.error(...). Import 'package:memox_v6/core/logging/app_logger.dart'.
   - id: memox.observability.error_pipeline_wired
     type: regex
     severity: error

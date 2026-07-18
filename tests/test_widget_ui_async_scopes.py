@@ -12,7 +12,9 @@ from code_verification_guard.scanner.file_scanner import FileScanner
 
 
 @pytest.fixture
-def widget_ui_scope_patterns(tmp_path: Path) -> tuple[list[str], list[str]]:
+def widget_ui_scope_patterns(
+    tmp_path: Path,
+) -> tuple[Path, list[str], list[str]]:
     """Load widget_ui_async_surfaces include/exclude from MemoX ruleset scopes."""
     scopes_path = (
         Path(__file__).resolve().parents[1]
@@ -24,16 +26,27 @@ def widget_ui_scope_patterns(tmp_path: Path) -> tuple[list[str], list[str]]:
     )
     document = yaml.safe_load(scopes_path.read_text(encoding="utf-8"))
     scope = document["scopes"]["widget_ui_async_surfaces"]
-    return scope["include"], scope["exclude"]
+    fixture_paths = (
+        "lib/presentation/features/flashcards/screens/flashcard_editor_screen.dart",
+        "lib/presentation/shared/widgets/mx_text.dart",
+        "lib/presentation/shared/widgets/buttons/mx_primary_button.dart",
+        "lib/presentation/features/flashcards/viewmodels/flashcard_editor_viewmodel.dart",
+        "lib/presentation/features/decks/viewmodels/deck_action_viewmodel.dart",
+    )
+    for relative_path in fixture_paths:
+        source_path = tmp_path / relative_path
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.write_text("// scope fixture\n", encoding="utf-8")
+
+    return tmp_path, scope["include"], scope["exclude"]
 
 
 def test_widget_ui_scope_includes_screens_and_widgets(
-    widget_ui_scope_patterns: tuple[list[str], list[str]],
+    widget_ui_scope_patterns: tuple[Path, list[str], list[str]],
 ) -> None:
     """Use collect_files like the guard runner (fnmatch ** is expanded by walking)."""
-    include_patterns, exclude_patterns = widget_ui_scope_patterns
+    project_root, include_patterns, exclude_patterns = widget_ui_scope_patterns
     scanner = FileScanner()
-    project_root = Path(__file__).resolve().parents[2]
     matched = [
         path.relative_to(project_root).as_posix()
         for path in scanner.collect_files(
@@ -55,11 +68,10 @@ def test_widget_ui_scope_includes_screens_and_widgets(
 
 
 def test_widget_ui_scope_excludes_providers_and_viewmodels(
-    widget_ui_scope_patterns: tuple[list[str], list[str]],
+    widget_ui_scope_patterns: tuple[Path, list[str], list[str]],
 ) -> None:
-    include_patterns, exclude_patterns = widget_ui_scope_patterns
+    project_root, include_patterns, exclude_patterns = widget_ui_scope_patterns
     scanner = FileScanner()
-    project_root = Path(__file__).resolve().parents[2]
     matched = [
         path.relative_to(project_root).as_posix()
         for path in scanner.collect_files(

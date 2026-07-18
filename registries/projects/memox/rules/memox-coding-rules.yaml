@@ -47,7 +47,7 @@ rules:
     severity: error
     enabled: true
     message: CRUD/entity screen classes must name the entity, surface, and `Screen` suffix explicitly, for example `DeckImportScreen`,
-      `FlashcardEditorScreen`, `FlashcardListScreen`, or `FolderDetailScreen`.
+      `FlashcardEditorScreen`, `FlashcardListScreen`, or `DeckDetailScreen`.
     include:
       - lib/presentation/features/*/screens/*_screen.dart
       - lib/presentation/features/**/screens/**/*_screen.dart
@@ -55,7 +55,7 @@ rules:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - (?m)^\s*class\s+(?!(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Screen\b)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\w*(?:View|Page|Screen|Details)\b
+      - (?m)^\s*class\s+(?!(?:Deck|Decks|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Screen\b)(?:Deck|Decks|Flashcard|Flashcards|Tag|Tags)\w*(?:View|Page|Screen|Details)\b
     tags:
       - memox
       - coding
@@ -74,7 +74,7 @@ rules:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - (?m)^\s*class\s+(?!(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Controller\b)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\w*Controller\b
+      - (?m)^\s*class\s+(?!(?:Deck|Decks|Flashcard|Flashcards|Tag|Tags)(?:List|Detail|Editor|Import|Action|MovePicker)Controller\b)(?:Deck|Decks|Flashcard|Flashcards|Tag|Tags)\w*Controller\b
     tags:
       - memox
       - coding
@@ -86,14 +86,14 @@ rules:
     severity: error
     enabled: true
     message: CRUD command methods in presentation viewmodels must include the affected object in the method name, for example
-      `createDeck`, `updateFolder`, `deleteFlashcards`, `moveDeck`, or `reorderSubfolders`.
+      `createDeck`, `updateDeck`, `deleteFlashcards`, `moveDeck`, or `reorderDecks`.
     include:
       - lib/presentation/features/**/viewmodels/*_viewmodel.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - (?m)^\s*(?:Future<[^>]+>|Future<void>|void)\s+(?!(?:create|update|delete|move|duplicate|reorder|save)(?:Deck|Decks|Folder|Folders|Subfolder|Subfolders|Flashcard|Flashcards|Tag|Tags)\b)(?:create|update|delete|move|duplicate|reorder|save)\w*\s*\(
+      - (?m)^\s*(?:Future<[^>]+>|Future<void>|void)\s+(?!(?:create|update|delete|move|duplicate|reorder|save)(?:Deck|Decks|Flashcard|Flashcards|Tag|Tags)\b)(?:create|update|delete|move|duplicate|reorder|save)\w*\s*\(
     tags:
       - memox
       - coding

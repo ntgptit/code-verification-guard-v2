@@ -16,7 +16,7 @@ rules:
     severity: error
     enabled: true
     message: Relative imports that climb two or more directory levels (`../../`) are forbidden inside `lib/`. Cross-feature
-      and cross-layer references must use `package:memox/...` imports so the dependency direction stays explicit and refactoring
+      and cross-layer references must use `package:memox_v6/...` imports so the dependency direction stays explicit and refactoring
       a folder does not silently break imports elsewhere.
     include:
       - lib/**/*.dart
@@ -32,7 +32,7 @@ rules:
       - architecture
       - imports
     fix:
-      hint: Convert the relative import to a package import — `import 'package:memox/path/to/file.dart';`.
+      hint: Convert the relative import to a package import — `import 'package:memox_v6/path/to/file.dart';`.
   - id: memox.dart_convention.file_name_snake_case
     type: file_name
     severity: error
