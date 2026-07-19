@@ -93,7 +93,7 @@ rules:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - (?m)^\s*(?:Future<[^>]+>|Future<void>|void)\s+(?!(?:create|update|delete|move|duplicate|reorder|save)(?:Deck|Decks|Flashcard|Flashcards|Tag|Tags)\b)(?:create|update|delete|move|duplicate|reorder|save)\w*\s*\(
+      - (?m)^\s*(?:Future<[^>]+>|Future<void>|void)\s+(?!(?:create|update|delete|move|duplicate|reorder|save)(?:Deck|Decks|Flashcard|Flashcards|Tag|Tags|LanguagePair|LanguagePairs|Card|Cards|Session|Sessions|Goal|Goals|Streak|Preference|Preferences)\b)(?:create|update|delete|move|duplicate|reorder|save)\w*\s*\(
     tags:
       - memox
       - coding
