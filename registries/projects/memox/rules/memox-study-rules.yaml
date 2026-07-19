@@ -45,7 +45,7 @@ rules:
     include:
       - lib/**/*.dart
     exclude:
-      - lib/domain/learning_progress/srs_8_box_policy.dart
+      - lib/domain/learning_progress/srs_8_box_policy*.dart
     patterns:
       - \b_?intervalForBox\b
       - \b_?boxAfterFinalization\b
