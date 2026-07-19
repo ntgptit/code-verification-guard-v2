@@ -100,7 +100,7 @@ rules:
       - "**/*.freezed.dart"
       - lib/l10n/generated/**
       - lib/presentation/shared/hooks/**/*.dart
-      - lib/presentation/shared/widgets/inputs/mx_text_field.dart
+      - lib/presentation/shared/widgets/inputs/mx_field_scaffold.dart
       - lib/presentation/shared/widgets/inputs/mx_search_field.dart
     patterns:
       - '(?s)\A(?=.*=\s*(?:useTextEditingController|TextEditingController)\s*\()(?!.*\buseMx[A-Z]\w*\s*\()[\s\S]*\Z'
