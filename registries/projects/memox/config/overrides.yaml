@@ -9,6 +9,10 @@ overrides:
       exclude:
         - '**/*.g.dart'
         - '**/*.freezed.dart'
+    memox.testing.max_test_file_lines:
+      exclude:
+        # drift_dev-generated schema helpers are regenerated, never split.
+        - test/data/database/generated_migrations/**
     memox.coding.string_normalization_via_string_utils:
       exclude:
         - '**/*.g.dart'
@@ -17,7 +21,7 @@ overrides:
         - lib/data/datasources/local/tables/*.dart
     memox.coding.boolean_name_length:
       exclude:
-        - lib/presentation/shared/hooks/mx_search_controller_hooks.dart
+        - lib/presentation/shared/hooks/mx_search_hooks.dart
     # MxText deliberately mirrors Flutter's idiomatic `Text(String)` content API
     # (positional `data`), used app-wide; named-only here would degrade every
     # call site for no readability gain. Scoped exception, like the case above.
@@ -37,10 +41,6 @@ overrides:
         - lib/l10n/generated/**
         - test/**
         - integration_test/**
-        # Cohesive data-layer repository (14 interface methods); `implements` blocks
-        # an extension-based split, so a true split needs a composition refactor —
-        # tracked as a follow-up. Scoped exception until then.
-        - lib/data/repositories/deck_repository_impl.dart
       max_lines: 500
       count_mode: logical
     flutter.max_build_lines:

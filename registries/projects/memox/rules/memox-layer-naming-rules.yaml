@@ -225,7 +225,7 @@ rules:
   # Existing impl names are mixed (`_repository_impl`, `_repo_impl`, split helpers,
   # `study_repo_record_answer`), so this stays a warning: it only requires the file to
   # mention `repo`. Promote to error once every impl file is renamed to the canonical
-  # `<entity>_repository_impl.dart` (and `flashcard_export_writer.dart` is relocated).
+  # `<entity>_repository_impl.dart`.
   - id: memox.layer_naming.repository_impl_file_token
     type: file_name
     severity: warning
@@ -237,7 +237,6 @@ rules:
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
-      - lib/data/repositories/flashcard_export_writer.dart
     pattern: ^[a-z0-9_]*repo[a-z0-9_]*\.dart$
     tags:
       - memox

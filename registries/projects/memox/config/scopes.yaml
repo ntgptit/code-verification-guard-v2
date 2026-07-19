@@ -288,10 +288,9 @@ scopes:
       - '**/app/router/app_router.dart'
   presentation_async_action_controller_files:
     include:
-      - lib/presentation/features/flashcards/viewmodels/flashcard_editor_viewmodel.dart
-      - lib/presentation/features/flashcards/viewmodels/flashcard_list_viewmodel.dart
-      - lib/presentation/features/decks/viewmodels/deck_detail_viewmodel.dart
-      - lib/presentation/features/library/viewmodels/library_overview_viewmodel.dart
+      # Future feature viewmodels resolve by glob so the scope stays
+      # accurate as wave-5 screens land (no per-file stale paths).
+      - lib/presentation/features/**/viewmodels/*_viewmodel.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
@@ -446,7 +445,6 @@ scopes:
       - lib/app/router/route_paths.dart
       - lib/app/router/app_router.dart
       - lib/app/router/app_navigation.dart
-      - lib/app/router/redirect.dart
       - lib/app/router/route_placeholder.dart
       - '**/*.g.dart'
       - '**/*.freezed.dart'

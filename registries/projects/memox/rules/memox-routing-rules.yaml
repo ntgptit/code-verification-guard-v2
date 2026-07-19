@@ -23,7 +23,7 @@ rules:
 
       '
     include:
-      - lib/app/app_shell.dart
+      - lib/app/app.dart
     patterns:
       - state\.uri\.path\s*==\s*RoutePaths\.
     tags:
@@ -106,7 +106,6 @@ rules:
       - lib/app/router/route_paths.dart
       - lib/app/router/route_names.dart
       - lib/app/router/app_router.dart
-      - lib/app/router/redirect.dart
       - lib/app/router/route_placeholder.dart
       - '**/*.g.dart'
       - '**/*.freezed.dart'
@@ -133,7 +132,6 @@ rules:
       - lib/app/router/route_paths.dart
       - lib/app/router/app_router.dart
       - lib/app/router/app_navigation.dart
-      - lib/app/router/redirect.dart
       - lib/app/router/route_placeholder.dart
       - '**/*.g.dart'
       - '**/*.freezed.dart'
@@ -160,7 +158,6 @@ rules:
       - lib/app/router/route_names.dart
       - lib/app/router/app_navigation.dart
       - lib/app/router/app_router.dart
-      - lib/app/router/redirect.dart
       - lib/app/router/route_placeholder.dart
       - '**/*.g.dart'
       - '**/*.freezed.dart'

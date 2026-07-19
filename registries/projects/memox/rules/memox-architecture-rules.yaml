@@ -186,7 +186,7 @@ rules:
     patterns:
       - SharedPreferences\.getInstance\s*\(
     exclude:
-      - lib/app/di/app_providers.dart
+      - lib/app/di/*_providers.dart
     tags:
       - memox
       - architecture
