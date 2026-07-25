@@ -34,15 +34,15 @@ rules:
     type: regex
     severity: warning
     enabled: true
-    message: 'Push-from-list detail screens that use `MxRetainedAsyncState` must supply a `skeletonBuilder` for the first
-      load. Falling back to `MxLoadingState` on these screens creates a high-contrast flash on the first route frame.
+    message: 'Push-from-list detail screens must give `MxAsyncBuilder` a `loading:` builder, not the `loadingLabel:`
+      spinner fallback. A screen opened from a list otherwise flashes a centred spinner on the first route frame and then
+      swaps to placeholder rows — two loading treatments for one navigation.
 
       '
     include:
-      - lib/presentation/features/decks/screens/deck_detail_screen.dart
-      - lib/presentation/features/flashcards/screens/flashcard_list_screen.dart
+      - lib/presentation/features/deck/screens/deck_detail_screen.dart
     patterns:
-      - (?s)MxRetainedAsyncState<[^>]+>\((?:(?!skeletonBuilder).)*?\)
+      - 'loadingLabel:'
     mode: file
     tags:
       - memox
