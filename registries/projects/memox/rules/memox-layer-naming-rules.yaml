@@ -65,50 +65,52 @@ rules:
 
   # ── domain/repositories (interfaces) ────────────────────────────────────────
   - id: memox.layer_naming.repository_interface_file_suffix
-    type: file_name
+    type: regex
     severity: error
     enabled: true
-    message: Repository interface files in `lib/domain/repositories/**` must use the `_repository.dart` suffix.
+    message: A repository interface must live in a `<entity>_repository.dart` file. This project keeps each interface
+      beside its aggregate rather than in a `repositories/` folder, so the file name is the only thing that marks one.
     include:
-      - lib/domain/repositories/**/*.dart
+      - lib/domain/**/*.dart
     exclude:
+      - '**/*_repository.dart'
       - '**/*.g.dart'
       - '**/*.freezed.dart'
-    pattern: ^[a-z0-9_]+_repository\.dart$
+    patterns:
+      - (?m)^\s*abstract\s+interface\s+class\s+\w*Repository\b
+    mode: file
     tags:
       - memox
       - layer-naming
       - naming
     fix:
-      hint: Rename to `<entity>_repository.dart`.
+      hint: Move the interface into `<entity>_repository.dart`.
   - id: memox.layer_naming.repository_interface_class_suffix
     type: regex
     severity: error
     enabled: true
-    message: Public types declared in `lib/domain/repositories/**` must use the `Repository` suffix and should be declared
-      `abstract interface class <Entity>Repository`.
+    message: Public classes in a repository file must carry `Repository` in the name. A class that does not belong to the
+      port belongs beside the aggregate instead.
     include:
-      - lib/domain/repositories/**/*.dart
+      - lib/domain/**/*_repository.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
     patterns:
-      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!_)(?!\w*Repository\b)[A-Z]\w*
+      - (?m)^\s*(?:(?:abstract|base|final|interface|sealed|mixin)\s+)*class\s+(?!_)(?!\w*Repository)[A-Z]\w*
     tags:
       - memox
       - layer-naming
       - naming
     fix:
-      hint: Rename the interface to end with `Repository`.
-
-  # ── data/datasources/local/daos ─────────────────────────────────────────────
+      hint: Rename the class to carry `Repository`, or move it out of the repository file.
   - id: memox.layer_naming.dao_file_suffix
     type: file_name
     severity: error
     enabled: true
-    message: Drift DAO files in `lib/data/datasources/local/daos/**` must use the `_dao.dart` suffix.
+    message: Drift DAO files in `lib/data/database/daos/**` must use the `_dao.dart` suffix.
     include:
-      - lib/data/datasources/local/daos/**/*.dart
+      - lib/data/database/daos/**/*.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
@@ -125,9 +127,9 @@ rules:
     severity: error
     enabled: true
     message: Public classes in DAO files must carry `Dao` in the name (`FlashcardDao`, `FlashcardDaoManager`). A class that
-      does not mention `Dao` does not belong in `lib/data/datasources/local/daos/**`.
+      does not mention `Dao` does not belong in `lib/data/database/daos/**`.
     include:
-      - lib/data/datasources/local/daos/**/*.dart
+      - lib/data/database/daos/**/*.dart
     exclude:
       - '**/*.g.dart'
       - '**/*.freezed.dart'
