@@ -284,7 +284,8 @@ rules:
       code. Constructing `NativeDatabase(...)` synchronously runs every query on the UI isolate and blocks frames during large
       reads/writes.'
     include:
-      - lib/data/datasources/local/**/*.dart
+      - lib/core/database/**/*.dart
+      - lib/data/database/**/*.dart
     exclude:
       - '**/*.g.dart'
     patterns:
