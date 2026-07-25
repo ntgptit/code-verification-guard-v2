@@ -181,8 +181,13 @@ rules:
     severity: error
     enabled: true
     message: Only the app-level DI provider may call `SharedPreferences.getInstance()`; feature DI must reuse `sharedPreferencesProvider`.
+    # Scoped to all of lib/ minus the app-level DI, not to core_di. The rule
+    # bans the call *outside* one place, so scoping it to that one place and
+    # then excluding it left nothing to inspect: `core_di` is `lib/app/di/**`
+    # and every file there is a `*_providers.dart`, so the exclude erased the
+    # entire scope and the rule reported `rule_without_targets` forever.
     scopes:
-      - core_di
+      - dart_lib
     patterns:
       - SharedPreferences\.getInstance\s*\(
     exclude:

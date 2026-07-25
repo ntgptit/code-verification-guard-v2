@@ -116,8 +116,12 @@ scopes:
       - '**/*.freezed.dart'
       - '**/*.config.dart'
       - '**/gen/**'
+  # Mirrors registries/projects/memox/config/scopes.yaml — see the note there:
+  # `*_row.dart` is the suffix MemoX actually uses for list entries, and
+  # without it this scope matched nothing.
   feature_card_list_dashboard_widgets:
     include:
+      - lib/presentation/features/**/widgets/**/*_row.dart
       - lib/presentation/features/**/widgets/**/*_card.dart
       - lib/presentation/features/**/widgets/**/*_list.dart
       - lib/presentation/features/**/widgets/**/*_tile.dart

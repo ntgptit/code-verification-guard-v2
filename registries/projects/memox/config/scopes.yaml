@@ -221,8 +221,15 @@ scopes:
       - '**/*.freezed.dart'
       - '**/*.config.dart'
       - '**/gen/**'
+  # Row-shaped list entries are the card surface MemoX actually builds:
+  # `deck_summary_row.dart` renders MxDeckCard. The card/list/tile suffixes
+  # below are memox-v4 naming that v6 never used, and there is no
+  # `features/dashboard/` — without `*_row.dart` this scope matched no file at
+  # all, which silenced every rule that referenced it. The v4 globs are kept so
+  # the scope still fits a feature that adopts those names.
   feature_card_list_dashboard_widgets:
     include:
+      - lib/presentation/features/**/widgets/**/*_row.dart
       - lib/presentation/features/**/widgets/**/*_card.dart
       - lib/presentation/features/**/widgets/**/*_list.dart
       - lib/presentation/features/**/widgets/**/*_tile.dart
