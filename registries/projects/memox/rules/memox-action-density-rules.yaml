@@ -1,6 +1,6 @@
 # MemoX guard rules — domain: action_density
-# Action hierarchy/density contract (docs/ui-ux/action-hierarchy-contract.md): card/list/dashboard
-# actions stay compact — no large or full-width buttons on those surfaces.
+# Card/list actions stay compact: no hero-sized buttons on a surface whose job
+# is to list things.
 #
 # Rule ID convention: memox.<domain>.<rule_name> — <domain> matches this file's slug.
 # Scopes are defined in registries/projects/memox/config/scopes.yaml (and scopes/memox-scopes.yaml
@@ -11,22 +11,27 @@ metadata:
   id: memox-action-density
   name: MemoX Action Density Rules
   description: >-
-    Enforces the action-hierarchy / density contract
-    (docs/ui-ux/action-hierarchy-contract.md). Card / list / dashboard action
-    surfaces must stay dense: no large buttons and no full-width buttons, which
-    otherwise turn compact card actions into oversized hero CTAs.
+    Keeps card and list action surfaces dense: a row that exists to enumerate
+    decks or cards must not carry a hero-sized CTA.
 
-    Severity is `warning` for now because the guard engine supports only
-    path-glob excludes, not inline `// guard:full-width-action-reviewed`
-    waivers. Several legitimate full-width sites already exist outside card/list
-    surfaces (bottom action bars, form footers, empty states, onboarding, study
-    submit). Promotion to `error` is tracked in
-    docs/checklist/implementation-ledger.md and requires either inline-waiver
-    support in the engine or a path allowlist of the legitimate contexts.
+    These rules were inherited from memox-v4 and policed a vocabulary v6 never
+    adopted — `MxButtonSize.large` (v6's enum is `sm | md | lg`), a `fullWidth`
+    parameter that exists nowhere in `lib/`, `MxActionButton` / `MxCardActions`
+    / `MxActionIntent.cardPrimary` (no such widgets), and a contract at
+    docs/ui-ux/action-hierarchy-contract.md (no such file). Every pattern and
+    every remedy pointed at something absent, so the rules could not have fired
+    even with a correct scope. They have been restated in v6 terms; the
+    full-width rule is disabled outright because v6 has no full-width flag to
+    police.
 
-    Shared components (`MxActionButton`, `MxCardActions`, `MxPrimaryButton`,
-    `MxSecondaryButton`) are intentionally NOT in scope — these rules target
-    feature usage only, so the primitives themselves are never flagged.
+    Severity stays `warning`: the engine supports only path-glob excludes, not
+    inline waivers, and a legitimate hero button inside a card surface is
+    conceivable. Promotion to `error` is tracked in
+    docs/checklist/implementation-ledger.md.
+
+    Shared components under `lib/presentation/shared/**` are intentionally NOT
+    in scope — these rules target feature usage, so the primitives that define
+    the sizes are never flagged.
   owner: code-verification-guard
 
 rules:
@@ -35,30 +40,37 @@ rules:
     severity: warning
     enabled: true
     message: >-
-      Card/list/dashboard actions must not use MxButtonSize.large. Use a
-      semantic MxActionButton(intent: cardPrimary/cardSecondary) — compact, not
-      hero-sized. See docs/ui-ux/action-hierarchy-contract.md.
+      Card/list actions must not use MxButtonSize.lg — that size is for bottom
+      action bars, form footers, and empty states, not for a control sitting
+      inside a list row. Use the default (md) or sm.
     scopes:
       - feature_card_list_dashboard_widgets
     patterns:
-      - "MxButtonSize\\.large"
+      - "MxButtonSize\\.lg\\b"
     tags:
       - memox
       - ui
       - action-density
     fix:
-      hint: "Replace with MxActionButton(intent: MxActionIntent.cardPrimary, ...)."
+      hint: "Drop the size override, or pass MxButtonSize.sm for a row-level control."
 
+  # Disabled deliberately, not misconfigured. The v4 rule matched
+  # `fullWidth: true`; v6 has no such parameter anywhere in `lib/` — width is
+  # decided by the parent's layout, not by a button flag. There is no v6 token
+  # to match, so an enabled rule here would either match nothing (reporting
+  # `rule_without_targets`, which reads like coverage while enforcing nothing)
+  # or would have to guess at a shape such as `width: double.infinity`, which
+  # is legitimate on dividers and containers inside the same files.
+  #
+  # Re-enable if v6 introduces an explicit full-width affordance on MxButton.
   - id: memox.action_density.no_full_width_button_in_card_surface
     type: regex
     severity: warning
-    enabled: true
+    enabled: false
     message: >-
-      Card/list/dashboard actions must not be full-width by default. Full-width
-      is reserved for bottom action bars, form footers, empty states,
-      onboarding, and specified study submit actions. Use MxCardActions /
-      MxActionButton(intent: cardPrimary). See
-      docs/ui-ux/action-hierarchy-contract.md.
+      Card/list actions must not be full-width by default. Full-width is
+      reserved for bottom action bars, form footers, empty states, and
+      onboarding.
     scopes:
       - feature_card_list_dashboard_widgets
     patterns:
@@ -68,4 +80,4 @@ rules:
       - ui
       - action-density
     fix:
-      hint: "Use MxCardActions or MxActionButton(intent: cardPrimary) without fullWidth."
+      hint: "Let the row's layout decide the width instead of forcing it on the button."
