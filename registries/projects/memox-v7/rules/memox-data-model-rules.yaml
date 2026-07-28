@@ -40,10 +40,11 @@ rules:
     severity: error
     enabled: true
     message: >-
-      AD-06 — the scheduler must not read the clock. `now` is a parameter, so the
-      full 8-box x action matrix can be tested deterministically.
+      AD-06 — domain code must not read the ambient clock. `now` is passed in,
+      so behaviour is testable at a fixed instant; for the scheduler this is what
+      makes the full 8-box x action matrix deterministic.
     scopes:
-      - scheduler_files
+      - domain_files
     patterns:
       - \bDateTime\s*\.\s*now\s*\(
       - \bclock\s*\.\s*now\s*\(
@@ -59,9 +60,11 @@ rules:
     severity: error
     enabled: true
     message: >-
-      Use a `:now` parameter instead of `CURRENT_TIMESTAMP` in .drift queries, so
+      Use a `:now` parameter instead of `CURRENT_TIMESTAMP` in SQL — in .drift
+      files and in raw SQL passed to customStatement/customSelect alike — so
       "due" is testable at a fixed instant and means the same thing everywhere.
     scopes:
+      - dart_source
       - drift_sql_files
     patterns:
       - \bCURRENT_TIMESTAMP\b
@@ -103,6 +106,7 @@ rules:
       `cards` holds content only — no SRS columns and no `scheduler_generation`.
       Content must survive every reset (CLAUDE.md, AD-09).
     scopes:
+      - dart_source
       - drift_sql_files
     patterns:
       - 'CREATE\s+TABLE\s+cards\b(?:[^;]|\n)*\bscheduler_generation\b'

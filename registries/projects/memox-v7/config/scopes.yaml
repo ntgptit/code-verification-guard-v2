@@ -207,6 +207,7 @@ scopes:
     include:
       - lib/**/controller/**/*.dart
       - lib/**/*_controller.dart
+      - lib/**/*_provider.dart
       - lib/**/providers/**/*.dart
       - lib/core/providers/**/*.dart
     exclude:
@@ -231,13 +232,6 @@ scopes:
     include:
       - lib/**/*.drift
     exclude: []
-
-  scheduler_files:
-    include:
-      - lib/features/*/domain/scheduler/**/*.dart
-    exclude:
-      - '**/*.g.dart'
-      - '**/*.freezed.dart'
 
   test_files:
     include:

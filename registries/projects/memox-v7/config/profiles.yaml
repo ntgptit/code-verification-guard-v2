@@ -5,26 +5,22 @@ profiles:
   # on the developer's machine teaches people to push and find out, which is the
   # slowest possible feedback loop.
   #
-  # Why `fail_on: [error]` and not also warning, for now:
+  # Every rule now has real targets, so warnings are failures. The list of
+  # `rule_without_targets` diagnostics that justified the softer gate drained
+  # once the feature-first tree landed in M3.1 — and the three that remained
+  # turned out to be genuine scope bugs, not "not yet": provider_files did not
+  # match the project's `*_provider.dart` convention, so the Riverpod rules were
+  # guarding nothing at all.
   #
-  # Most of lib/ does not exist yet — lib/features/*/{domain,data,presentation}
-  # arrives at M3.1, lib/core/database at M4.2, lib/l10n at M2.4. The engine
-  # correctly reports every rule pointing at those paths as
-  # `guard.config.rule_without_targets`: a rule matching no files silently checks
-  # nothing, and it refuses to let that pass unnoticed. That diagnostic is right
-  # and MUST NOT be silenced — it is the same failure mode as the check_docs.sh
-  # bug fixed in M2.1b, where a green tick covered 27 unchecked tasks.
-  #
-  # So the gate blocks on `error` (real violations, today) while those warnings
-  # stay visible as an accurate backlog of rules not yet covering anything.
-  # **Flip both profiles back to `fail_on: [error, warning]` +
-  # `warning_as_error: true` at M3.1**, once the feature-first tree exists and
-  # the list has drained. That flip is an acceptance criterion of M3.1.
+  # That is the reason the diagnostic must never be silenced. It was not noise
+  # waiting for code to arrive; it was the only thing reporting that three rules
+  # were dead.
   local:
     failure:
       fail_on:
         - error
-      warning_as_error: false
+        - warning
+      warning_as_error: true
     report:
       format: console
       show_code_line: true
@@ -38,7 +34,8 @@ profiles:
     failure:
       fail_on:
         - error
-      warning_as_error: false
+        - warning
+      warning_as_error: true
     report:
       format: console
       show_code_line: true
