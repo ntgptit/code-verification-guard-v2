@@ -129,7 +129,9 @@ rules:
     scopes:
       - dart_lib
     exclude:
-      - lib/core/database/connection.dart
+      # Glob, not a literal path: the file arrives in M4.2, and a literal here
+      # is reported as a missing target until then.
+      - '**/core/database/connection.dart'
     patterns:
       - \bNativeDatabase\s*[.(]
       - \bdriftDatabase\s*\(
