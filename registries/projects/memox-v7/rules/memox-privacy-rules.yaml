@@ -1,0 +1,64 @@
+# MemoX V7 guard rules — domain: privacy
+#
+# AD-08 and CLAUDE.md: private data here is broader than it looks — card
+# content, notes, learning history, imports, media and backups. Card content
+# must never be logged at any level. This is the rule most likely to be broken
+# by a debugging session that then gets committed.
+version: 1
+metadata:
+  id: memox-v7-privacy
+  name: MemoX V7 Privacy Rules
+  description: Card content and other private data must never reach logs or exports.
+  owner: memox-v7
+rules:
+  - id: memox.privacy.no_card_content_in_logs
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Never log card content at any level (AD-08). This includes the temporary
+      log line added while debugging — that is exactly the one that gets
+      committed.
+    scopes:
+      - dart_lib
+    patterns:
+      - '\b(?:log|logger|_log|_logger)\s*\.\s*[a-z]+\s*\([^)]*\b(?:card|front|back|answer|question|note)(?:Text|Content|Body)?\b'
+      - '\b(?:print|debugPrint)\s*\([^)]*\bcard\s*\.\s*(?:front|back|answer|question|note)'
+    tags:
+      - memox
+      - privacy
+      - security
+
+  - id: memox.privacy.no_secret_literal
+    type: regex
+    severity: error
+    enabled: true
+    message: No secrets in the repository. Move it to an untracked env file.
+    scopes:
+      - source_and_config_files
+    patterns:
+      - '(?i)\b(?:api[_-]?key|secret[_-]?key|access[_-]?token|client[_-]?secret)\s*[:=]\s*[''"][A-Za-z0-9_\-]{16,}[''"]'
+    tags:
+      - memox
+      - privacy
+      - security
+
+  # AD-08: media lives in the app-private directory. A path under external
+  # storage puts card content where any other app can read it.
+  - id: memox.privacy.no_external_storage_path
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Media and backups live in the app-private directory (AD-08). External
+      storage makes card content readable by any other app.
+    scopes:
+      - dart_lib
+    patterns:
+      - \bgetExternalStorageDirectory\s*\(
+      - "'/sdcard/"
+      - "'/storage/emulated/"
+    tags:
+      - memox
+      - privacy
+      - security

@@ -1,0 +1,60 @@
+# MemoX V7 guard rules — domain: testing
+#
+# A disabled test is worse than a missing one: the count still goes up and the
+# suite still reports green, so nobody notices the coverage is gone.
+version: 1
+metadata:
+  id: memox-v7-testing
+  name: MemoX V7 Testing Rules
+  description: Test hygiene — no silently disabled or focused tests.
+  owner: memox-v7
+rules:
+  - id: memox.testing.no_skipped_test
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      A skipped test still counts as a passing suite, so the lost coverage is
+      invisible. Fix it or delete it; if it must stay, say why on the same line
+      and link the WBS entry.
+    scopes:
+      - test_files
+    patterns:
+      - '\bskip\s*:\s*true'
+      - "\\bskip\\s*:\\s*'"
+    tags:
+      - memox
+      - testing
+
+  - id: memox.testing.no_focused_test
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      A focused test (`solo: true`) silently disables every other test in the
+      file. Never commit one.
+    scopes:
+      - test_files
+    patterns:
+      - '\bsolo\s*:\s*true'
+    tags:
+      - memox
+      - testing
+
+  # CLAUDE.md: UI must be checked in light + dark + small screen + large text.
+  # A widget test that never varies textScaler cannot catch the overflow that
+  # large-text users hit first.
+  - id: memox.testing.no_real_clock_in_test
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      `DateTime.now()` in a test makes it depend on when it runs — the classic
+      source of a suite that fails once a month at midnight. Pass a fixed instant.
+    scopes:
+      - test_files
+    patterns:
+      - \bDateTime\s*\.\s*now\s*\(
+    tags:
+      - memox
+      - testing

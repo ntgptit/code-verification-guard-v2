@@ -1,0 +1,81 @@
+# MemoX V7 guard rules — domain: error_handling
+#
+# CLAUDE.md "Errors" and "Control flow". A swallowed exception is the defect
+# class that costs the most to diagnose later, because the evidence is destroyed
+# at the moment the failure happens.
+version: 1
+metadata:
+  id: memox-v7-error-handling
+  name: MemoX V7 Error Handling Rules
+  description: Exception handling, failure mapping and logging discipline.
+  owner: memox-v7
+rules:
+  - id: memox.error_handling.no_swallowed_exception
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Never swallow an error with an empty catch. If a failure is genuinely
+      ignorable, catch it narrowly and say why in a comment on the same block.
+    scopes:
+      - dart_source
+    patterns:
+      - 'catch\s*\([^)]*\)\s*\{\s*\}'
+      - 'on\s+[A-Za-z_][A-Za-z0-9_<>]*\s*(?:catch\s*\([^)]*\)\s*)?\{\s*\}'
+    mode: file
+    tags:
+      - memox
+      - error-handling
+      - correctness
+
+  - id: memox.error_handling.no_print_in_lib
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `print` is not logging. Use the logging abstraction; and note that card
+      content must never be logged at any level.
+    scopes:
+      - dart_lib
+    patterns:
+      - '(?<![A-Za-z0-9_.])print\s*\('
+      - '\bdebugPrint\s*\('
+    tags:
+      - memox
+      - error-handling
+      - observability
+
+  - id: memox.error_handling.ui_never_sees_infrastructure_exception
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Data-layer exceptions must be mapped to a domain `Failure` at the
+      repository boundary. The UI must never see a Drift or Dio exception.
+    scopes:
+      - presentation_files
+    patterns:
+      - \bDriftWrappedException\b
+      - \bSqliteException\b
+      - \bDioException\b
+    tags:
+      - memox
+      - error-handling
+      - architecture
+
+  - id: memox.error_handling.no_technical_detail_in_user_message
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      User-facing messages must not leak stack traces, SQL or file paths. Show a
+      `Failure`'s message, not the exception's `toString()`.
+    scopes:
+      - presentation_files
+    patterns:
+      - '\bText\s*\(\s*[a-zA-Z_][A-Za-z0-9_.]*\.(?:toString\(\)|stackTrace)'
+      - '\bText\s*\(\s*.{0,40}\$\{?(?:e|err|error|ex)\}?[^)]*\)'
+    tags:
+      - memox
+      - error-handling
+      - security

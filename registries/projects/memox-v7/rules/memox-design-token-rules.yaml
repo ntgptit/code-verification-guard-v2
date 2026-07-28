@@ -1,0 +1,88 @@
+# MemoX V7 guard rules — domain: design_token
+#
+# CLAUDE.md "UI discipline": no hardcoded colours, text styles or padding —
+# everything comes from design tokens.
+#
+# Scope note: these run on `ui_surfaces` (features/*/presentation + shared), NOT
+# on lib/app/** or lib/core/theme/**. lib/core/theme is where raw values are
+# legitimately DEFINED, and lib/app is the dev-channel shell — MobileFrameWidget's
+# backdrop is deliberately a raw colour because it is not product UI, and it says
+# so in a comment. Linting either would be flagging the definition as the crime.
+version: 1
+metadata:
+  id: memox-v7-design-token
+  name: MemoX V7 Design Token Rules
+  description: Colour, typography and spacing must come from tokens, not literals.
+  owner: memox-v7
+rules:
+  - id: memox.design_token.no_raw_color
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No hardcoded colours in product UI. Use the semantic tokens from
+      `lib/core/theme/` (`context.colors` / `context.semanticColors`) so light,
+      dark and contrast stay correct in one place.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - '\bColor\s*\(\s*0x[0-9a-fA-F]{6,8}\s*\)'
+      - '\bColors\s*\.\s*[a-z][A-Za-z0-9]*'
+      - '\bColor\s*\.\s*fromARGB\s*\('
+      - '\bColor\s*\.\s*fromRGBO\s*\('
+    tags:
+      - memox
+      - design-token
+      - ui
+    fix:
+      hint: Replace with a semantic token; add one to AppColors if none fits.
+
+  - id: memox.design_token.no_raw_text_style
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No hardcoded `TextStyle` in product UI. Use the typography tokens
+      (`context.texts`) so text scales consistently.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - '\bTextStyle\s*\('
+    tags:
+      - memox
+      - design-token
+      - ui
+
+  - id: memox.design_token.no_raw_spacing_literal
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No hardcoded padding or spacing. Use `AppSpacing` tokens — the 4/8/12/16/
+      24/32 scale — so spacing stays on the scale instead of drifting per screen.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - '\bEdgeInsets\s*\.\s*(?:all|symmetric|only|fromLTRB)\s*\([^)]*\b\d'
+      - '\bSizedBox\s*\(\s*(?:width|height)\s*:\s*\d'
+    tags:
+      - memox
+      - design-token
+      - ui
+    fix:
+      hint: Use AppSpacing.* instead of a bare number.
+
+  - id: memox.design_token.no_raw_border_radius
+    type: regex
+    severity: warning
+    enabled: true
+    message: No hardcoded corner radius in product UI. Use `AppRadius` tokens.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - '\bBorderRadius\s*\.\s*circular\s*\(\s*\d'
+      - '\bRadius\s*\.\s*circular\s*\(\s*\d'
+    tags:
+      - memox
+      - design-token
+      - ui
