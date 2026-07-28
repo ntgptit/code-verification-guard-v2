@@ -1,0 +1,36 @@
+version: 1
+
+overrides:
+  disabled_rules:
+    # Shared-language rules that are blunt duplicates of a memox-v7 rule that
+    # says the same thing more precisely. Keeping both means every violation is
+    # reported twice with different wording, and people learn to skim the output.
+    #
+    #   flutter.no_hardcoded_color / _radius / _duration fire on legitimate uses
+    #     inside lib/core/theme (where tokens are DEFINED) and on domain date
+    #     arithmetic like Duration(days: n). The memox.design_token.* rules are
+    #     scoped to product UI only and carry the token name in the message.
+    - flutter.no_hardcoded_color
+    - flutter.no_hardcoded_radius
+    - flutter.no_hardcoded_duration
+  severity: {}
+  rule_options:
+    # Generated code is not hand-written; length limits on it are noise.
+    common.max_file_lines:
+      include:
+        - lib/**/*.dart
+      exclude:
+        - '**/*.g.dart'
+        - '**/*.freezed.dart'
+        - '**/*.drift.dart'
+        - lib/l10n/**
+      max_lines: 500
+      count_mode: logical
+    flutter.max_build_lines:
+      count_mode: logical
+    # Placeholder detection is meaningful in lib/, but test fixtures legitimately
+    # contain stub values and TODO-shaped strings.
+    common.no_placeholder_implementation:
+      exclude:
+        - test/**
+        - integration_test/**

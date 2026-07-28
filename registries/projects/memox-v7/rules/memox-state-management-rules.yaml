@@ -1,0 +1,197 @@
+# MemoX V7 guard rules — domain: state_management
+#
+# This file is the replacement for riverpod_lint, which is descoped (see
+# "Deferred and descoped" in docs/wbs.md). `flutter analyze` covers NONE of
+# these, so without this file they are unguarded.
+#
+# Rule ID convention: memox.<domain>.<rule_name>.
+version: 1
+metadata:
+  id: memox-v7-state-management
+  name: MemoX V7 State Management Rules
+  description: Riverpod 3 provider and controller rules — the riverpod_lint replacement.
+  owner: memox-v7
+rules:
+  # ---------------------------------------------------------------------------
+  # The rule that matters most. `ref.read` inside build() reads without
+  # subscribing, so the widget silently stops rebuilding. It surfaces as "the
+  # data is stale" and is very hard to trace back to this line.
+  #
+  # mode: file because the check is "a ref.read appears inside a build method",
+  # which is a multi-line shape. The pattern deliberately stops at the first
+  # closing-brace-at-two-spaces (the end of build) to avoid swallowing the whole
+  # class; ref.read in a callback further down the file is legitimate.
+  # ---------------------------------------------------------------------------
+  - id: memox.state_management.no_ref_read_in_build
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `ref.read` inside `build()` reads a value without subscribing, so the widget
+      silently stops updating when that provider changes. Use `ref.watch` in
+      `build()`; keep `ref.read` for callbacks (onPressed, onTap, listeners).
+    scopes:
+      - flutter_source
+    patterns:
+      - 'Widget\s+build\s*\([^)]*\)\s*(?:async\s*)?\{(?:[^{}]|\{[^{}]*\})*?\bref\s*\.\s*read\s*\('
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - correctness
+    fix:
+      hint: Replace `ref.read(x)` with `ref.watch(x)` inside build, or move the read into the callback that needs it.
+
+  # ---------------------------------------------------------------------------
+  # Controllers holding a BuildContext outlive the widget that provided it.
+  # CLAUDE.md states this as a non-negotiable.
+  # ---------------------------------------------------------------------------
+  - id: memox.state_management.controller_no_build_context
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Controllers must never hold or receive a `BuildContext` — it outlives the
+      widget and turns into a use-after-dispose. Return state and let the widget
+      react; for navigation and snackbars, expose an event the widget listens to.
+    scopes:
+      - provider_files
+    patterns:
+      - \bBuildContext\b
+      - \bWidgetRef\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+
+  # ---------------------------------------------------------------------------
+  # Riverpod 3 codegen only. Manual provider constructors bypass the generator
+  # and drift from the conventions every other file follows.
+  # ---------------------------------------------------------------------------
+  - id: memox.state_management.no_manual_provider_constructors
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Use `@riverpod` code generation instead of hand-written provider
+      constructors. Generated providers keep naming, family and autoDispose
+      behaviour consistent across the codebase.
+    scopes:
+      - flutter_source
+    patterns:
+      - \bStateProvider\s*(?:<[^>]*>)?\s*\(
+      - \bFutureProvider\s*(?:<[^>]*>)?\s*\(
+      - \bStreamProvider\s*(?:<[^>]*>)?\s*\(
+      - \bNotifierProvider\s*(?:<[^>]*>)?\s*\(
+      - \bAsyncNotifierProvider\s*(?:<[^>]*>)?\s*\(
+      - \bStreamNotifierProvider\s*(?:<[^>]*>)?\s*\(
+    tags:
+      - memox
+      - state-management
+      - architecture
+    fix:
+      hint: Annotate a function or Notifier class with `@riverpod` and run build_runner.
+
+  - id: memox.state_management.no_legacy_state_notifier
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `StateNotifier` and `ChangeNotifier` are pre-Riverpod-3 migration bridges.
+      Use `Notifier` or `AsyncNotifier` with `@riverpod`.
+    scopes:
+      - flutter_source
+    patterns:
+      - \bStateNotifier\b
+      - \bChangeNotifierProvider\b
+    tags:
+      - memox
+      - state-management
+      - architecture
+
+  # ---------------------------------------------------------------------------
+  # Riverpod 3 dropped the generated per-provider Ref subclasses. Examples
+  # written for 2.x will not compile — this catches them before build_runner
+  # produces a confusing error.
+  # ---------------------------------------------------------------------------
+  - id: memox.state_management.no_generated_ref_subclass
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Riverpod 3 removed the generated per-provider `Ref` subclasses. Write
+      `Ref ref`, not `MyThingRef ref`.
+    scopes:
+      - flutter_source
+    patterns:
+      - '\b[A-Z][A-Za-z0-9]*Ref\s+ref\b'
+    tags:
+      - memox
+      - state-management
+      - correctness
+
+  # ---------------------------------------------------------------------------
+  # State escaping the one channel that is watched. A public mutable field on a
+  # Notifier can be changed without `state = ...`, so no rebuild is scheduled.
+  # ---------------------------------------------------------------------------
+  - id: memox.state_management.notifier_no_public_mutable_field
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      A Notifier must expose changes only through `state`. A public mutable field
+      can be written without notifying, so watchers never rebuild. Make it
+      private, or fold it into the state object.
+    scopes:
+      - provider_files
+    patterns:
+      - '^\s{2}(?!final\b|const\b|static\s+const\b|late\s+final\b)(?:[A-Z][A-Za-z0-9<>,\s?]*|int|double|num|bool|String)\s+(?!_)[a-z][A-Za-z0-9]*\s*(?:=|;)'
+    tags:
+      - memox
+      - state-management
+      - correctness
+
+  # ---------------------------------------------------------------------------
+  # Using ref after an await without checking ref.mounted writes state into a
+  # controller the user already navigated away from.
+  # ---------------------------------------------------------------------------
+  - id: memox.state_management.state_write_after_await_requires_mounted
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Assigning `state` on the line right after an `await` can write into an
+      already-disposed controller. Guard it with `if (!ref.mounted) return;`
+      between the await and the assignment.
+    scopes:
+      - provider_files
+    patterns:
+      - '\bawait\s+[^;]+;\s*(?:\r?\n\s*)+state\s*='
+    mode: file
+    tags:
+      - memox
+      - state-management
+      - correctness
+    fix:
+      hint: Insert `if (!ref.mounted) return;` after the await, before touching state.
+
+  # ---------------------------------------------------------------------------
+  # One isLoading for every operation on a screen is the bug CLAUDE.md calls out
+  # by name under "State".
+  # ---------------------------------------------------------------------------
+  - id: memox.state_management.no_shared_is_loading_flag
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      A single `isLoading` covering every operation on a screen cannot express
+      "refreshing while submitting". Model task status per operation, or use a
+      sealed state that names each one.
+    scopes:
+      - presentation_files
+    patterns:
+      - '\bbool\s+isLoading\b'
+    tags:
+      - memox
+      - state-management
+      - correctness

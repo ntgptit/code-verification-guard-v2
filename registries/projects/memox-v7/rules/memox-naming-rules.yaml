@@ -1,0 +1,108 @@
+# MemoX V7 guard rules — domain: naming
+#
+# CLAUDE.md "Naming": files are snake_case with a suffix that states the role.
+# The suffix is not decoration — check_architecture.sh and several scopes in
+# this ruleset select files BY suffix, so a mis-suffixed file silently escapes
+# the rules that were meant to cover it.
+version: 1
+metadata:
+  id: memox-v7-naming
+  name: MemoX V7 Naming Rules
+  description: File naming, role suffixes, and banned vague type names.
+  owner: memox-v7
+rules:
+  - id: memox.naming.dart_file_snake_case
+    type: file_name
+    severity: error
+    enabled: true
+    message: Dart file names must be snake_case.
+    scopes:
+      - dart_source
+    pattern: '^[a-z0-9_]+\.dart$'
+    tags:
+      - memox
+      - naming
+
+  - id: memox.naming.presentation_file_role_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: >-
+      Files under presentation/ must state their role in the suffix — one of
+      _screen, _widget, _controller, _state, _page or _view. Scopes in this
+      ruleset select files by suffix, so a mis-named file escapes the rules meant
+      to cover it.
+    include:
+      - lib/features/*/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: '^[a-z0-9_]+_(?:screen|widget|controller|state|page|view)\.dart$'
+    tags:
+      - memox
+      - naming
+
+  - id: memox.naming.domain_file_role_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: >-
+      Files under domain/ must end in _entity, _repository, _use_case, _scheduler,
+      _failure or _model.
+    include:
+      - lib/features/*/domain/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: '^[a-z0-9_]+_(?:entity|repository|use_case|scheduler|failure|model)\.dart$'
+    tags:
+      - memox
+      - naming
+
+  - id: memox.naming.data_file_role_suffix
+    type: file_name
+    severity: error
+    enabled: true
+    message: >-
+      Files under data/ must end in _repository_impl, _dao, _mapper, _model,
+      _data_source or _loader.
+    include:
+      - lib/features/*/data/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+    pattern: '^[a-z0-9_]+_(?:repository_impl|dao|mapper|model|data_source|loader)\.dart$'
+    tags:
+      - memox
+      - naming
+
+  - id: memox.naming.no_vague_type_name
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Avoid `Utils`, `Manager` and `Helper` — a name that means anything scopes
+      nothing, and the class grows without limit. Name the responsibility.
+    scopes:
+      - dart_lib
+    patterns:
+      - '\bclass\s+[A-Z][A-Za-z0-9]*(?:Utils|Manager|Helper)\b'
+    tags:
+      - memox
+      - naming
+
+  - id: memox.naming.boolean_reads_as_predicate
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Booleans read as predicates — `isX`, `hasX`, `canX`, `shouldX`. A bare noun
+      does not say which way `true` points.
+    scopes:
+      - dart_lib
+    patterns:
+      - '\bfinal\s+bool\s+(?!is[A-Z]|has[A-Z]|can[A-Z]|should[A-Z]|was[A-Z]|are[A-Z]|_)[a-z][A-Za-z0-9]*\s*[;=]'
+    tags:
+      - memox
+      - naming

@@ -1,0 +1,135 @@
+# MemoX V7 guard rules — domain: data_model
+#
+# These encode the memox invariants that are cheap to violate and expensive to
+# discover. BR-57 is the headline: COALESCE(parent_deck_id, id) LOOKS like it
+# resolves the root deck and does so correctly for a two-level tree — it returns
+# the wrong deck from the third level down. Every test written against a shallow
+# fixture passes. Only a real user with a nested deck finds it.
+version: 1
+metadata:
+  id: memox-v7-data-model
+  name: MemoX V7 Data Model Rules
+  description: Deck-tree, scheduler and review-history invariants (BR-xx, AD-06, AD-11).
+  owner: memox-v7
+rules:
+  - id: memox.data_model.no_coalesce_parent_deck_id
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      BR-57 — never resolve a root deck with `COALESCE(parent_deck_id, id)`. It
+      returns the level-2 deck at depth 3 and every shallow-fixture test still
+      passes. Use `root_deck_id`.
+    scopes:
+      - dart_source
+      - drift_sql_files
+    patterns:
+      - 'COALESCE\s*\(\s*(?:[A-Za-z_][A-Za-z0-9_]*\.)?parent_deck_id'
+      - 'COALESCE\s*\(\s*(?:[A-Za-z_][A-Za-z0-9_]*\.)?parentDeckId'
+    tags:
+      - memox
+      - data-model
+      - correctness
+    fix:
+      hint: Join on `root_deck_id`, which is maintained for every descendant.
+
+  # AD-06: scheduling must be a pure function of its inputs, or the whole matrix
+  # of box x action becomes untestable.
+  - id: memox.data_model.scheduler_no_ambient_now
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      AD-06 — the scheduler must not read the clock. `now` is a parameter, so the
+      full 8-box x action matrix can be tested deterministically.
+    scopes:
+      - scheduler_files
+    patterns:
+      - \bDateTime\s*\.\s*now\s*\(
+      - \bclock\s*\.\s*now\s*\(
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # M4.3: "due" must mean the same thing in every query, and a hardcoded
+  # CURRENT_TIMESTAMP makes a query untestable at a fixed point in time.
+  - id: memox.data_model.drift_no_current_timestamp
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Use a `:now` parameter instead of `CURRENT_TIMESTAMP` in .drift queries, so
+      "due" is testable at a fixed instant and means the same thing everywhere.
+    scopes:
+      - drift_sql_files
+    patterns:
+      - \bCURRENT_TIMESTAMP\b
+      - "\\bdatetime\\s*\\(\\s*'now'"
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # AD-11 / BR-76: review_kind is stored, never derived. Deriving it by diffing
+  # before/after state is wrong for a scheduled review of a box-8 card, and
+  # history written with the wrong label cannot be recomputed later.
+  - id: memox.data_model.review_kind_not_inferred
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      AD-11 / BR-76 — `review_kind` is stored, never inferred. Deriving it from a
+      box/interval comparison is wrong for a scheduled review of a box-8 card,
+      and mislabelled history cannot be recomputed later.
+    scopes:
+      - dart_lib
+    patterns:
+      - 'reviewKind\s*=\s*(?:[^;]*\?[^;]*:)'
+      - 'reviewKind\s*=\s*[^;]*(?:previousBox|currentBox|nextBox|intervalDays)\s*=='
+      - 'reviewKind\s*=\s*[^;]*(?:previousBox|currentBox|nextBox|intervalDays)\s*!='
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # AD-09: a review written from a stale-generation session must be rejected,
+  # not applied — otherwise a reset silently un-resets itself.
+  - id: memox.data_model.no_scheduler_generation_on_cards_table
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `cards` holds content only — no SRS columns and no `scheduler_generation`.
+      Content must survive every reset (CLAUDE.md, AD-09).
+    scopes:
+      - drift_sql_files
+    patterns:
+      - 'CREATE\s+TABLE\s+cards\b(?:[^;]|\n)*\bscheduler_generation\b'
+      - 'CREATE\s+TABLE\s+cards\b(?:[^;]|\n)*\bdue_at\b'
+      - 'CREATE\s+TABLE\s+cards\b(?:[^;]|\n)*\bease_factor\b'
+    mode: file
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # BR-30: the two schedulers have different action sets. Hardcoding four
+  # buttons is wrong for every eight_box deck.
+  - id: memox.data_model.review_actions_from_supported_actions
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      BR-30 — render review buttons from the scheduler's `supportedActions`.
+      `eight_box` has two actions and `sm2` has four; a hardcoded set is wrong
+      for half the decks.
+    scopes:
+      - presentation_files
+    patterns:
+      - "ReviewAction\\.again[^;]*ReviewAction\\.hard[^;]*ReviewAction\\.good[^;]*ReviewAction\\.easy"
+    mode: file
+    tags:
+      - memox
+      - data-model
+      - correctness

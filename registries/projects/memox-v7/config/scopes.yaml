@@ -1,0 +1,253 @@
+version: 1
+metadata:
+  id: memox-v7-ruleset-scopes
+  name: MemoX V7 Ruleset Scopes
+  description: >-
+    Scopes for the memox-v7 repo layout, which is feature-first and differs from
+    every earlier MemoX ruleset. Product code lives in lib/features/<feature>/
+    {domain,data,presentation}; cross-cutting code in lib/core and lib/shared;
+    the app shell in lib/app. Generated code (*.g.dart, *.freezed.dart,
+    *.drift.dart, l10n output) is excluded everywhere — it is not hand-written
+    and linting it produces noise nobody can act on. The vendored guard itself
+    (code-verification-guard-v2/**) is excluded from every scope: it is Python
+    tooling, not app source. Cross-feature import direction (feature A must not
+    import feature B) cannot be expressed as a per-file regex; that check is
+    owned by .claude/skills/flutter-architecture/scripts/check_architecture.sh.
+scopes:
+  # ---- Shared-scope remaps (names required by common / dart / flutter sets) ----
+  project_files:
+    include:
+      - pubspec.yaml
+      - analysis_options.yaml
+      - .fvmrc
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  all_text_files:
+    include:
+      - pubspec.yaml
+      - analysis_options.yaml
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  text_source_files:
+    include:
+      - pubspec.yaml
+      - analysis_options.yaml
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  source_files:
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  source_and_config_files:
+    include:
+      - pubspec.yaml
+      - analysis_options.yaml
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  dart_source:
+    include:
+      - lib/**/*.dart
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  dart_lib:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  flutter_source:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+  flutter_app_source:
+    include:
+      - lib/**/*.dart
+    exclude:
+      - lib/core/theme/**
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+      - lib/l10n/generated/**
+      - lib/l10n/app_localizations*.dart
+      - build/**
+      - '**/.dart_tool/**'
+      - code-verification-guard-v2/**
+
+  # ---- memox-v7 layer scopes ----
+  # Layer boundaries per CLAUDE.md "Layering". These three are the load-bearing
+  # scopes: most architecture rules are just "this pattern, in this layer".
+  domain_files:
+    include:
+      - lib/features/*/domain/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+  data_files:
+    include:
+      - lib/features/*/data/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+      - '**/*.drift.dart'
+  presentation_files:
+    include:
+      - lib/features/*/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  # Everything that is NOT allowed to open a transaction or touch a DAO.
+  non_data_layer_source:
+    include:
+      - lib/app/**/*.dart
+      - lib/shared/**/*.dart
+      - lib/features/*/domain/**/*.dart
+      - lib/features/*/presentation/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  # Widgets and screens — the surfaces that must not reach past their layer.
+  widget_ui_files:
+    include:
+      - lib/features/*/presentation/**/*.dart
+      - lib/shared/widgets/**/*.dart
+    exclude:
+      - '**/*_controller.dart'
+      - '**/*_state.dart'
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  # Product UI only. lib/app/** is deliberately OUT: it is the dev-channel shell
+  # (MobileFrameWidget's backdrop colour is not product UI and is documented as
+  # such), and lib/core/theme/** is where raw values are legitimately defined.
+  ui_surfaces:
+    include:
+      - lib/features/*/presentation/**/*.dart
+      - lib/shared/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  # Riverpod-owned files: controllers, notifiers and generated-provider sources.
+  provider_files:
+    include:
+      - lib/**/controller/**/*.dart
+      - lib/**/*_controller.dart
+      - lib/**/providers/**/*.dart
+      - lib/core/providers/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  controller_files:
+    include:
+      - lib/**/*_controller.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  database_files:
+    include:
+      - lib/core/database/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.drift.dart'
+
+  drift_sql_files:
+    include:
+      - lib/**/*.drift
+    exclude: []
+
+  scheduler_files:
+    include:
+      - lib/features/*/domain/scheduler/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  test_files:
+    include:
+      - test/**/*.dart
+      - integration_test/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+
+  pubspec_manifest:
+    include:
+      - pubspec.yaml
+    exclude: []

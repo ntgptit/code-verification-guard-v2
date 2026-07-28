@@ -1,0 +1,159 @@
+# MemoX V7 guard rules — domain: architecture
+#
+# Encodes the "Layering" non-negotiables in CLAUDE.md. The single most valuable
+# rule here is domain_no_infrastructure_import: AD-01 says a Spring Boot backend
+# arrives later and only stays cheap if domain/ never learned about Drift. That
+# property is invisible until the backend lands, which is exactly when breaking
+# it is most expensive — so it has to be machine-checked from day one.
+version: 1
+metadata:
+  id: memox-v7-architecture
+  name: MemoX V7 Architecture Rules
+  description: Layer boundaries, dependency direction, and data-layer ownership.
+  owner: memox-v7
+rules:
+  - id: memox.architecture.domain_no_infrastructure_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: >-
+      `domain/` may import only Dart and other domain code — no Flutter, Drift,
+      Dio or json_annotation. If a domain file needs one of these, the
+      abstraction is in the wrong place (AD-01, CLAUDE.md "Layering").
+    scopes:
+      - domain_files
+    patterns:
+      - package:flutter/.*
+      - package:drift/.*
+      - package:dio/.*
+      - package:json_annotation/.*
+      - package:sqlite3/.*
+      - package:path_provider/.*
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Move the type to data/ and map it to a domain entity at the repository boundary.
+
+  - id: memox.architecture.presentation_no_data_import
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `presentation/` must talk to use cases or repository contracts, never to a
+      data source, DAO or repository implementation directly.
+    scopes:
+      - presentation_files
+    patterns:
+      - "^\\s*import\\s+'[^']*\\bdata/[^']*';"
+      - "^\\s*import\\s+'package:memox/features/[^/]+/data/[^']*';"
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.no_drift_type_in_domain
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Drift-generated types must never appear in `domain/`. Using a Drift row
+      class as an entity is what quietly destroys AD-01's backend-readiness.
+    scopes:
+      - domain_files
+    patterns:
+      - \bDriftWrappedException\b
+      - \bGeneratedDatabase\b
+      - \bDataClass\b
+      - \bCompanion\b
+      - \bTableInfo\b
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.no_transaction_outside_data_layer
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Database transactions belong to the data or database layer. A transaction
+      opened from a widget or use case cannot be reasoned about or tested.
+    scopes:
+      - non_data_layer_source
+    patterns:
+      - \btransaction\s*\(
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.widget_no_database_access
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Widgets must not query the database or call a DAO. No API calls or
+      database access from a widget (CLAUDE.md "UI discipline").
+    scopes:
+      - widget_ui_files
+    patterns:
+      - '\b(?:_?database|_?db|appDatabase)\s*\.\s*(?:select|into|update|delete|customSelect|customStatement|customSelectStream)\s*\('
+      - '\b_?[A-Za-z0-9]*Dao\s*\.\s*[a-z][A-Za-z0-9_]*\s*\('
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.widget_no_repository_access
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Widgets must not read or watch repository providers directly. Go through a
+      controller so the screen has one place that owns its state.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - 'ref\s*\.\s*(?:read|watch)\s*\(\s*\w*[Rr]epositoryProvider'
+    tags:
+      - memox
+      - architecture
+
+  # AD-08: exactly one place opens the database connection. More than one means
+  # two configurations, and the second one is always the one missing a PRAGMA.
+  - id: memox.architecture.single_database_connection_site
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Only `lib/core/database/connection.dart` may open a database connection
+      (AD-08). A second call site means a second configuration, and it is always
+      the one missing `PRAGMA foreign_keys`.
+    scopes:
+      - dart_lib
+    exclude:
+      - lib/core/database/connection.dart
+    patterns:
+      - \bNativeDatabase\s*[.(]
+      - \bdriftDatabase\s*\(
+    tags:
+      - memox
+      - architecture
+
+  # AD-05 / AD-03: dependencies deliberately absent. Catch the import before the
+  # package sneaks into pubspec.
+  - id: memox.architecture.no_deferred_dependency_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: >-
+      `dio`, `connectivity_plus` and `flutter_secure_storage` are deliberately
+      deferred (AD-05, AD-03). Adding one is a documented decision, not an
+      import.
+    scopes:
+      - dart_source
+    patterns:
+      - package:dio/.*
+      - package:connectivity_plus/.*
+      - package:flutter_secure_storage/.*
+    tags:
+      - memox
+      - architecture
+      - dependencies
