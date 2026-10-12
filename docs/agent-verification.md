@@ -5,7 +5,7 @@
 For MemoX ruleset verification, run from the MemoX repository root:
 
 ```powershell
-python code-verification-guard\guard\run.py check --project . --ruleset memox
+python code-verification-guard-v2\guard\run.py check --project . --ruleset memox-v8
 ```
 
 The expected success output includes:

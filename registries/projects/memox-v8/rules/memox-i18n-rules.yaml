@@ -1,0 +1,47 @@
+# MemoX V8 guard rules — domain: i18n
+#
+# No user-visible string outside the ARB files: product UI, the app shell and
+# the debug gallery (`ui_copy_surfaces`).
+version: 1
+metadata:
+  id: memox-v8-i18n
+  name: MemoX V8 Localization Rules
+  description: User-visible strings must come from ARB, not from literals.
+  owner: memox-v8
+rules:
+  - id: memox.i18n.no_literal_user_string
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No user-visible string literal in product UI — every string comes from the
+      ARB files via `AppLocalizations`. A literal here cannot be translated and
+      cannot be reviewed by anyone but the person who wrote it.
+    scopes:
+      - ui_copy_surfaces
+    patterns:
+      - "\\bText\\s*\\(\\s*'[^']*[A-Za-z]{2,}[^']*'"
+      - '\bText\s*\(\s*"[^"]*[A-Za-z]{2,}[^"]*"'
+      - "\\b(?:label|title|hintText|labelText|tooltip|semanticLabel)\\s*:\\s*'[^']*[A-Za-z]{2,}"
+    tags:
+      - memox
+      - i18n
+      - ui
+    fix:
+      hint: Add the key to lib/l10n/app_en.arb and app_vi.arb, then use context.l10n.<key>.
+
+  - id: memox.i18n.arb_entry_needs_description
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      Every ARB key needs a `description`. Without one a translator has to guess
+      the context, and the guess is wrong exactly where the string is short.
+    include:
+      - lib/l10n/app_en.arb
+    patterns:
+      - '^\s*"(?!@)[a-zA-Z][a-zA-Z0-9_]*"\s*:\s*"[^"]*",\s*$(?!\s*"@)'
+    mode: file
+    tags:
+      - memox
+      - i18n

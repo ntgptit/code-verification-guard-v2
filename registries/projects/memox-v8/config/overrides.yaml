@@ -1,0 +1,62 @@
+version: 1
+
+overrides:
+  disabled_rules:
+    # Shared-language rules that are blunt duplicates of a memox-v8 rule that
+    # says the same thing more precisely. Keeping both means every violation is
+    # reported twice with different wording, and people learn to skim the output.
+    #
+    #   flutter.no_hardcoded_color / _radius / _duration fire on legitimate uses
+    #     inside lib/core/theme (where tokens are DEFINED) and on domain date
+    #     arithmetic like Duration(days: n). The memox.design_token.* rules are
+    #     scoped to product UI only and carry the token name in the message.
+    - flutter.no_hardcoded_color
+    - flutter.no_hardcoded_radius
+    - flutter.no_hardcoded_duration
+  severity: {}
+  rule_options:
+    # Phased gate (ADR-011, spec 2026-09-23-v8-folder-architecture-design.md
+    # section 8). A rule whose layer has not been built yet is listed here
+    # with `targets_pending: <layer>`: the guard reports it at info level
+    # while it waits, and as a stale_targets_pending WARNING once it has
+    # targets. When that warning appears, delete the entry in the same commit
+    # that added the layer. No rule waits today (FE-D2): dod_check.sh is the
+    # gate.
+    # Generated code is not hand-written; length limits on it are noise.
+    common.max_file_lines:
+      include:
+        - lib/**/*.dart
+      exclude:
+        - '**/*.g.dart'
+        - '**/*.freezed.dart'
+        - '**/*.drift.dart'
+        - lib/l10n/**
+        # drift's migration helpers. Committed because a released schema cannot
+        # be regenerated once the source moves on, but nobody writes them.
+        - test/drift/generated/**
+        - lib/core/database/schema_versions.dart
+      max_lines: 500
+      count_mode: logical
+    # **Logical lines, like `common.max_file_lines` above.** These two are the
+    # same measurement at two severities — a warning at 400 and an error at 500
+    # — and they must count in one unit, or the ladder is not a ladder. Raw
+    # counting also measures the wrong thing for this codebase, where a theme
+    # or domain file is mostly the rationale in its dartdoc. A budget that a
+    # paragraph can exhaust teaches people to delete the paragraph, which is
+    # the opposite of what a maintainability rule is for.
+    #
+    # `logical` drops blank lines, `//` and `///` comments, `/* */` blocks, and
+    # `import` / `export` / `part` declarations — see `MaxLinesMatcher`.
+    common.no_large_source_file:
+      count_mode: logical
+      exclude:
+        - test/drift/generated/**
+        - lib/core/database/schema_versions.dart
+    flutter.max_build_lines:
+      count_mode: logical
+    # Placeholder detection is meaningful in lib/, but test fixtures legitimately
+    # contain stub values and TODO-shaped strings.
+    common.no_placeholder_implementation:
+      exclude:
+        - test/**
+        - integration_test/**

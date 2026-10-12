@@ -1,0 +1,318 @@
+# MemoX V8 guard rules — domain: architecture
+#
+# Encodes the layer boundaries of ADR-010 and ADR-011. The single most
+# valuable rule here is domain_no_infrastructure_import: V8.0 is local-only
+# (ADR-001), and a backend added later stays cheap only if domain/ never learned
+# about Drift. That property is invisible until the backend lands, which is
+# exactly when breaking it is most expensive — so it has to be machine-checked
+# from day one.
+version: 1
+metadata:
+  id: memox-v8-architecture
+  name: MemoX V8 Architecture Rules
+  description: Layer boundaries, dependency direction, and data-layer ownership.
+  owner: memox-v8
+rules:
+  - id: memox.architecture.domain_no_infrastructure_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: >-
+      `domain/` may import only Dart and other domain code — no Flutter, Drift,
+      Dio or json_annotation. If a domain file needs one of these, the
+      abstraction is in the wrong place (ADR-010).
+    scopes:
+      - domain_files
+    patterns:
+      - package:flutter/.*
+      - package:drift/.*
+      - package:dio/.*
+      - package:json_annotation/.*
+      - package:sqlite3/.*
+      - package:path_provider/.*
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: Move the type to data/ and map it to a domain entity at the repository boundary.
+
+  - id: memox.architecture.presentation_no_data_import
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `presentation/` must talk to use cases or repository contracts, never to a
+      data source, DAO or repository implementation directly.
+    scopes:
+      - presentation_files
+    patterns:
+      - "^\\s*import\\s+'[^']*\\bdata/[^']*';"
+      - "^\\s*import\\s+'package:memox/features/[^/]+/data/[^']*';"
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.no_drift_type_in_domain
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Drift-generated types must never appear in `domain/`. Using a Drift row
+      class as an entity is what quietly ties the domain to the local database,
+      which a later backend would have to untangle (ADR-010).
+    scopes:
+      - domain_files
+    patterns:
+      - \bDriftWrappedException\b
+      - \bGeneratedDatabase\b
+      - \bDataClass\b
+      - \bCompanion\b
+      - \bTableInfo\b
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.no_transaction_outside_data_layer
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Database transactions belong to the data or database layer. A transaction
+      opened from a widget or use case cannot be reasoned about or tested.
+    scopes:
+      - non_data_layer_source
+    patterns:
+      - \btransaction\s*\(
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.widget_no_database_access
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Widgets must not read the database: no `databaseProvider`, no query, no
+      DAO call. A widget reaches data through a use case (ADR-011 D4).
+    scopes:
+      - widget_ui_files
+    # A query on the database or a DAO, or the database provider itself, read
+    # outside a comment.
+    patterns:
+      - '\b(?:_?database|_?db)\s*\.\s*(?:select|into|update|delete|customSelect|customStatement|customSelectStream)\s*\('
+      - '\b_?[A-Za-z0-9]*Dao\s*\.\s*[a-z][A-Za-z0-9_]*\s*\('
+      - '^(?!\s*(?://|\*)).*\bdatabaseProvider\b'
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.widget_no_repository_access
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Widgets must not read or watch repository providers directly. Go through a
+      controller so the screen has one place that owns its state.
+    scopes:
+      - widget_ui_files
+    patterns:
+      - 'ref\s*\.\s*(?:read|watch)\s*\(\s*\w*[Rr]epositoryProvider'
+    tags:
+      - memox
+      - architecture
+
+  # Exactly one place opens the database connection. More than one means two
+  # configurations, and the second one is always the one missing a PRAGMA
+  # (`schema.md`: `PRAGMA foreign_keys = ON` in `beforeOpen`).
+  - id: memox.architecture.single_database_connection_site
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Only `lib/core/database/connection.dart` may open a database connection.
+      A second call site means a second configuration, and it is always
+      the one missing `PRAGMA foreign_keys`.
+    scopes:
+      - dart_lib
+    exclude:
+      # The one site, written as a glob.
+      - '**/core/database/connection.dart'
+    patterns:
+      - \bNativeDatabase\s*[.(]
+      - \bdriftDatabase\s*\(
+    tags:
+      - memox
+      - architecture
+
+  # Dependencies deliberately absent: V8.0 is local-only (ADR-001) and holds no
+  # credential until a backend exists (ADR-002). Catch the import before the
+  # package sneaks into pubspec.
+  - id: memox.architecture.no_deferred_dependency_import
+    type: forbidden_import
+    severity: error
+    enabled: true
+    message: >-
+      `flutter_secure_storage` holds the account's secrets only, behind
+      `SecretStore` (auth spec 2026-09-30 O13, ADR-002): import it in
+      `lib/core/auth/secure_secret_store.dart` alone. (`dio` and
+      `connectivity_plus` were admitted by ADR-012 and ADR-013 for the sync
+      layer.)
+    scopes:
+      - dart_source
+    exclude:
+      - lib/core/auth/secure_*.dart
+    patterns:
+      - package:flutter_secure_storage/.*
+    tags:
+      - memox
+      - architecture
+      - dependencies
+
+
+  # ADR-011 D8: a feature's presentation/widgets is grouped into exactly four
+  # fixed buckets, one level deep — widgets/<bucket>/<file>.dart and nothing
+  # else. This is the guard's half of the enforcement; the boundary test
+  # (test/architecture/boundaries_test.dart, with its rules in
+  # boundary_rules.dart) owns the same shape with richer per-shape messages.
+  # Change the bucket list in ADR-011 first, then in that test, then here.
+  #
+  # `file_path`, not `file_name`: the rule is about where a file sits, and the
+  # healthy state must keep a non-empty target set or the runner's own
+  # rule_without_targets diagnostic fires; a file_name pattern over a carved
+  # include/exclude matches nothing when the tree is healthy.
+  # The pattern deliberately ends in `[^/]+\.dart` rather than requiring the
+  # `_widget` suffix: memox.naming.presentation_file_role_suffix already owns
+  # suffixes, and one finding per defect beats two rules reporting one mistake.
+  - id: memox.architecture.widgets_grouped_into_buckets
+    type: file_path
+    severity: error
+    enabled: true
+    message: >-
+      A feature's widgets sit in exactly one of four buckets, one level deep —
+      sections/ (bands the screen composes), items/ (the repeated row and its
+      parts), overlays/ (sheets, dialogs, forms and their open functions),
+      support/ (presentation mapping used across buckets). Nothing sits
+      directly under widgets/, buckets never nest, and a fifth bucket is an
+      ADR-011 change, not a new folder.
+    include:
+      - lib/features/*/presentation/widgets/**/*.dart
+    exclude:
+      - '**/*.g.dart'
+      - '**/*.freezed.dart'
+    pattern: '^lib/features/[^/]+/presentation/widgets/(?:sections|items|overlays|support)/[^/]+\.dart$'
+    tags:
+      - memox
+      - architecture
+
+  - id: memox.architecture.single_study_mode_dispatch
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      StudyMode is dispatched in exactly one exhaustive switch, beside the enum
+      in study_mode.dart. A second branch on StudyMode in domain/ or data/ is
+      where a mode's policy leaks out of its handler and back into the shared
+      flow —
+      the thing the handler exists to prevent. A handler already knows which
+      mode it is and never needs to ask.
+    scopes:
+      - study_mode_non_dispatch
+    patterns:
+      - 'case\s+StudyMode\.'
+      - 'StudyMode\.[a-z]\w*\s*=>'
+    tags:
+      - memox
+      - architecture
+    fix:
+      hint: >-
+        Move the branch into the handler for that mode, or into a hook on
+        StudyModeHandler that every mode answers.
+
+  # BE-C5: Unicode normalisation has one door, so the stored and folded
+  # forms cannot drift apart (local backend spec 2026-09-27 §4).
+  - id: memox_v8.architecture.unicode_normalisation_has_one_door
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Import `unorm_dart` only in `lib/core/text/unicode_form.dart`; call
+      `nfc`, `storedText` or `foldText` instead.
+    scopes:
+      - dart_lib
+    exclude:
+      - lib/core/text/unicode_form.dart
+    patterns:
+      - "^\\s*import\\s+'package:unorm_dart/"
+    tags:
+      - memox-v8
+      - architecture
+
+  # BE-B5b: the reminder's two plugins are reached through one data source,
+  # the one thing the adapter's host tests fake (local backend spec
+  # 2026-09-27 §8).
+  - id: memox_v8.architecture.reminder_plugins_have_one_door
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Import `android_alarm_manager_plus` and `flutter_local_notifications`
+      only in
+      `lib/features/reminders/data/datasources/plugin_reminder_plugins_data_source.dart`;
+      go through `ReminderPluginsDataSource` instead.
+    scopes:
+      - dart_lib
+    exclude:
+      - lib/features/reminders/data/datasources/plugin_reminder_plugins_data_source.dart
+    patterns:
+      - "^\\s*import\\s+'package:(android_alarm_manager_plus|flutter_local_notifications)/"
+    tags:
+      - memox-v8
+      - architecture
+
+  # Study speech spec D1: the TTS plugin is reached through one door, so a
+  # failing engine is logged in one place and tests fake one interface.
+  - id: memox_v8.architecture.tts_plugin_has_one_door
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Import `flutter_tts` only in
+      `lib/core/speech/plugin_speech_synthesizer.dart`; go through
+      `SpeechSynthesizer` instead.
+    scopes:
+      - dart_lib
+    exclude:
+      - lib/core/speech/plugin_speech_synthesizer.dart
+    patterns:
+      - "^\\s*import\\s+'package:flutter_tts/"
+    tags:
+      - memox-v8
+      - architecture
+
+  # Auth spec §5: the SDKs of identity, sync and secrets are reached through
+  # their door files only, so no Supabase or Google type leaks into a
+  # feature (core-auth plan rulings 18-19; test/architecture/sdk_door_test.dart).
+  - id: memox_v8.architecture.auth_sdks_have_one_door
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Import `supabase_flutter`, `gotrue`, `google_sign_in` and
+      `flutter_secure_storage` only in their door files
+      (`lib/core/auth/supabase_*`, `lib/core/auth/google_*`,
+      `lib/core/auth/secure_*`, `lib/core/network/`,
+      `lib/core/sync/supabase_sync_api.dart`); use the account coordinator,
+      the gateway ports or `supabase_client.dart` instead.
+    scopes:
+      - dart_lib
+    exclude:
+      - lib/core/auth/supabase_*.dart
+      - lib/core/auth/google_*.dart
+      - lib/core/auth/secure_*.dart
+      - lib/core/network/**
+      - lib/core/sync/supabase_sync_api.dart
+    patterns:
+      - "^\\s*import\\s+'package:(supabase_flutter|gotrue|google_sign_in|flutter_secure_storage)/"
+    tags:
+      - memox-v8
+      - architecture

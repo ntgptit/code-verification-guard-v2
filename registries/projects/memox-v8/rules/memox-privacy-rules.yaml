@@ -1,0 +1,63 @@
+# MemoX V8 guard rules — domain: privacy
+#
+# BR-CORE-001: private data here is broader than it looks — deck and card
+# content, notes, learning history, imports, images, audio and backups.
+# BR-CORE-002 (none of it logged) is retired by ADR-018 (2026-09-29): the app
+# logs everything to an admin-only table, so the log rule below is off.
+version: 1
+metadata:
+  id: memox-v8-privacy
+  name: MemoX V8 Privacy Rules
+  description: Card content and other private data must never reach logs or exports.
+  owner: memox-v8
+rules:
+  - id: memox.privacy.no_card_content_in_logs
+    type: regex
+    severity: error
+    enabled: false
+    message: >-
+      Off since ADR-018 retired BR-CORE-002. It said: never log card content at
+      any level.
+    scopes:
+      - dart_lib
+    patterns:
+      - '\b(?:log|logger|_log|_logger)\s*\.\s*[a-z]+\s*\([^)]*\b(?:card|front|back|answer|question|note)(?:Text|Content|Body)?\b'
+      - '\b(?:print|debugPrint)\s*\([^)]*\bcard\s*\.\s*(?:front|back|answer|question|note)'
+    tags:
+      - memox
+      - privacy
+      - security
+
+  - id: memox.privacy.no_secret_literal
+    type: regex
+    severity: error
+    enabled: true
+    message: No secrets in the repository. Move it to an untracked env file.
+    scopes:
+      - source_and_config_files
+    patterns:
+      - '(?i)\b(?:api[_-]?key|secret[_-]?key|access[_-]?token|client[_-]?secret)\s*[:=]\s*[''"][A-Za-z0-9_\-]{16,}[''"]'
+    tags:
+      - memox
+      - privacy
+      - security
+
+  # BR-CORE-003: media lives in the app's private directory. A path under
+  # external storage puts card content where any other app can read it.
+  - id: memox.privacy.no_external_storage_path
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Media lives in the app's private directory (BR-CORE-003). External
+      storage makes private data readable by any other app (BR-CORE-001).
+    scopes:
+      - dart_lib
+    patterns:
+      - \bgetExternalStorageDirectory\s*\(
+      - "'/sdcard/"
+      - "'/storage/emulated/"
+    tags:
+      - memox
+      - privacy
+      - security

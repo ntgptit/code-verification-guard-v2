@@ -1,0 +1,160 @@
+# MemoX V8 guard rules — domain: design_token
+#
+# The visual system (`DESIGN.md`): no hardcoded colours, text styles or
+# padding — everything comes from design tokens.
+#
+# Scope note: these run on `ui_surfaces` (features/*/presentation + shared), NOT
+# on lib/app/** or lib/core/theme/**. lib/core/theme is where raw values are
+# legitimately DEFINED — linting it would be flagging the definition as the
+# crime — and lib/app is the composition root and the debug-only gallery, not
+# product UI.
+version: 1
+metadata:
+  id: memox-v8-design-token
+  name: MemoX V8 Design Token Rules
+  description: Colour, typography and spacing must come from tokens, not literals.
+  owner: memox-v8
+rules:
+  - id: memox.design_token.no_raw_color
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No hardcoded colours in product UI. Use the semantic tokens from
+      `lib/core/theme/` (`context.colors` / `context.semanticColors`) so light,
+      dark and contrast stay correct in one place.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - '\bColor\s*\(\s*0x[0-9a-fA-F]{6,8}\s*\)'
+      - '\bColors\s*\.\s*[a-z][A-Za-z0-9]*'
+      - '\bColor\s*\.\s*fromARGB\s*\('
+      - '\bColor\s*\.\s*fromRGBO\s*\('
+    tags:
+      - memox
+      - design-token
+      - ui
+    fix:
+      hint: Use a semantic token; add one to MxSemanticColors if none fits.
+
+  - id: memox.design_token.no_raw_text_style
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No hardcoded `TextStyle` in product UI. Use the typography tokens
+      (`context.texts`) so text scales consistently.
+    scopes:
+      - typography_ui_surfaces
+    patterns:
+      - '\bTextStyle\s*\('
+    tags:
+      - memox
+      - design-token
+      - ui
+
+  - id: memox.design_token.no_raw_spacing_literal
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No hardcoded padding or spacing. Use `AppSpacing` tokens — the 4/8/12/16/
+      24/32 scale — so spacing stays on the scale instead of drifting per screen.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - '\bEdgeInsets\s*\.\s*(?:all|symmetric|only|fromLTRB)\s*\([^)]*\b\d'
+      - '\bEdgeInsetsDirectional\s*\.\s*(?:all|symmetric|only|fromSTEB)\s*\([^)]*\b\d'
+      - '\bSizedBox\s*\(\s*(?:width|height)\s*:\s*\d'
+      - '\bGap\s*\(\s*\d'
+      - '\b(?:spacing|runSpacing)\s*:\s*\d'
+    tags:
+      - memox
+      - design-token
+      - ui
+    fix:
+      hint: Use AppSpacing.* instead of a bare number.
+
+  - id: memox.design_token.no_raw_duration
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      No anonymous `Duration` literal in product UI. Use an `AppDurations` token
+      or, when the value is not motion, declare a named `const Duration` beside
+      the thing that reads it and say what it is for.
+    # **`ui_and_theme_surfaces`, not `ui_surfaces`, and that is the whole point
+    # of the rule.** A component theme in `lib/core/theme` is where an inline
+    # `Duration(milliseconds: …)` hides, and `ui_surfaces` deliberately excludes
+    # that directory: scoped there, the rule would pass the very regression its
+    # message describes.
+    #
+    # **This replaces `flutter.no_hardcoded_duration`, disabled in
+    # overrides.yaml.** That rule fired on `AppDurations`' own declarations and
+    # on domain date arithmetic like `Duration(days: 1)`. Neither needs a scope
+    # exemption — both are *named* constants, and the lookahead below exempts
+    # those by shape. So the theme comes back into scope and domain code stays
+    # out of it, which is the split the original rule could not express.
+    scopes:
+      - ui_and_theme_surfaces
+    # Two exemptions, both in the lookahead so they are structural rather than a
+    # list of blessed files:
+    #
+    #   `//` and `*` — a comment line. A doc comment that says what a duration
+    #     must not be quotes the literal to say it, and a rule that fails on the
+    #     prose describing it is a rule people switch off.
+    #   `const Duration` — a *named* declaration. `AppDurations`' tokens,
+    #     `searchDebounce` and `startupSettingsLimit` are all written this way,
+    #     which is the shape the message asks for.
+    patterns:
+      - >-
+        ^(?!\s*(?://|\*|(?:static\s+)?const\s+Duration\s)).*\bDuration\s*\(\s*(?:days|hours|minutes|seconds|milliseconds|microseconds)\s*:\s*\d
+    tags:
+      - memox
+      - design-token
+      - ui
+    fix:
+      hint: >-
+        Use an AppDurations token, or name it as a const with a comment
+        explaining why it is not on the motion scale.
+
+  - id: memox.design_token.no_raw_border_radius
+    type: regex
+    # `error`, like the spacing rule beside it: a warning nobody reads is a
+    # rule nobody has.
+    severity: error
+    enabled: true
+    message: No hardcoded corner radius in product UI. Use `AppRadius` tokens.
+    scopes:
+      - ui_surfaces
+    patterns:
+      - '\bBorderRadius\s*\.\s*circular\s*\(\s*\d'
+      - '\bRadius\s*\.\s*circular\s*\(\s*\d'
+    tags:
+      - memox
+      - design-token
+      - ui
+
+  # A stroke width is a design decision with named tokens (`AppStroke.hairline`,
+  # `control`, `focus`, `indicator`, `selectedRing`); a literal beside
+  # `strokeWidth:` or `width:` on a border is a width nobody named.
+  # `Border.all(color:)` with no width is legal — Flutter's default IS the
+  # hairline, and `test/core/theme/foundations_test.dart` pins
+  # `AppStroke.hairline` at 1.
+  - id: memox.design_token.no_raw_stroke_width
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      No literal stroke width. `AppStroke` names the scale — hairline, control,
+      focus, indicator — so a border or an arc is one of four weights, not a
+      number typed at the site. A width none of them fits is a fifth rung to
+      argue for in lib/core/theme/foundations/app_stroke.dart.
+    scopes:
+      - ui_and_theme_surfaces
+    patterns:
+      - '^(?!\s*(?://|\*)).*\bstrokeWidth\s*:\s*\d'
+      - '^(?!\s*(?://|\*)).*\b(?:BorderSide|Border\.all|Border\.symmetric)\s*\([^)]*\bwidth\s*:\s*\d'
+    tags:
+      - memox-v8
+      - design-token

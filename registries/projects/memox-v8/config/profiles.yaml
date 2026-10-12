@@ -1,0 +1,42 @@
+version: 1
+
+profiles:
+  # Local and CI are deliberately identical. A guard that is stricter in CI than
+  # on the developer's machine teaches people to push and find out, which is the
+  # slowest possible feedback loop.
+  #
+  # Every rule has real targets, so warnings are failures. A
+  # `rule_without_targets` diagnostic is never noise waiting for code to
+  # arrive: a scope that matches no file leaves its rule guarding nothing, and
+  # the diagnostic is the only thing that says so. It must never be silenced;
+  # a rule that waits for a layer V8 has not built says so with
+  # `targets_pending` in `overrides.yaml`.
+  local:
+    failure:
+      fail_on:
+        - error
+        - warning
+      warning_as_error: true
+    report:
+      format: console
+      show_code_line: true
+      show_fix_hint: true
+    overrides:
+      disabled_rules: []
+      severity: {}
+      rule_options: {}
+
+  ci:
+    failure:
+      fail_on:
+        - error
+        - warning
+      warning_as_error: true
+    report:
+      format: console
+      show_code_line: true
+      show_fix_hint: true
+    overrides:
+      disabled_rules: []
+      severity: {}
+      rule_options: {}
