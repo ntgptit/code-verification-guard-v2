@@ -76,6 +76,21 @@ scopes:
       - ".coverage"
       - "**/*.egg-info/**"
 
+  # The guard's own rule definitions. Rules that check rule files exist
+  # because a regex authored here runs against every project on every commit:
+  # a pattern that is merely slow is a broken pipeline everywhere at once.
+  guard_rule_files:
+    include:
+      - "**/registries/**/*.yaml"
+      - "**/scopes/*.yaml"
+    exclude:
+      # Sibling checkouts are other sessions' working copies: their rule
+      # files are not this run's to judge, and reporting them buries the
+      # findings that are.
+      - "**/.claude/worktrees/**"
+      - "**/.git/**"
+      - "**/node_modules/**"
+
   text_source_files:
     include:
       - "**/*.md"

@@ -99,3 +99,34 @@ rules:
       - debug
     fix:
       hint: Remove debugger/breakpoint statements before committing.
+
+  # A guard rule is code that runs on every commit of every project using this
+  # registry, so a pathological regex here is a stalled pipeline everywhere.
+  # This one class has already cost 178s in a single rule: `[^;]` (any negated
+  # class) already matches newlines, so `(?:[^;]|\n)*` is an ambiguous
+  # alternation — each newline can be consumed two ways, and the *passing* case
+  # explores 2^n splits before failing. Write `[^;]*`; it is exactly equivalent.
+  - id: guard.authoring.no_ambiguous_alternation
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Ambiguous regex alternation in a guard rule: a negated character class
+      already matches newlines, so `(?:[^X]|\n)*` lets the engine consume each
+      newline two ways and backtracks exponentially when the pattern does not
+      match. Write `[^X]*` instead — same language, no backtracking.
+    scopes:
+      - guard_rule_files
+    # Anchored to a quoted list item — a rule that also matched prose
+    # would flag its own message and every comment explaining the trap,
+    # which is exactly what the first draft did.
+    patterns:
+      - '^\s*-\s*["''].*\((\?:)?\[\^[^\]]*\]\|\\n\)'
+    tags:
+      - guard
+      - authoring
+      - performance
+    fix:
+      hint: >-
+        Replace `(?:[^X]|\n)*` with `[^X]*`. A negated class matches newlines
+        already, so the alternation adds no matches and only adds backtracking.
