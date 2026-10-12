@@ -51,6 +51,7 @@ class ConfigKeys:
     ONLY_CATEGORIES = "only_categories"
     MAX_LINES = "max_lines"
     COUNT_MODE = "count_mode"
+    TARGETS_PENDING = "targets_pending"
 
     OVERRIDES = "overrides"
     DISABLED_RULES = "disabled_rules"

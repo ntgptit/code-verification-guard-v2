@@ -22,6 +22,12 @@ ProgressCallback = Callable[[int, int, str], None]
 # a warning instead of silently checking nothing.
 RULE_WITHOUT_TARGETS_ID = "guard.config.rule_without_targets"
 MISSING_TARGET_PATH_ID = "guard.config.missing_target_path"
+# A rule may declare `targets_pending: <layer>` when its targets arrive with a
+# layer the project has not built yet. It is then reported at info level while
+# it has no targets, and as a warning once it has some, so the declaration
+# cannot outlive its reason.
+RULE_TARGETS_PENDING_ID = "guard.config.rule_targets_pending"
+STALE_TARGETS_PENDING_ID = "guard.config.stale_targets_pending"
 
 _GLOB_CHARS = ("*", "?", "[")
 _MAX_SAMPLE_RULE_IDS = 3
@@ -60,12 +66,9 @@ class RuleRunner:
             rule = self.rule_factory.create(rule_config)
             rule.file_reader = shared_file_reader
             violations.extend(rule.check(project_root))
-
-            # A rule with an empty target set silently checks nothing.
-            if not rule.target_files(project_root):
-                config_diagnostics.append(
-                    self._rule_without_targets_violation(rule, project_root)
-                )
+            config_diagnostics.extend(
+                self._target_diagnostics(rule, rule_config, project_root)
+            )
 
             if progress_callback:
                 progress_callback(index, total_rules, rule.rule_id)
@@ -75,6 +78,73 @@ class RuleRunner:
         )
         violations.extend(config_diagnostics)
         return violations
+
+    def _target_diagnostics(
+        self,
+        rule: BaseRule,
+        rule_config: dict,
+        project_root: Path,
+    ) -> list[Violation]:
+        """Report a rule that checks nothing, unless it declares what it waits for."""
+        pending_layer = rule_config.get(ConfigKeys.TARGETS_PENDING)
+        has_targets = bool(rule.target_files(project_root))
+
+        # The awaited layer has landed; the declaration must go.
+        if has_targets and pending_layer:
+            return [self._stale_targets_pending_violation(rule, pending_layer, project_root)]
+
+        # A rule with targets and no declaration is the healthy case.
+        if has_targets:
+            return []
+
+        # An empty target set is expected while the declared layer is missing.
+        if pending_layer:
+            return [self._rule_targets_pending_notice(rule, pending_layer, project_root)]
+
+        # A rule with an empty target set silently checks nothing.
+        return [self._rule_without_targets_violation(rule, project_root)]
+
+    def _rule_targets_pending_notice(
+        self,
+        rule: BaseRule,
+        pending_layer: str,
+        project_root: Path,
+    ) -> Violation:
+        """Report a rule that has no targets yet because its layer is not built."""
+        return Violation(
+            rule_id=RULE_TARGETS_PENDING_ID,
+            severity=Severity.INFO,
+            message=(
+                f"Rule `{rule.rule_id}` has no target files yet; it waits for the "
+                f"`{pending_layer}` layer (targets_pending)."
+            ),
+            file_path=project_root,
+            fix_hint=(
+                "Nothing to do until that layer lands. The declaration then turns "
+                "into a stale_targets_pending warning."
+            ),
+        )
+
+    def _stale_targets_pending_violation(
+        self,
+        rule: BaseRule,
+        pending_layer: str,
+        project_root: Path,
+    ) -> Violation:
+        """Report a targets_pending declaration whose rule now has targets."""
+        return Violation(
+            rule_id=STALE_TARGETS_PENDING_ID,
+            severity=Severity.WARNING,
+            message=(
+                f"Rule `{rule.rule_id}` declares targets_pending `{pending_layer}` "
+                "but now has target files, so the declaration is stale."
+            ),
+            file_path=project_root,
+            fix_hint=(
+                "Remove the rule's targets_pending entry from the ruleset's "
+                "config/overrides.yaml."
+            ),
+        )
 
     def _rule_without_targets_violation(
         self,
@@ -107,6 +177,10 @@ class RuleRunner:
 
         for rule_config in rule_configs:
             rule_id = rule_config.get(ConfigKeys.ID, "<unknown>")
+
+            # A rule waiting for a layer expects its literal paths to be absent.
+            if rule_config.get(ConfigKeys.TARGETS_PENDING):
+                continue
 
             for config_key in (ConfigKeys.INCLUDE, ConfigKeys.EXCLUDE):
                 for pattern in rule_config.get(config_key) or []:

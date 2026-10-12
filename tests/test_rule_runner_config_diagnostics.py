@@ -8,24 +8,32 @@ from code_verification_guard.constants.config_keys import ConfigKeys
 from code_verification_guard.registry.rule_registry import RuleRegistry
 from code_verification_guard.runner.rule_runner import (
     MISSING_TARGET_PATH_ID,
+    RULE_TARGETS_PENDING_ID,
     RULE_WITHOUT_TARGETS_ID,
+    STALE_TARGETS_PENDING_ID,
     RuleRunner,
 )
 
 
-def _register(registry: RuleRegistry, rule_id: str, include: list[str]) -> None:
-    registry.register(
-        {
-            ConfigKeys.ID: rule_id,
-            ConfigKeys.TYPE: "regex",
-            ConfigKeys.MODE: "line",
-            ConfigKeys.SEVERITY: "error",
-            ConfigKeys.ENABLED: True,
-            ConfigKeys.MESSAGE: "No print.",
-            ConfigKeys.INCLUDE: include,
-            ConfigKeys.PATTERNS: ["\\bprint\\s*\\("],
-        }
-    )
+def _register(
+    registry: RuleRegistry,
+    rule_id: str,
+    include: list[str],
+    targets_pending: str | None = None,
+) -> None:
+    rule = {
+        ConfigKeys.ID: rule_id,
+        ConfigKeys.TYPE: "regex",
+        ConfigKeys.MODE: "line",
+        ConfigKeys.SEVERITY: "error",
+        ConfigKeys.ENABLED: True,
+        ConfigKeys.MESSAGE: "No print.",
+        ConfigKeys.INCLUDE: include,
+        ConfigKeys.PATTERNS: ["\\bprint\\s*\\("],
+    }
+    if targets_pending is not None:
+        rule[ConfigKeys.TARGETS_PENDING] = targets_pending
+    registry.register(rule)
 
 
 def test_rule_with_missing_literal_include_reports_both_diagnostics(tmp_path: Path) -> None:
@@ -100,4 +108,82 @@ def test_shared_missing_path_is_reported_once_with_rule_references(tmp_path: Pat
     assert len(missing_path_violations) == 1
     assert "sample.first" in missing_path_violations[0].message
     assert "sample.second" in missing_path_violations[0].message
+    registry.clear()
+
+
+def test_pending_rule_without_targets_reports_info_only(tmp_path: Path) -> None:
+    registry = RuleRegistry()
+    registry.clear()
+    _register(
+        registry,
+        "sample.waits_for_ui",
+        ["lib/features/*/presentation/**/*.dart"],
+        targets_pending="presentation",
+    )
+
+    violations = RuleRunner(rule_registry=registry).run(tmp_path)
+
+    assert [(v.rule_id, v.severity) for v in violations] == [
+        (RULE_TARGETS_PENDING_ID, "info")
+    ]
+    assert "sample.waits_for_ui" in violations[0].message
+    assert "presentation" in violations[0].message
+    registry.clear()
+
+
+def test_pending_rule_that_gained_targets_reports_a_stale_declaration(tmp_path: Path) -> None:
+    screen = tmp_path / "lib" / "features" / "deck" / "presentation" / "screens" / "deck_screen.dart"
+    screen.parent.mkdir(parents=True)
+    screen.write_text("class DeckScreen {}\n", encoding="utf-8")
+    registry = RuleRegistry()
+    registry.clear()
+    _register(
+        registry,
+        "sample.waits_for_ui",
+        ["lib/features/*/presentation/**/*.dart"],
+        targets_pending="presentation",
+    )
+
+    violations = RuleRunner(rule_registry=registry).run(tmp_path)
+
+    assert [(v.rule_id, v.severity) for v in violations] == [
+        (STALE_TARGETS_PENDING_ID, "warning")
+    ]
+    assert "sample.waits_for_ui" in violations[0].message
+    registry.clear()
+
+
+def test_pending_rule_does_not_report_its_missing_literal_path(tmp_path: Path) -> None:
+    registry = RuleRegistry()
+    registry.clear()
+    _register(
+        registry,
+        "sample.waits_for_arb",
+        ["lib/l10n/app_en.arb"],
+        targets_pending="l10n",
+    )
+
+    violations = RuleRunner(rule_registry=registry).run(tmp_path)
+
+    assert [v.rule_id for v in violations] == [RULE_TARGETS_PENDING_ID]
+    registry.clear()
+
+
+def test_undeclared_rule_next_to_a_pending_one_still_warns(tmp_path: Path) -> None:
+    registry = RuleRegistry()
+    registry.clear()
+    _register(
+        registry,
+        "sample.waits_for_ui",
+        ["lib/features/*/presentation/**/*.dart"],
+        targets_pending="presentation",
+    )
+    _register(registry, "sample.dead_rule", ["lib/data/sync/**/*.dart"])
+
+    violations = RuleRunner(rule_registry=registry).run(tmp_path)
+
+    assert sorted((v.rule_id, v.severity) for v in violations) == [
+        (RULE_TARGETS_PENDING_ID, "info"),
+        (RULE_WITHOUT_TARGETS_ID, "warning"),
+    ]
     registry.clear()

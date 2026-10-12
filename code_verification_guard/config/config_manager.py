@@ -748,7 +748,24 @@ class ConfigManager:
         if ConfigKeys.MAX_LINES in rule and not isinstance(rule[ConfigKeys.MAX_LINES], int):
             raise ValueError(f"Rule field '{ConfigKeys.MAX_LINES}' must be a number in {path}")
 
+        self._validate_targets_pending(rule, path)
         self._validate_fix(rule, path)
+
+    def _validate_targets_pending(self, rule: dict, path: Path) -> None:
+        """Validate the optional name of the layer a rule is waiting for."""
+        # Rules without the declaration are expected to have targets now.
+        if ConfigKeys.TARGETS_PENDING not in rule:
+            return
+
+        pending_layer = rule[ConfigKeys.TARGETS_PENDING]
+
+        # The value names the awaited layer, so it must be a non-empty string.
+        if isinstance(pending_layer, str) and pending_layer.strip():
+            return
+
+        raise ValueError(
+            f"Rule field '{ConfigKeys.TARGETS_PENDING}' must be a non-empty string in {path}"
+        )
 
     def _validate_string_list(self, rule: dict, key: str, path: Path) -> None:
         """Validate an optional string list field."""
