@@ -1,0 +1,97 @@
+# MemoX V8 guard rules — domain: testing
+#
+# A disabled test is worse than a missing one: the count still goes up and the
+# suite still reports green, so nobody notices the coverage is gone.
+version: 1
+metadata:
+  id: memox-v8-testing
+  name: MemoX V8 Testing Rules
+  description: Test hygiene — no silently disabled or focused tests.
+  owner: memox-v8
+rules:
+  - id: memox.testing.no_skipped_test
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      A skipped test still counts as a passing suite, so the lost coverage is
+      invisible. Fix it or delete it; if it must stay, say why on the same line
+      and link the Linear issue (DEV-n).
+    scopes:
+      - test_files
+    patterns:
+      - '\bskip\s*:\s*true'
+      - "\\bskip\\s*:\\s*'"
+    tags:
+      - memox
+      - testing
+
+  - id: memox.testing.no_focused_test
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      A focused test (`solo: true`) silently disables every other test in the
+      file. Never commit one.
+    scopes:
+      - test_files
+    patterns:
+      - '\bsolo\s*:\s*true'
+    tags:
+      - memox
+      - testing
+
+  # The `flutter-testing` skill: a widget test covers dark mode and the states
+  # at the default text scale; large text is not a design target (PRODUCT.md,
+  # 2026-09-30).
+  - id: memox.testing.no_real_clock_in_test
+    type: regex
+    severity: warning
+    enabled: true
+    message: >-
+      `DateTime.now()` in a test makes it depend on when it runs — the classic
+      source of a suite that fails once a month at midnight. Pass a fixed instant.
+    scopes:
+      - test_files
+    patterns:
+      # Anchored at line start and required to reach the call without passing a
+      # `//`, so a comment that *names* it is not a violation. A doc comment
+      # explaining why the clock is injected tripped this rule — the same defect
+      # class as a guard that passes because it scanned nothing: what the rule
+      # measures has to be the code, not the prose about the code.
+      #
+      # Line comments only. A `/* */` block or a string literal holding the call
+      # would still match; excluding those correctly means most of a lexer, so
+      # this is the cheap 95% and not a claim of completeness.
+      - ^(?:(?!//)[^\n])*\bDateTime\s*\.\s*now\s*\(
+    tags:
+      - memox
+      - testing
+
+  # ---- MX-VIS-001 · production screen requires a strict visual audit -------
+  #
+  # Split across two enforcers on purpose.
+  #
+  # The guard reads one file at a time, so it owns what a single companion file
+  # must not contain: a skip. The other half — "for every screen in lib, a
+  # companion exists and runs `auditProductionScreen` on that screen" — is a
+  # question about two trees at once and lives in
+  # `test/visual_audit/screens/screen_audit_coverage_test.dart`.
+  #
+  # The rule below is a POSITIVE match. A negative-lookahead over a whole file
+  # fires on everything, because `.` does not cross newlines.
+  - id: memox.visual.production_screen_audit_not_skipped
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      MX-VIS-001 — a skipped visual audit still counts as a passing suite, so the
+      lost coverage is invisible. Fix it, or delete the screen it covers.
+    include:
+      - test/visual_audit/screens/**/*_visual_audit_test.dart
+    patterns:
+      - 'skip\s*:\s*true'
+    tags:
+      - memox
+      - visual
+      - screens

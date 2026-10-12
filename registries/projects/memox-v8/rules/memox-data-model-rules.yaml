@@ -1,0 +1,198 @@
+# MemoX V8 guard rules — domain: data_model
+#
+# These encode the memox invariants that are cheap to violate and expensive to
+# discover. BR-DECK-003 is the headline: COALESCE(parent_id, id) LOOKS like it
+# resolves the root deck and does so correctly for a two-level tree — it returns
+# the wrong deck from the third level down. Every test written against a shallow
+# fixture passes. Only a real user with a nested deck finds it.
+version: 1
+metadata:
+  id: memox-v8-data-model
+  name: MemoX V8 Data Model Rules
+  description: Deck-tree, scheduler and review-history invariants of V8.
+  owner: memox-v8
+rules:
+  - id: memox.data_model.no_coalesce_parent_id
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      BR-DECK-003 — never resolve a root deck with `COALESCE(parent_id, id)`.
+      It returns the level-2 deck at depth 3 and every shallow-fixture test
+      still passes. Use `deck.root_id`.
+    scopes:
+      - dart_source
+      - drift_sql_files
+    # SQL in any case, in a `.drift` file or a Dart string, and Drift's
+    # `coalesce([deck.parentId, …])`. A comment line that quotes the form is
+    # prose: `srs_queries.drift` says why it joins on `root_id` in these words.
+    patterns:
+      - '^(?!\s*(?://|\*|--)).*\b(?i:coalesce)\s*\(\s*\[?\s*(?:[A-Za-z_][A-Za-z0-9_]*\.)?(?:parent_id|parentId)\b'
+    tags:
+      - memox
+      - data-model
+      - correctness
+    fix:
+      hint: Join on `deck.root_id`, which every deck carries (BR-DECK-003).
+
+  # Scheduling is a pure function of its inputs, or the whole matrix of box x
+  # action becomes untestable.
+  - id: memox.data_model.scheduler_no_ambient_now
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Domain code must not read the ambient clock. `now` is passed in,
+      so behaviour is testable at a fixed instant; for the scheduler this is what
+      makes the full 8-box x action matrix deterministic.
+    scopes:
+      - domain_files
+    patterns:
+      - \bDateTime\s*\.\s*now\s*\(
+      - \bclock\s*\.\s*now\s*\(
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # "Due" must mean the same thing in every query, and a hardcoded
+  # CURRENT_TIMESTAMP makes a query untestable at a fixed point in time.
+  - id: memox.data_model.drift_no_current_timestamp
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      Use a `:now` parameter instead of `CURRENT_TIMESTAMP` in SQL — in .drift
+      files and in raw SQL passed to customStatement/customSelect alike — so
+      "due" is testable at a fixed instant and means the same thing everywhere.
+    scopes:
+      - dart_source
+      - drift_sql_files
+    patterns:
+      - \bCURRENT_TIMESTAMP\b
+      - "\\bdatetime\\s*\\(\\s*'now'"
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # BR-SRS-015: a turn's kind is stored when the turn is written, never inferred
+  # by comparing the state before and after it. A scheduled turn on a box-8
+  # card answered `remembered` has `previous_box == next_box == 8` and would
+  # read as relearning, and history written with the wrong label cannot be
+  # recomputed later. A kind decided from the session (BR-SRS-016, BR-SRS-017)
+  # compares no states and stays legal.
+  - id: memox.data_model.review_kind_not_inferred
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      BR-SRS-015 — a turn's `kind` is stored, never inferred. Deriving it from a
+      box or interval comparison is wrong for a scheduled turn on a box-8 card,
+      and mislabelled history cannot be recomputed later.
+    scopes:
+      - dart_lib
+    # `kind` or any `…Kind` given a value (`:` or a single `=`) from a
+    # comparison of the boxes or the interval. A comment line that quotes the
+    # inference is prose.
+    patterns:
+      - '^(?!\s*(?://|\*)).*\b(?:kind|[A-Za-z_][A-Za-z0-9_]*Kind)\s*(?::|=(?!=))[^;]*\b(?:previousBox|nextBox|currentBox|intervalDays)\s*[!=]='
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # ADR-004: a reset starts a new generation of a deck's schedules and keeps
+  # every card's content. That holds while `card` keeps the content and
+  # `card_schedule` the schedule: a schedule column on `card` is content a
+  # reset would have to touch.
+  - id: memox.data_model.no_schedule_columns_on_card_table
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      `card` holds content only; the schedule lives in `card_schedule`
+      (`generation`, `due_at`, `current_box`, `ease_factor`, …). Content must
+      survive every reset (ADR-004).
+    scopes:
+      - dart_source
+      - drift_sql_files
+    # A column is a line of the table's body that starts with its name, and the
+    # body runs to the line that closes the table, not to the first `;`: a
+    # comment inside the table may hold one. `(?:(?!\n\)).)*?` takes each
+    # character one way, so a table with no schedule column fails fast; an
+    # alternation such as `(?:[^;]|\n)*` gives every newline two ways to be
+    # consumed and backtracks exponentially.
+    patterns:
+      - '(?s)CREATE\s+TABLE\s+card\s*\((?:(?!\n\)).)*?\n\s*(?:generation|learned_at|due_at|last_answered_at|answer_count|lapse_count|current_box|ease_factor|interval_days|repetitions|scheduler_type|scheduler_version)\s+\w'
+    mode: file
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # ADR-003: the two schedulers have different action sets, and the UI renders
+  # the buttons from the deck's scheduler. Hardcoding sm2's four is wrong for
+  # every eight_box deck.
+  - id: memox.data_model.review_actions_from_supported_actions
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      ADR-003 — render review buttons from the scheduler's `supportedActions`.
+      `eight_box` has two actions and `sm2` has four; a hardcoded set is wrong
+      for every deck of the other scheduler.
+    scopes:
+      - presentation_files
+    # A set written out: the values side by side with nothing but commas
+    # between them, on one line or over several. A `switch` that maps each
+    # action to its label puts `=>` between them and stays legal, and a list
+    # that starts on a comment line is prose.
+    patterns:
+      - '^(?![ \t]*(?://|\*))[^\n]*?Sm2Action\.again\s*,\s*Sm2Action\.hard\s*,\s*Sm2Action\.good\s*,\s*Sm2Action\.easy\b'
+      - '^(?![ \t]*(?://|\*))[^\n]*?EightBoxAction\.forgotten\s*,\s*EightBoxAction\.remembered\b'
+    mode: file
+    tags:
+      - memox
+      - data-model
+      - correctness
+
+  # ADR-020: every query lives in a `.drift` file and the DAO, a
+  # @DriftAccessor, calls what Drift generates from it. A SQL string and a
+  # builder chain are both off the convention. The builder stays only to build
+  # an Expression for a `$predicate` / `$order` placeholder, which no pattern
+  # here matches. The scope carries the exceptions; a PRAGMA is allowed
+  # anywhere. Patterns are line-anchored with this file's comment exemption.
+  # A builder call is caught three ways because a chain splits across lines:
+  # on a database receiver, bare inside an accessor (a lowercase table
+  # argument, bare or on `attachedDatabase.` / `this.` / `db.`, which keeps a
+  # `delete(String key)` declaration legal), or as a `.into(` / `.select(`
+  # link whose argument is a database table. A `batch(` that ends its line is
+  # the shape `dart format` gives a multi-line batch.
+  - id: memox.data_model.queries_in_drift
+    type: regex
+    severity: error
+    enabled: true
+    message: >-
+      ADR-020 — write the query in a `.drift` file under
+      lib/core/database/queries/ and call the method Drift generates on the
+      DAO (a @DriftAccessor). No SQL in a Dart string, no
+      select/selectOnly/update/delete/into/join/batch builder chain; the
+      builder only builds an Expression for `$predicate` / `$order`.
+    scopes:
+      - drift_query_sites
+    patterns:
+      - '^(?!\s*(?://|\*)).*\bcustom(?:Select|Update|Insert|Statement|WriteReturning)\s*\((?!\s*''PRAGMA)'
+      - '^(?!\s*(?://|\*)).*\b(?:_db|db|attachedDatabase)\s*\.\s*(?:select|selectOnly|update|delete|into)\s*\('
+      - '^(?!\s*(?://|\*)).*(?<![\w$.])(?:select|selectOnly|update|delete|into)\s*\(\s*(?:(?:(?:attachedDatabase|this|_?db)\.)?[a-z_]\w*\s*[,)]|$)'
+      - '^(?!\s*(?://|\*)).*\.(?:select|selectOnly|update|delete|into)\s*\(\s*(?:_db|db|attachedDatabase)\.'
+      - '^(?!\s*(?://|\*)).*\.join\s*\(\s*\['
+      - '^(?!\s*(?://|\*)).*\bbatch\s*\(\s*(?:\(|$)'
+    tags:
+      - memox
+      - data-model
+      - convention
+    fix:
+      hint: >-
+        Add a named query to the topic's `.drift` file, include that file in
+        the DAO's @DriftAccessor, and call the generated method (ADR-020).

@@ -57,19 +57,19 @@ python -m pip install -r requirements.txt
 Chạy một project-specific ruleset từ thư mục guard đã vendor:
 
 ```powershell
-python guard\run.py check --project . --ruleset memox
+python guard\run.py check --project . --ruleset memox-v8
 ```
 
 Chạy với profile override:
 
 ```powershell
-python guard\run.py check --project . --ruleset memox --profile ci
+python guard\run.py check --project . --ruleset memox-v8 --profile ci
 ```
 
 In các resolved ruleset load paths:
 
 ```powershell
-python guard\run.py check --project . --ruleset memox --debug
+python guard\run.py check --project . --ruleset memox-v8 --debug
 ```
 
 Output thành công có dạng:
@@ -135,10 +135,10 @@ Giá trị CLI `--ruleset` trỏ tới một ruleset-local bundle dưới:
 registries/projects/<ruleset>/
 ```
 
-Ví dụ, `--ruleset memox` sẽ nạp:
+Ví dụ, `--ruleset memox-v8` sẽ nạp:
 
 ```text
-registries/projects/memox/guard-manifest.yaml
+registries/projects/memox-v8/guard-manifest.yaml
 ```
 
 Ruleset-local manifest đó có thể chọn các shared bundle từ root
@@ -427,7 +427,7 @@ python -m compileall -q code_verification_guard
 Để verify MemoX ruleset từ MemoX repository root:
 
 ```powershell
-python code-verification-guard\guard\run.py check --project . --ruleset memox
+python code-verification-guard-v2\guard\run.py check --project . --ruleset memox-v8
 ```
 
 ## Đóng Gói Source Bundle
@@ -457,7 +457,7 @@ Không đưa generated cache và build output vào bundle.
 Hãy truyền ruleset rõ ràng:
 
 ```powershell
-python guard\run.py check --project . --ruleset memox
+python guard\run.py check --project . --ruleset memox-v8
 ```
 
 Tên được yêu cầu phải tồn tại dưới `registries/projects/<ruleset>/`.

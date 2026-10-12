@@ -33,7 +33,21 @@ rules:
     scopes:
       - source_files
     patterns:
-      - "^\\s*(#|//)\\s*(if|for|while|return|class|def|function|const|let|var|final|public|private|protected)\\b"
+      # A keyword on its own is not code. The pattern here used to be one
+      # alternation of bare words followed by `\b`, so the wrapped prose comment
+      # `// for this assertion.` was reported as commented-out code — the rule
+      # punished explaining things, which is the opposite of what it is for.
+      #
+      # Each alternative now requires the syntax that actually follows the keyword
+      # in code: a paren, a terminating `;`, an identifier, an assignment. Real
+      # commented-out code has all of that; a sentence that happens to start with
+      # "for" or "return" has none of it.
+      - "^\\s*(#|//)\\s*(if|for|while|switch|catch)\\s*\\("
+      - "^\\s*(#|//)\\s*return\\b[^\\n]*;"
+      - "^\\s*(#|//)\\s*(class|def|function|fn)\\s+\\w+"
+      - "^\\s*(#|//)\\s*(const|let|var|final)\\s+\\w+\\s*[=;]"
+      - "^\\s*(#|//)\\s*(public|private|protected)\\s+\\w+\\s+\\w+"
+      - "^\\s*(#|//)\\s*\\w+\\s*=\\s*[^=\\n]+;\\s*$"
     tags:
       - common
       - convention

@@ -7,6 +7,7 @@ from threading import Lock
 from code_verification_guard.constants.rule_types import RuleType
 from code_verification_guard.matchers.base_matcher import BaseMatcher
 from code_verification_guard.matchers.file_name_matcher import FileNameMatcher
+from code_verification_guard.matchers.file_path_matcher import FilePathMatcher
 from code_verification_guard.matchers.forbidden_import_matcher import ForbiddenImportMatcher
 from code_verification_guard.matchers.if_comment_matcher import IfCommentMatcher
 from code_verification_guard.matchers.max_build_lines_matcher import MaxBuildLinesMatcher
@@ -40,6 +41,7 @@ class MatcherRegistry:
         self._matcher_classes: dict[str, type[BaseMatcher]] = {
             RuleType.REGEX: RegexMatcher,
             RuleType.FILE_NAME: FileNameMatcher,
+            RuleType.FILE_PATH: FilePathMatcher,
             RuleType.MAX_LINES: MaxLinesMatcher,
             RuleType.MAX_BUILD_LINES: MaxBuildLinesMatcher,
             RuleType.FORBIDDEN_IMPORT: ForbiddenImportMatcher,

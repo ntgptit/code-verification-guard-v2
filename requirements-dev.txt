@@ -1,0 +1,8 @@
+# Test-only dependencies for the vendored guard's own suite.
+#
+# Kept apart from requirements.txt on purpose: that file is what a caller
+# installs to *run* the guard, and a runtime install has no business pulling a
+# test runner. CI installs both in the `static` job because it does both jobs
+# there — runs the probes, then runs the guard.
+-r requirements.txt
+pytest==9.0.2

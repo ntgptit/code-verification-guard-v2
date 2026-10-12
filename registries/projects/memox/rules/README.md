@@ -1,5 +1,10 @@
 # MemoX Guard Rule Registry
 
+> **Chỉ dùng cho test của guard.** Ruleset `memox` viết cho cây layer-first
+> (`lib/presentation/features/**`), không áp dụng cho repo memox-v8: chạy nó ở đây thì
+> mọi rule không khớp file nào. Ruleset của repo này là `memox-v8`
+> ([README](../../memox-v8/rules/README.md)).
+
 Thư mục này chứa toàn bộ rule của `code-verification-guard` cho project MemoX, **tách theo nghiệp vụ (domain)**: mỗi file một domain, mỗi rule một ID theo convention thống nhất.
 
 ## Quy ước đặt ID
@@ -38,6 +43,7 @@ Muốn biết một rule nằm ở file nào: nhìn segment `<domain>` trong ID 
 | `memox-shared-widget-rules.yaml` | `shared_widget` | Contract widget Mx*: tên file `mx_*`, public type `Mx*`, không app wiring, build bị giới hạn |
 | `memox-shared-widget-doc-rules.yaml` | `shared_widget_doc` | Dart-doc bắt buộc cho shared widget (Purpose / Use when / Category / Public API) |
 | `memox-hooks-rules.yaml` | `hooks` | Hooks chỉ ở presentation, custom hook prefix `useMx`, dùng shared hooks |
+| `memox-layer-naming-rules.yaml` | `layer_naming` | Hậu tố tên file và tên class theo layer (use case, repository interface, …) gắn với thư mục của layer |
 | `memox-ui-async-guard-rules.yaml` | `ui_async_guard` | Race-guard async trong State: `if (!mounted) return;` đứng riêng, `_snapshot` record |
 | `memox-action-density-rules.yaml` | `action_density` | Mật độ action trên card/list/dashboard: không button large/full-width |
 | `memox-study-rules.yaml` | `study` | Ranh giới domain feature Study (Guess sampling, SRS interval/box logic ở một nguồn duy nhất) |

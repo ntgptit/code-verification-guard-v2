@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from textwrap import dedent
 
@@ -455,9 +456,15 @@ def test_ruleset_runtime_exposes_load_info(tmp_path: Path):
     assert load_info["ruleset_root"] == str(
         tool_root / "registries" / "projects" / "memox"
     )
-    assert load_info["manifest"].endswith("registries\\projects\\memox\\guard-manifest.yaml")
+    # Built with os.sep, not a hardcoded '\\': the load-info paths use the host
+    # separator, so a literal Windows suffix passed only on Windows and failed
+    # every Linux CI run. This is the same defect the guard exists to prevent —
+    # a check that is really a platform assumption — so the test is now portable.
+    assert load_info["manifest"].endswith(
+        os.path.join("registries", "projects", "memox", "guard-manifest.yaml")
+    )
     assert load_info["config"][ConfigKeys.SCOPES].endswith(
-        "registries\\projects\\memox\\config\\scopes.yaml"
+        os.path.join("registries", "projects", "memox", "config", "scopes.yaml")
     )
     assert load_info["ruleset_registries"] == [
         str(
@@ -511,3 +518,27 @@ def test_missing_ruleset_manifest_reports_manifest_path(tmp_path: Path):
 
     with pytest.raises(FileNotFoundError, match="guard-manifest.yaml not found"):
         manager.load_ruleset_runtime(tmp_path / "project", "memox")
+
+
+def test_targets_pending_from_rule_options_reaches_the_final_rule(tmp_path: Path):
+    write_yaml(tmp_path / "registries" / "rules.yaml", registry_yaml("sample.waiting"))
+    config = project_config(registries=["registries/rules.yaml"])
+    config[ConfigKeys.OVERRIDES][ConfigKeys.RULE_OPTIONS] = {
+        "sample.waiting": {ConfigKeys.TARGETS_PENDING: "presentation"},
+    }
+
+    rules = ConfigManager().load_rule_definitions(tmp_path, config, profile_config())
+
+    assert rules[0][ConfigKeys.TARGETS_PENDING] == "presentation"
+
+
+@pytest.mark.parametrize("bad_value", ["", "   ", 3, ["presentation"]])
+def test_targets_pending_must_name_a_layer(tmp_path: Path, bad_value: object):
+    write_yaml(tmp_path / "registries" / "rules.yaml", registry_yaml("sample.waiting"))
+    config = project_config(registries=["registries/rules.yaml"])
+    config[ConfigKeys.OVERRIDES][ConfigKeys.RULE_OPTIONS] = {
+        "sample.waiting": {ConfigKeys.TARGETS_PENDING: bad_value},
+    }
+
+    with pytest.raises(ValueError, match="targets_pending"):
+        ConfigManager().load_rule_definitions(tmp_path, config, profile_config())
